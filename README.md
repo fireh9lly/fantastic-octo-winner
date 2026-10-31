@@ -1,7 +1,8 @@
 # Claude Usage for CrossMux
 
 A [CrossMux](https://github.com/0x1abin/crossmux) app that shows your Claude
-plan usage on the e-ink reader:
+plan usage on an e-ink device. It was built for the **Seeed reTerminal Sticky**
+and works on any CrossMux target:
 
 - **Current session**: the rolling 5-hour window. Shows the percent used, a bar,
   and "Resets in 2h 14m · 15:00".
@@ -27,13 +28,14 @@ These are the same numbers Claude Code's `/usage` screen shows.
 │                                  │
 │          Updated 14:03           │
 ├──────────────────────────────────┤
-│  Back   Refresh                  │
+│        [     Refresh     ]       │
 └──────────────────────────────────┘
 ```
 
-Confirm refreshes. While the app is open it also refreshes on its own every 5
-minutes. Back returns to Apps, and Wi-Fi is turned off again if the app turned
-it on.
+On the Sticky, tap **Refresh** to refresh and swipe back to return to Apps.
+On boards with buttons, Confirm and Back do the same. While the app is open it
+also refreshes on its own every 5 minutes. Wi-Fi is turned off again on exit if
+the app turned it on.
 
 ## What's in this repo
 
@@ -50,7 +52,7 @@ it on.
 git clone --recursive https://github.com/0x1abin/crossmux
 cd crossmux
 git am /path/to/fantastic-octo-winner/patches/0001-Add-Claude-Usage-app.patch
-pio run -e default -t upload        # X3/X4. Pick your board's env from platformio.ini
+pio run -e sticky -t upload         # reTerminal Sticky (other boards: see platformio.ini)
 ```
 
 The app shows up in **Apps** as "Claude Usage" and is visible by default. You can
@@ -104,7 +106,7 @@ itself. The catch is the token:
 
 | Message | Meaning |
 |---|---|
-| No Claude token found | `/claude-usage.json` is missing or empty. Add it, then press Retry. |
+| No Claude token found | `/claude-usage.json` is missing or empty. Add it, then tap Retry. |
 | Token rejected | HTTP 401/403. The token expired, has the wrong scope, or the relay key is wrong. |
 | Server returned an error · HTTP 503 | The relay can't read Claude Code's login. Run `relay … --check` on the computer to see why. |
 | Could not reach the server | DNS, TLS or connection failure. Check the relay URL and that both devices are on the same network. |
@@ -118,8 +120,12 @@ the error replaces the "Updated" footer.
 - Host unit tests for the parser: ISO-8601 timestamps with offsets and fractions,
   `null` windows, integer vs float percentages, bare-token config, duration
   formatting, and bar clamping.
-- The patch applies cleanly to CrossMux `main` (`6b5566c`). A full firmware build
-  was still running when this was committed. The result will follow in a later commit.
+- The patch applies cleanly to CrossMux `main` (`6b5566c`).
+- A full firmware build succeeds for `x4pro`, which uses the same ESP32-S3 family as
+  the Sticky, with no compiler warnings in the new code. The `sticky` env itself
+  could not be built in the sandbox: its tuned core fetches ESP-IDF components
+  from Espressif's registry, which the sandbox network blocks. On a normal
+  machine, `pio run -e sticky` will do that download itself.
 - Relay smoke test: wrong key gives 401, a missing Claude login gives 503 with a
   reason, and an unknown path gives 404.
 - **Not yet tested on a physical reader or against a live Claude account.**

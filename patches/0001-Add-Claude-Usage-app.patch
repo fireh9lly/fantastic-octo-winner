@@ -1,4 +1,4 @@
-From 63e2a04a83d64983ceb34f147dc5f920b4b32f2d Mon Sep 17 00:00:00 2001
+From 6f58bc010d1cd851cdd47570c014702839a5d369 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Sat, 31 Oct 2026 19:02:55 +0000
 Subject: [PATCH] Add Claude Usage app
@@ -13,7 +13,7 @@ token or relay URL from /claude-usage.json on the SD card.
  src/activities/ActivityManager.h              |   1 +
  src/activities/apps/AppsMenuActivity.cpp      |   1 +
  src/activities/apps/README.md                 |   5 +-
- .../apps/claude-usage/ClaudeUsageActivity.cpp | 508 ++++++++++++++++++
+ .../apps/claude-usage/ClaudeUsageActivity.cpp | 515 ++++++++++++++++++
  .../apps/claude-usage/ClaudeUsageActivity.h   |  76 +++
  .../apps/claude-usage/ClaudeUsageData.cpp     | 174 ++++++
  .../apps/claude-usage/ClaudeUsageData.h       |  69 +++
@@ -23,7 +23,7 @@ token or relay URL from /claude-usage.json on the SD card.
  src/components/themes/BaseTheme.h             |   1 +
  src/components/themes/lyra/LyraTheme.cpp      |   3 +
  test/inx_navigation/InxNavigationTest.cpp     |   6 +-
- 16 files changed, 953 insertions(+), 5 deletions(-)
+ 16 files changed, 960 insertions(+), 5 deletions(-)
  create mode 100644 src/activities/apps/claude-usage/ClaudeUsageActivity.cpp
  create mode 100644 src/activities/apps/claude-usage/ClaudeUsageActivity.h
  create mode 100644 src/activities/apps/claude-usage/ClaudeUsageData.cpp
@@ -146,10 +146,10 @@ index 068ec6c..07986a1 100644
  
 diff --git a/src/activities/apps/claude-usage/ClaudeUsageActivity.cpp b/src/activities/apps/claude-usage/ClaudeUsageActivity.cpp
 new file mode 100644
-index 0000000..49aae65
+index 0000000..d177eff
 --- /dev/null
 +++ b/src/activities/apps/claude-usage/ClaudeUsageActivity.cpp
-@@ -0,0 +1,508 @@
+@@ -0,0 +1,515 @@
 +#include "ClaudeUsageActivity.h"
 +
 +#include <Arduino.h>
@@ -430,20 +430,24 @@ index 0000000..49aae65
 +    return;
 +  }
 +
++  // Touch-only boards (e.g. Seeed Sticky) have no Confirm key: the on-screen
++  // button drives Retry/Refresh, and the back swipe arrives as Button::Back.
++  bool pressed = mappedInput.wasReleased(MappedInputManager::Button::Confirm);
++  if (!pressed && mappedInput.hasTouch()) {
++    const Rect button = refreshButtonRect();
++    pressed = mappedInput.wasTapInRect(button.x, button.y, button.width, button.height);
++  }
++
 +  if (state_ == State::NoConfig) {
 +    // Let the user drop the file in via USB/web transfer and retry without leaving.
-+    if (mappedInput.wasReleased(MappedInputManager::Button::Confirm)) {
++    if (pressed) {
 +      if (loadConfig()) requestRefresh();
 +      requestUpdate();
 +    }
 +    return;
 +  }
 +
-+  bool refresh = mappedInput.wasReleased(MappedInputManager::Button::Confirm);
-+  if (!refresh && mappedInput.hasTouch()) {
-+    const Rect button = refreshButtonRect();
-+    refresh = mappedInput.wasTapInRect(button.x, button.y, button.width, button.height);
-+  }
++  bool refresh = pressed;
 +  if (!refresh && state_ == State::Ready && problem_ == Problem::None && isConnected() &&
 +      millis() - fetchedAtMs_ >= kAutoRefreshMs) {
 +    refresh = true;
@@ -578,7 +582,7 @@ index 0000000..49aae65
 +void ClaudeUsageActivity::render(RenderLock&&) {
 +  const auto& metrics = UITheme::getInstance().getMetrics();
 +  const Rect safe = UITheme::getInstance().getScreenSafeArea(renderer, true, false);
-+  const bool touch = mappedInput.hasTouch() && state_ != State::NoConfig && state_ != State::Fetching;
++  const bool touch = mappedInput.hasTouch() && state_ != State::Fetching;
 +  const int touchReserve = touch ? metrics.menuRowHeight + metrics.verticalSpacing : 0;
 +  const int contentTop = safe.y + metrics.topPadding + metrics.headerHeight + metrics.verticalSpacing;
 +  const Rect content{safe.x + metrics.contentSidePadding, contentTop,
@@ -649,7 +653,10 @@ index 0000000..49aae65
 +    }
 +  }
 +
-+  if (touch) GUI.drawActionButton(renderer, refreshButtonRect(), tr(STR_CLAUDE_USAGE_REFRESH));
++  if (touch) {
++    GUI.drawActionButton(renderer, refreshButtonRect(),
++                         state_ == State::NoConfig ? tr(STR_RETRY) : tr(STR_CLAUDE_USAGE_REFRESH));
++  }
 +
 +  if (state_ != State::Fetching) {
 +    const char* confirm = state_ == State::NoConfig ? tr(STR_RETRY) : tr(STR_CLAUDE_USAGE_REFRESH);

@@ -278,20 +278,24 @@ void ClaudeUsageActivity::loop() {
     return;
   }
 
+  // Touch-only boards (e.g. Seeed Sticky) have no Confirm key: the on-screen
+  // button drives Retry/Refresh, and the back swipe arrives as Button::Back.
+  bool pressed = mappedInput.wasReleased(MappedInputManager::Button::Confirm);
+  if (!pressed && mappedInput.hasTouch()) {
+    const Rect button = refreshButtonRect();
+    pressed = mappedInput.wasTapInRect(button.x, button.y, button.width, button.height);
+  }
+
   if (state_ == State::NoConfig) {
     // Let the user drop the file in via USB/web transfer and retry without leaving.
-    if (mappedInput.wasReleased(MappedInputManager::Button::Confirm)) {
+    if (pressed) {
       if (loadConfig()) requestRefresh();
       requestUpdate();
     }
     return;
   }
 
-  bool refresh = mappedInput.wasReleased(MappedInputManager::Button::Confirm);
-  if (!refresh && mappedInput.hasTouch()) {
-    const Rect button = refreshButtonRect();
-    refresh = mappedInput.wasTapInRect(button.x, button.y, button.width, button.height);
-  }
+  bool refresh = pressed;
   if (!refresh && state_ == State::Ready && problem_ == Problem::None && isConnected() &&
       millis() - fetchedAtMs_ >= kAutoRefreshMs) {
     refresh = true;
@@ -426,7 +430,7 @@ void ClaudeUsageActivity::drawCompactWindow(const int x, const int y, const int 
 void ClaudeUsageActivity::render(RenderLock&&) {
   const auto& metrics = UITheme::getInstance().getMetrics();
   const Rect safe = UITheme::getInstance().getScreenSafeArea(renderer, true, false);
-  const bool touch = mappedInput.hasTouch() && state_ != State::NoConfig && state_ != State::Fetching;
+  const bool touch = mappedInput.hasTouch() && state_ != State::Fetching;
   const int touchReserve = touch ? metrics.menuRowHeight + metrics.verticalSpacing : 0;
   const int contentTop = safe.y + metrics.topPadding + metrics.headerHeight + metrics.verticalSpacing;
   const Rect content{safe.x + metrics.contentSidePadding, contentTop,
@@ -497,7 +501,10 @@ void ClaudeUsageActivity::render(RenderLock&&) {
     }
   }
 
-  if (touch) GUI.drawActionButton(renderer, refreshButtonRect(), tr(STR_CLAUDE_USAGE_REFRESH));
+  if (touch) {
+    GUI.drawActionButton(renderer, refreshButtonRect(),
+                         state_ == State::NoConfig ? tr(STR_RETRY) : tr(STR_CLAUDE_USAGE_REFRESH));
+  }
 
   if (state_ != State::Fetching) {
     const char* confirm = state_ == State::NoConfig ? tr(STR_RETRY) : tr(STR_CLAUDE_USAGE_REFRESH);
