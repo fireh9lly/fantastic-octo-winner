@@ -1,0 +1,1182 @@
+From 63e2a04a83d64983ceb34f147dc5f920b4b32f2d Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 31 Oct 2026 19:02:55 +0000
+Subject: [PATCH] Add Claude Usage app
+
+Shows Claude plan usage (current 5-hour session and weekly limit, plus
+per-model weekly limits when reported) with reset countdowns. Reads a
+token or relay URL from /claude-usage.json on the SD card.
+---
+ lib/I18n/translations/english.yaml            |  21 +
+ src/AppVisibility.h                           |   3 +-
+ src/activities/ActivityManager.cpp            |   2 +
+ src/activities/ActivityManager.h              |   1 +
+ src/activities/apps/AppsMenuActivity.cpp      |   1 +
+ src/activities/apps/README.md                 |   5 +-
+ .../apps/claude-usage/ClaudeUsageActivity.cpp | 508 ++++++++++++++++++
+ .../apps/claude-usage/ClaudeUsageActivity.h   |  76 +++
+ .../apps/claude-usage/ClaudeUsageData.cpp     | 174 ++++++
+ .../apps/claude-usage/ClaudeUsageData.h       |  69 +++
+ src/activities/apps/claude-usage/README.md    |  50 ++
+ src/components/icons/claude_usage.h           |  14 +
+ src/components/icons/inx_apps.h               |  24 +
+ src/components/themes/BaseTheme.h             |   1 +
+ src/components/themes/lyra/LyraTheme.cpp      |   3 +
+ test/inx_navigation/InxNavigationTest.cpp     |   6 +-
+ 16 files changed, 953 insertions(+), 5 deletions(-)
+ create mode 100644 src/activities/apps/claude-usage/ClaudeUsageActivity.cpp
+ create mode 100644 src/activities/apps/claude-usage/ClaudeUsageActivity.h
+ create mode 100644 src/activities/apps/claude-usage/ClaudeUsageData.cpp
+ create mode 100644 src/activities/apps/claude-usage/ClaudeUsageData.h
+ create mode 100644 src/activities/apps/claude-usage/README.md
+ create mode 100644 src/components/icons/claude_usage.h
+
+diff --git a/lib/I18n/translations/english.yaml b/lib/I18n/translations/english.yaml
+index f65f6dd..ea5b22d 100644
+--- a/lib/I18n/translations/english.yaml
++++ b/lib/I18n/translations/english.yaml
+@@ -829,6 +829,27 @@ STR_AIRPAGE_SETTINGS_SAVE_FAILED: "Could not save AirPage settings"
+ STR_PIXEL_SWITCH_TITLE: "Pixel Switch"
+ STR_CALCULATOR_TITLE: "Calculator"
+ STR_CALCULATOR_ERROR: "Error"
++STR_CLAUDE_USAGE_TITLE: "Claude Usage"
++STR_CLAUDE_USAGE_SESSION: "Current session"
++STR_CLAUDE_USAGE_WEEKLY: "This week"
++STR_CLAUDE_USAGE_WEEKLY_OPUS: "Week · Opus"
++STR_CLAUDE_USAGE_WEEKLY_SONNET: "Week · Sonnet"
++STR_CLAUDE_USAGE_RESETS_IN: "Resets in"
++STR_CLAUDE_USAGE_RESETS_AT: "Resets"
++STR_CLAUDE_USAGE_NOT_STARTED: "No usage in this window yet"
++STR_CLAUDE_USAGE_UNAVAILABLE: "Not reported for this plan"
++STR_CLAUDE_USAGE_UPDATED: "Updated"
++STR_CLAUDE_USAGE_UPDATING: "Updating…"
++STR_CLAUDE_USAGE_REFRESH: "Refresh"
++STR_CLAUDE_USAGE_NO_CONFIG: "No Claude token found"
++STR_CLAUDE_USAGE_NO_CONFIG_HINT: "Put your token in this SD card file:"
++STR_CLAUDE_USAGE_ERR_WIFI: "Wi-Fi not connected"
++STR_CLAUDE_USAGE_ERR_MEMORY: "Not enough memory for HTTPS"
++STR_CLAUDE_USAGE_ERR_AUTH: "Token rejected"
++STR_CLAUDE_USAGE_ERR_AUTH_HINT: "Update the token in /claude-usage.json"
++STR_CLAUDE_USAGE_ERR_NETWORK: "Could not reach the server"
++STR_CLAUDE_USAGE_ERR_RESPONSE: "Unexpected response from server"
++STR_CLAUDE_USAGE_ERR_HTTP: "Server returned an error"
+ STR_PIXEL_SWITCH_RATE_LIMIT_FMT: "Cooldown %lus"
+ STR_PIXEL_SWITCH_CHOOSE_SHADE: "Choose shade"
+ STR_PIXEL_SWITCH_INTRO_SHARED: "The whole community, one shared canvas"
+diff --git a/src/AppVisibility.h b/src/AppVisibility.h
+index 3976e7d..39d9aa1 100644
+--- a/src/AppVisibility.h
++++ b/src/AppVisibility.h
+@@ -24,7 +24,8 @@ enum class AppId : uint8_t {
+   Calculator = 15,
+   Woodfish = 16,
+   Library = 17,
+-  Count = 18,
++  ClaudeUsage = 18,
++  Count = 19,
+ };
+ 
+ constexpr uint32_t appBit(const AppId id) { return uint32_t{1} << static_cast<uint8_t>(id); }
+diff --git a/src/activities/ActivityManager.cpp b/src/activities/ActivityManager.cpp
+index 645064b..57a2366 100644
+--- a/src/activities/ActivityManager.cpp
++++ b/src/activities/ActivityManager.cpp
+@@ -23,6 +23,7 @@
+ #include "apps/avatar/UglyAvatarActivity.h"
+ #include "apps/buddy/BuddyActivity.h"
+ #include "apps/calculator/CalculatorActivity.h"
++#include "apps/claude-usage/ClaudeUsageActivity.h"
+ #include "apps/sokoban/SokobanGameActivity.h"
+ #include "components/SubpageLayout.h"
+ #ifdef ENABLE_CHINESE_VERSION
+@@ -664,6 +665,7 @@ void ActivityManager::goToMinesweeper() { replaceActivityWith<MinesweeperMenuAct
+ void ActivityManager::goToPixelSwitch() { replaceActivityWith<PixelSwitchActivity>(); }
+ 
+ void ActivityManager::goToCalculator() { replaceActivityWith<CalculatorActivity>(); }
++void ActivityManager::goToClaudeUsage() { replaceActivityWith<ClaudeUsageActivity>(); }
+ 
+ void ActivityManager::goToWoodfish() { replaceActivityWith<WoodfishActivity>(); }
+ 
+diff --git a/src/activities/ActivityManager.h b/src/activities/ActivityManager.h
+index f0331ad..c9200dc 100644
+--- a/src/activities/ActivityManager.h
++++ b/src/activities/ActivityManager.h
+@@ -145,6 +145,7 @@ class ActivityManager {
+   void goToMinesweeper();
+   void goToPixelSwitch();
+   void goToCalculator();
++  void goToClaudeUsage();
+   void goToWoodfish();
+   void goToAirPage();
+   void goToBuddy();
+diff --git a/src/activities/apps/AppsMenuActivity.cpp b/src/activities/apps/AppsMenuActivity.cpp
+index d91bf0c..bd70e7f 100644
+--- a/src/activities/apps/AppsMenuActivity.cpp
++++ b/src/activities/apps/AppsMenuActivity.cpp
+@@ -50,6 +50,7 @@ constexpr AppEntry kAppEntries[] = {
+     {AppId::Buddy, StrId::STR_BUDDY_TITLE, UIIcon::Buddy, &ActivityManager::goToBuddy},
+     {AppId::PixelSwitch, StrId::STR_PIXEL_SWITCH_TITLE, UIIcon::PixelSwitch, &ActivityManager::goToPixelSwitch},
+     {AppId::Calculator, StrId::STR_CALCULATOR_TITLE, UIIcon::Calculator, &ActivityManager::goToCalculator},
++    {AppId::ClaudeUsage, StrId::STR_CLAUDE_USAGE_TITLE, UIIcon::ClaudeUsage, &ActivityManager::goToClaudeUsage},
+     {AppId::Woodfish, StrId::STR_WOODFISH_TITLE, UIIcon::Woodfish, &ActivityManager::goToWoodfish},
+     {AppId::Standby, StrId::STR_STANDBY_TITLE, UIIcon::Standby, &ActivityManager::goToStandby},
+ };
+diff --git a/src/activities/apps/README.md b/src/activities/apps/README.md
+index 068ec6c..07986a1 100644
+--- a/src/activities/apps/README.md
++++ b/src/activities/apps/README.md
+@@ -19,6 +19,7 @@ apps/
+ ├── chinese-chess/             # hidden by default
+ ├── minesweeper/
+ ├── woodfish/                  # electronic woodfish with lazy SD checkpointing
++├── claude-usage/              # Claude plan usage (session + weekly) over Wi-Fi
+ └── avatar/
+ ```
+ 
+@@ -100,8 +101,8 @@ values, and keep conditional-app IDs outside their `#ifdef`. New bits default to
+ Chess, Minesweeper, 2048, Ugly Avatar, Buddy, Sokoban, Pixel Switch, and Woodfish.
+ Existing masks are preserved except for the one-time Buddy migration from catalog version 0.
+ The menu, launcher, and App Visibility settings all read this same table; no `switch` or `buildItems()` is needed.
+-The visibility mask is 32-bit. `Calculator = 15` and `Woodfish = 16` are stable;
+-IDs 17 through 31 remain available.
++The visibility mask is 32-bit. `Calculator = 15`, `Woodfish = 16`, `Library = 17` and
++`ClaudeUsage = 18` are stable; IDs 19 through 31 remain available.
+ 
+ ### 4. Add the i18n key and icon
+ 
+diff --git a/src/activities/apps/claude-usage/ClaudeUsageActivity.cpp b/src/activities/apps/claude-usage/ClaudeUsageActivity.cpp
+new file mode 100644
+index 0000000..49aae65
+--- /dev/null
++++ b/src/activities/apps/claude-usage/ClaudeUsageActivity.cpp
+@@ -0,0 +1,508 @@
++#include "ClaudeUsageActivity.h"
++
++#include <Arduino.h>
++#include <GfxRenderer.h>
++#include <HalClock.h>
++#include <HalStorage.h>
++#include <I18n.h>
++#include <Logging.h>
++#include <Memory.h>
++#include <WiFi.h>
++#include <esp_wifi.h>
++
++#include <algorithm>
++#include <cstdio>
++#include <ctime>
++#include <string>
++
++#include "CrossPointSettings.h"
++#include "MappedInputManager.h"
++#include "NetworkStartup.h"
++#include "activities/apps/GameUi.h"
++#include "activities/network/WifiSelectionActivity.h"
++#include "components/UITheme.h"
++#include "fontIds.h"
++#include "network/HttpDownloader.h"
++#include "util/TimeUtils.h"
++
++namespace {
++
++// The usage document is ~600 bytes; cap the body so a misbehaving relay
++// cannot grow the heap. Parsing uses a filtered JsonDocument (a few hundred bytes).
++constexpr size_t kMaxBodyBytes = 8192;
++constexpr size_t kInitialBodyReserve = 1024;
++// The token file is tiny; refuse anything that is clearly not a config.
++constexpr size_t kMaxConfigBytes = 2048;
++
++constexpr int kBarHeight = 22;
++constexpr int kCompactBarHeight = 10;
++
++bool isConnected() { return WiFi.status() == WL_CONNECTED; }
++
++// "15:00" / "3:00 PM" for a UTC epoch in the configured timezone, optionally
++// prefixed with the ISO-style "MM-DD " date used elsewhere in CrossMux.
++bool formatLocal(const uint32_t epoch, const bool withDate, char* buffer, const size_t size) {
++  std::tm local{};
++  if (epoch == 0 || !TimeUtils::getLocalDateTime(epoch, local)) return false;
++  char clock[12];
++  if (SETTINGS.clockFormat == 1) {
++    const int hour12 = local.tm_hour % 12 == 0 ? 12 : local.tm_hour % 12;
++    snprintf(clock, sizeof(clock), "%d:%02d %s", hour12, local.tm_min, local.tm_hour < 12 ? "AM" : "PM");
++  } else {
++    snprintf(clock, sizeof(clock), "%02d:%02d", local.tm_hour, local.tm_min);
++  }
++  if (withDate) {
++    snprintf(buffer, size, "%02d-%02d %s", local.tm_mon + 1, local.tm_mday, clock);
++  } else {
++    snprintf(buffer, size, "%s", clock);
++  }
++  return true;
++}
++
++void formatPercent(const float utilization, char* buffer, const size_t size) {
++  const float shown = utilization < 0.0f ? 0.0f : utilization;
++  snprintf(buffer, size, "%d%%", static_cast<int>(shown + 0.5f));
++}
++
++}  // namespace
++
++void ClaudeUsageActivity::onEnter() {
++  Activity::onEnter();
++  snapshot_ = ClaudeUsageSnapshot{};
++  hasSnapshot_ = false;
++  problem_ = Problem::None;
++  lastHttpStatus_ = 0;
++  fetchedAtEpoch_ = 0;
++  fetchedAtMs_ = 0;
++  broughtWifiUp_ = false;
++  clockSyncTried_ = false;
++  waitForInputRelease_ = mappedInput.isPressed(MappedInputManager::Button::Confirm);
++
++  if (!loadConfig()) {
++    state_ = State::NoConfig;
++    requestUpdate();
++    return;
++  }
++  requestRefresh();
++}
++
++void ClaudeUsageActivity::onExit() {
++  teardownOwnedWifi();
++  // The token is a credential: do not leave it in a freed heap block.
++  memset(config_.token, 0, sizeof(config_.token));
++  Activity::onExit();
++}
++
++bool ClaudeUsageActivity::loadConfig() {
++  config_ = ClaudeUsageConfig{};
++  if (!Storage.exists(kConfigPath)) {
++    LOG_INF("CLAUDE", "No config at %s", kConfigPath);
++    return false;
++  }
++  std::string text;
++  if (!Storage.readFileToString("CLAUDE", kConfigPath, kMaxConfigBytes, text)) {
++    LOG_ERR("CLAUDE", "Could not read %s", kConfigPath);
++    return false;
++  }
++  const bool ok = claude_usage::parseConfig(text.data(), text.size(), config_);
++  // Scrub the transient copy of the token before the string frees its buffer.
++  std::fill(text.begin(), text.end(), '\0');
++  if (!ok || !config_.hasToken()) {
++    LOG_ERR("CLAUDE", "Config has no token");
++    return false;
++  }
++  return true;
++}
++
++void ClaudeUsageActivity::requestRefresh() {
++  problem_ = Problem::None;
++  if (isConnected()) {
++    NetworkStartup::prepare(renderer);
++    state_ = State::Fetching;
++    requestUpdate();
++    return;
++  }
++  launchWifiSelection();
++}
++
++void ClaudeUsageActivity::launchWifiSelection() {
++  // ActivityManager owns the picker across frames; stack lifetime is insufficient.
++  auto wifi = makeUniqueNoThrow<WifiSelectionActivity>(renderer, mappedInput, true);
++  if (!wifi) {
++    LOG_ERR("CLAUDE", "OOM: WifiSelectionActivity (%u bytes)", static_cast<unsigned>(sizeof(WifiSelectionActivity)));
++    problem_ = Problem::NoMemory;
++    state_ = hasSnapshot_ ? State::Ready : State::Error;
++    requestUpdate();
++    return;
++  }
++
++  broughtWifiUp_ = true;
++  startActivityForResult(std::move(wifi), [this](const ActivityResult& result) {
++    // The release that closed the picker must not also trigger Refresh here.
++    waitForInputRelease_ = mappedInput.isPressed(MappedInputManager::Button::Back) ||
++                           mappedInput.isPressed(MappedInputManager::Button::Confirm) ||
++                           mappedInput.isPressed(MappedInputManager::Button::NavPrevious) ||
++                           mappedInput.isPressed(MappedInputManager::Button::NavNext);
++    if (result.isCancelled || !isConnected()) {
++      LOG_INF("CLAUDE", "Wi-Fi selection cancelled or failed");
++      problem_ = Problem::WifiFailed;
++      state_ = hasSnapshot_ ? State::Ready : State::Error;
++      return;
++    }
++    state_ = State::Fetching;
++  });
++}
++
++void ClaudeUsageActivity::teardownOwnedWifi() {
++  if (!broughtWifiUp_) return;
++  WiFi.disconnect(false);
++  delay(100);
++  WiFi.mode(WIFI_OFF);
++  esp_wifi_deinit();
++  broughtWifiUp_ = false;
++}
++
++void ClaudeUsageActivity::doFetch() {
++  if (!isConnected()) {
++    problem_ = Problem::WifiFailed;
++    state_ = hasSnapshot_ ? State::Ready : State::Error;
++    return;
++  }
++
++  // "Resets in" needs wall-clock time; sync once per visit if it is not set.
++  if (!clockSyncTried_ && TimeUtils::getCurrentValidTimestamp() == 0) {
++    clockSyncTried_ = true;
++    if (!halClock.syncNow()) LOG_ERR("CLAUDE", "Clock sync failed; reset countdowns unavailable");
++  }
++
++  if (!HttpDownloader::hasMemoryForTls()) {
++    problem_ = Problem::NoMemory;
++    state_ = hasSnapshot_ ? State::Ready : State::Error;
++    return;
++  }
++
++  const char* url = config_.url[0] != '\0' ? config_.url : claude_usage::kDefaultUrl;
++
++  // One short-lived heap string for the response body; released when this
++  // function returns. A fixed static buffer was rejected because it would
++  // pin 8KB of DRAM for the whole firmware lifetime.
++  std::string body;
++  body.reserve(kInitialBodyReserve);
++  bool overflow = false;
++
++  HttpDownloader::FetchOptions options;
++  options.bearer = config_.token;
++  options.accept = "application/json";
++  options.headers.emplace_back(claude_usage::kBetaHeader, claude_usage::kBetaValue);
++  int status = 0;
++  options.statusOut = &status;
++
++  LOG_INF("CLAUDE", "Fetching usage (free heap %u)", static_cast<unsigned>(ESP.getFreeHeap()));
++  const bool ok = HttpDownloader::fetchUrl(
++      url,
++      [&body, &overflow](const uint8_t* data, const size_t len) {
++        if (body.size() + len > kMaxBodyBytes) {
++          overflow = true;
++          return false;
++        }
++        body.append(reinterpret_cast<const char*>(data), len);
++        return true;
++      },
++      options);
++  // The bearer copy in options is a credential too.
++  std::fill(options.bearer.begin(), options.bearer.end(), '\0');
++
++  lastHttpStatus_ = status;
++  if (!ok) {
++    if (status == 401 || status == 403) {
++      problem_ = Problem::Unauthorized;
++    } else if (status == 0) {
++      problem_ = Problem::Network;
++    } else if (overflow) {
++      problem_ = Problem::BadResponse;
++    } else {
++      problem_ = Problem::Http;
++    }
++    LOG_ERR("CLAUDE", "Usage fetch failed: status=%d overflow=%d", status, overflow ? 1 : 0);
++    state_ = hasSnapshot_ ? State::Ready : State::Error;
++    return;
++  }
++
++  ClaudeUsageSnapshot parsed;
++  if (!claude_usage::parseUsageJson(body.data(), body.size(), parsed)) {
++    LOG_ERR("CLAUDE", "Unrecognised usage response (%u bytes)", static_cast<unsigned>(body.size()));
++    problem_ = Problem::BadResponse;
++    state_ = hasSnapshot_ ? State::Ready : State::Error;
++    return;
++  }
++
++  snapshot_ = parsed;
++  hasSnapshot_ = true;
++  problem_ = Problem::None;
++  fetchedAtEpoch_ = TimeUtils::getCurrentValidTimestamp();
++  fetchedAtMs_ = millis();
++  state_ = State::Ready;
++  LOG_INF("CLAUDE", "Session %.0f%%, weekly %.0f%%", static_cast<double>(snapshot_.session.utilization),
++          static_cast<double>(snapshot_.weekly.utilization));
++}
++
++bool ClaudeUsageActivity::consumeInputReleaseBarrier() {
++  if (!waitForInputRelease_) return false;
++  const bool anyPressed = mappedInput.isPressed(MappedInputManager::Button::Back) ||
++                          mappedInput.isPressed(MappedInputManager::Button::Confirm) ||
++                          mappedInput.isPressed(MappedInputManager::Button::NavPrevious) ||
++                          mappedInput.isPressed(MappedInputManager::Button::NavNext);
++  if (!anyPressed) waitForInputRelease_ = false;
++  return true;
++}
++
++Rect ClaudeUsageActivity::refreshButtonRect() const {
++  const auto& metrics = UITheme::getInstance().getMetrics();
++  return gameTouchActionRect(renderer.getScreenWidth(), renderer.getScreenHeight(), metrics.contentSidePadding,
++                             metrics.menuSpacing, metrics.menuRowHeight, 0, 1);
++}
++
++void ClaudeUsageActivity::loop() {
++  if (state_ == State::Fetching) {
++    // Paint "Updating…" before blocking on TLS + HTTP.
++    requestUpdateAndWait();
++    doFetch();
++    requestUpdate();
++    return;
++  }
++
++  if (consumeInputReleaseBarrier()) return;
++
++  if (mappedInput.wasReleased(MappedInputManager::Button::Back)) {
++    activityManager.goToApps();
++    return;
++  }
++
++  if (state_ == State::NoConfig) {
++    // Let the user drop the file in via USB/web transfer and retry without leaving.
++    if (mappedInput.wasReleased(MappedInputManager::Button::Confirm)) {
++      if (loadConfig()) requestRefresh();
++      requestUpdate();
++    }
++    return;
++  }
++
++  bool refresh = mappedInput.wasReleased(MappedInputManager::Button::Confirm);
++  if (!refresh && mappedInput.hasTouch()) {
++    const Rect button = refreshButtonRect();
++    refresh = mappedInput.wasTapInRect(button.x, button.y, button.width, button.height);
++  }
++  if (!refresh && state_ == State::Ready && problem_ == Problem::None && isConnected() &&
++      millis() - fetchedAtMs_ >= kAutoRefreshMs) {
++    refresh = true;
++  }
++  if (refresh) requestRefresh();
++}
++
++const char* ClaudeUsageActivity::problemText() const {
++  switch (problem_) {
++    case Problem::WifiFailed:
++      return tr(STR_CLAUDE_USAGE_ERR_WIFI);
++    case Problem::NoMemory:
++      return tr(STR_CLAUDE_USAGE_ERR_MEMORY);
++    case Problem::Unauthorized:
++      return tr(STR_CLAUDE_USAGE_ERR_AUTH);
++    case Problem::Network:
++      return tr(STR_CLAUDE_USAGE_ERR_NETWORK);
++    case Problem::BadResponse:
++      return tr(STR_CLAUDE_USAGE_ERR_RESPONSE);
++    case Problem::Http:
++      return tr(STR_CLAUDE_USAGE_ERR_HTTP);
++    case Problem::None:
++      break;
++  }
++  return "";
++}
++
++void ClaudeUsageActivity::drawCenteredMessage(const Rect& content, const char* title, const char* detail,
++                                              const char* detail2) const {
++  const int titleHeight = renderer.getLineHeight(UI_12_FONT_ID);
++  const int detailHeight = renderer.getLineHeight(UI_10_FONT_ID);
++  const int gap = std::max(6, UITheme::getInstance().getMetrics().verticalSpacing / 2);
++  const int lines = (detail && detail[0] ? 1 : 0) + (detail2 && detail2[0] ? 1 : 0);
++  const int blockHeight = titleHeight + lines * (gap + detailHeight);
++  int y = content.y + std::max(0, (content.height - blockHeight) / 2);
++  UITheme::drawCenteredText(renderer, content, UI_12_FONT_ID, y, title, true, EpdFontFamily::BOLD);
++  y += titleHeight + gap;
++  if (detail && detail[0]) {
++    const std::string fitted = renderer.truncatedText(UI_10_FONT_ID, detail, content.width);
++    UITheme::drawCenteredText(renderer, content, UI_10_FONT_ID, y, fitted.c_str());
++    y += detailHeight + gap;
++  }
++  if (detail2 && detail2[0]) {
++    const std::string fitted = renderer.truncatedText(UI_10_FONT_ID, detail2, content.width);
++    UITheme::drawCenteredText(renderer, content, UI_10_FONT_ID, y, fitted.c_str());
++  }
++}
++
++void ClaudeUsageActivity::drawWindow(const Rect& bounds, const char* title, const ClaudeUsageWindow& window,
++                                     const uint32_t now, const bool showResetDate) const {
++  const int titleHeight = renderer.getLineHeight(UI_12_FONT_ID);
++  const int bigHeight = renderer.getLineHeight(NOTOSANS_18_FONT_ID);
++  const int gap = std::max(6, UITheme::getInstance().getMetrics().verticalSpacing / 2);
++
++  // Title on the left, large percentage on the right, bottoms aligned.
++  const int rowHeight = std::max(titleHeight, bigHeight);
++  int y = bounds.y;
++  const std::string fittedTitle = renderer.truncatedText(UI_12_FONT_ID, title, bounds.width * 2 / 3,
++                                                         EpdFontFamily::BOLD);
++  renderer.drawText(UI_12_FONT_ID, bounds.x, y + rowHeight - titleHeight, fittedTitle.c_str(), true,
++                    EpdFontFamily::BOLD);
++  char percent[8];
++  if (window.present) {
++    formatPercent(window.utilization, percent, sizeof(percent));
++  } else {
++    snprintf(percent, sizeof(percent), "--");
++  }
++  const int percentWidth = renderer.getTextWidth(NOTOSANS_18_FONT_ID, percent, EpdFontFamily::BOLD);
++  renderer.drawText(NOTOSANS_18_FONT_ID, bounds.x + bounds.width - percentWidth, y + rowHeight - bigHeight, percent,
++                    true, EpdFontFamily::BOLD);
++  y += rowHeight + gap;
++
++  // Usage bar: outline plus solid fill, with quarter ticks for scale.
++  renderer.drawRect(bounds.x, y, bounds.width, kBarHeight, 2, true);
++  const int inner = bounds.width - 6;
++  const int fill = window.present ? inner * claude_usage::fillPermille(window.utilization) / 1000 : 0;
++  if (fill > 0) renderer.fillRect(bounds.x + 3, y + 3, fill, kBarHeight - 6, true);
++  for (int q = 1; q < 4; ++q) {
++    const int tx = bounds.x + 3 + inner * q / 4;
++    // Ticks draw white over the fill and black over empty track.
++    const bool overFill = tx < bounds.x + 3 + fill;
++    renderer.drawLine(tx, y + kBarHeight - 7, tx, y + kBarHeight - 4, !overFill);
++  }
++  y += kBarHeight + gap;
++
++  // "Resets in 2h 14m · 15:00"
++  char line[96];
++  line[0] = '\0';
++  if (window.present && window.resetsAt != 0) {
++    char when[24];
++    const bool haveWhen = formatLocal(window.resetsAt, showResetDate, when, sizeof(when));
++    if (now != 0) {
++      char duration[16];
++      claude_usage::formatDuration(static_cast<int64_t>(window.resetsAt) - static_cast<int64_t>(now), duration,
++                                   sizeof(duration));
++      if (haveWhen) {
++        snprintf(line, sizeof(line), "%s %s · %s", tr(STR_CLAUDE_USAGE_RESETS_IN), duration, when);
++      } else {
++        snprintf(line, sizeof(line), "%s %s", tr(STR_CLAUDE_USAGE_RESETS_IN), duration);
++      }
++    } else if (haveWhen) {
++      snprintf(line, sizeof(line), "%s %s", tr(STR_CLAUDE_USAGE_RESETS_AT), when);
++    }
++  } else if (window.present) {
++    snprintf(line, sizeof(line), "%s", tr(STR_CLAUDE_USAGE_NOT_STARTED));
++  } else {
++    snprintf(line, sizeof(line), "%s", tr(STR_CLAUDE_USAGE_UNAVAILABLE));
++  }
++  const std::string fitted = renderer.truncatedText(UI_10_FONT_ID, line, bounds.width);
++  renderer.drawText(UI_10_FONT_ID, bounds.x, y, fitted.c_str());
++}
++
++void ClaudeUsageActivity::drawCompactWindow(const int x, const int y, const int width, const char* title,
++                                            const ClaudeUsageWindow& window) const {
++  char percent[8];
++  formatPercent(window.utilization, percent, sizeof(percent));
++  const int percentWidth = renderer.getTextWidth(UI_10_FONT_ID, percent, EpdFontFamily::BOLD);
++  const int labelWidth = std::max(0, width / 2 - 8);
++  const std::string label = renderer.truncatedText(UI_10_FONT_ID, title, labelWidth);
++  renderer.drawText(UI_10_FONT_ID, x, y, label.c_str());
++
++  const int lineHeight = renderer.getLineHeight(UI_10_FONT_ID);
++  const int barX = x + width / 2;
++  const int barWidth = std::max(10, width / 2 - percentWidth - 10);
++  const int barY = y + (lineHeight - kCompactBarHeight) / 2;
++  renderer.drawRect(barX, barY, barWidth, kCompactBarHeight, 1, true);
++  const int fill = (barWidth - 4) * claude_usage::fillPermille(window.utilization) / 1000;
++  if (fill > 0) renderer.fillRect(barX + 2, barY + 2, fill, kCompactBarHeight - 4, true);
++  renderer.drawText(UI_10_FONT_ID, x + width - percentWidth, y, percent, true, EpdFontFamily::BOLD);
++}
++
++void ClaudeUsageActivity::render(RenderLock&&) {
++  const auto& metrics = UITheme::getInstance().getMetrics();
++  const Rect safe = UITheme::getInstance().getScreenSafeArea(renderer, true, false);
++  const bool touch = mappedInput.hasTouch() && state_ != State::NoConfig && state_ != State::Fetching;
++  const int touchReserve = touch ? metrics.menuRowHeight + metrics.verticalSpacing : 0;
++  const int contentTop = safe.y + metrics.topPadding + metrics.headerHeight + metrics.verticalSpacing;
++  const Rect content{safe.x + metrics.contentSidePadding, contentTop,
++                     std::max(1, safe.width - metrics.contentSidePadding * 2),
++                     std::max(1, safe.y + safe.height - contentTop - metrics.verticalSpacing - touchReserve)};
++
++  renderer.clearScreen();
++  GUI.drawHeader(renderer, Rect{safe.x, safe.y + metrics.topPadding, safe.width, metrics.headerHeight},
++                 tr(STR_CLAUDE_USAGE_TITLE));
++
++  const uint32_t now = TimeUtils::getCurrentValidTimestamp();
++
++  if (state_ == State::NoConfig) {
++    drawCenteredMessage(content, tr(STR_CLAUDE_USAGE_NO_CONFIG), tr(STR_CLAUDE_USAGE_NO_CONFIG_HINT), kConfigPath);
++  } else if (!hasSnapshot_ && state_ == State::Fetching) {
++    drawCenteredMessage(content, tr(STR_CLAUDE_USAGE_UPDATING), nullptr);
++  } else if (!hasSnapshot_) {
++    const char* hint = problem_ == Problem::Unauthorized ? tr(STR_CLAUDE_USAGE_ERR_AUTH_HINT) : nullptr;
++    char status[32];
++    if (!hint && lastHttpStatus_ > 0) {
++      snprintf(status, sizeof(status), "HTTP %d", lastHttpStatus_);
++      hint = status;
++    }
++    drawCenteredMessage(content, problemText(), hint);
++  } else {
++    const int sectionGap = std::max(16, metrics.verticalSpacing * 2);
++    const int windowHeight = std::max(renderer.getLineHeight(NOTOSANS_18_FONT_ID), renderer.getLineHeight(UI_12_FONT_ID)) +
++                             kBarHeight +
++                             renderer.getLineHeight(UI_10_FONT_ID) + 2 * std::max(6, metrics.verticalSpacing / 2);
++    int y = content.y;
++    drawWindow(Rect{content.x, y, content.width, windowHeight}, tr(STR_CLAUDE_USAGE_SESSION), snapshot_.session, now,
++               false);
++    y += windowHeight + sectionGap;
++    drawWindow(Rect{content.x, y, content.width, windowHeight}, tr(STR_CLAUDE_USAGE_WEEKLY), snapshot_.weekly, now,
++               true);
++    y += windowHeight + sectionGap;
++
++    // Per-model weekly limits, only when the plan reports them.
++    const int lineHeight = renderer.getLineHeight(UI_10_FONT_ID);
++    const int rowStep = lineHeight + std::max(4, metrics.verticalSpacing / 2);
++    const int footerTop = content.y + content.height - lineHeight;
++    if (snapshot_.weeklyOpus.present && y + rowStep <= footerTop) {
++      drawCompactWindow(content.x, y, content.width, tr(STR_CLAUDE_USAGE_WEEKLY_OPUS), snapshot_.weeklyOpus);
++      y += rowStep;
++    }
++    if (snapshot_.weeklySonnet.present && y + rowStep <= footerTop) {
++      drawCompactWindow(content.x, y, content.width, tr(STR_CLAUDE_USAGE_WEEKLY_SONNET), snapshot_.weeklySonnet);
++      y += rowStep;
++    }
++
++    // Footer: freshness, or the refresh problem while keeping old numbers.
++    char footer[96];
++    if (state_ == State::Fetching) {
++      snprintf(footer, sizeof(footer), "%s", tr(STR_CLAUDE_USAGE_UPDATING));
++    } else if (problem_ != Problem::None) {
++      snprintf(footer, sizeof(footer), "%s", problemText());
++    } else {
++      char when[16];
++      if (formatLocal(fetchedAtEpoch_, false, when, sizeof(when))) {
++        snprintf(footer, sizeof(footer), "%s %s", tr(STR_CLAUDE_USAGE_UPDATED), when);
++      } else {
++        footer[0] = '\0';
++      }
++    }
++    if (footer[0]) {
++      const std::string fitted = renderer.truncatedText(UI_10_FONT_ID, footer, content.width);
++      UITheme::drawCenteredText(renderer, content, UI_10_FONT_ID, footerTop, fitted.c_str());
++    }
++  }
++
++  if (touch) GUI.drawActionButton(renderer, refreshButtonRect(), tr(STR_CLAUDE_USAGE_REFRESH));
++
++  if (state_ != State::Fetching) {
++    const char* confirm = state_ == State::NoConfig ? tr(STR_RETRY) : tr(STR_CLAUDE_USAGE_REFRESH);
++    const auto labels = mappedInput.mapLabels(tr(STR_BACK), confirm, "", "");
++    GUI.drawButtonHints(renderer, labels.btn1, labels.btn2, labels.btn3, labels.btn4);
++  }
++  renderer.displayBuffer();
++}
+diff --git a/src/activities/apps/claude-usage/ClaudeUsageActivity.h b/src/activities/apps/claude-usage/ClaudeUsageActivity.h
+new file mode 100644
+index 0000000..30039a1
+--- /dev/null
++++ b/src/activities/apps/claude-usage/ClaudeUsageActivity.h
+@@ -0,0 +1,76 @@
++#pragma once
++
++#include <cstdint>
++
++#include "ClaudeUsageData.h"
++#include "activities/Activity.h"
++
++struct Rect;
++
++// Shows Claude plan usage: the current 5-hour session window and the weekly
++// limit, each as a percentage bar with time-to-reset.
++//
++// Configuration lives on the SD card in /claude-usage.json (see
++// src/activities/apps/claude-usage/README.md). Wi-Fi is brought up on demand
++// through the shared picker and torn down on exit if this app started it.
++class ClaudeUsageActivity final : public Activity {
++ public:
++  explicit ClaudeUsageActivity(GfxRenderer& renderer, MappedInputManager& mappedInput)
++      : Activity("ClaudeUsage", renderer, mappedInput) {}
++
++  void onEnter() override;
++  void onExit() override;
++  void loop() override;
++  bool skipLoopDelay() override { return state_ == State::Fetching; }
++  void render(RenderLock&&) override;
++
++  static constexpr const char* kConfigPath = "/claude-usage.json";
++
++ private:
++  enum class State : uint8_t {
++    NoConfig,  // config file missing or empty
++    Fetching,  // next loop() renders "Updating…" then blocks on the request
++    Ready,     // snapshot_ holds data (possibly with a refresh error notice)
++    Error,     // no data yet and the last attempt failed
++  };
++
++  enum class Problem : uint8_t {
++    None,
++    WifiFailed,
++    NoMemory,
++    Unauthorized,
++    Http,
++    Network,
++    BadResponse,
++  };
++
++  // Re-fetch automatically while the app stays open and online.
++  static constexpr uint32_t kAutoRefreshMs = 5UL * 60UL * 1000UL;
++
++  ClaudeUsageConfig config_;
++  ClaudeUsageSnapshot snapshot_;
++  State state_ = State::NoConfig;
++  Problem problem_ = Problem::None;
++  int lastHttpStatus_ = 0;
++  uint32_t fetchedAtEpoch_ = 0;  // wall clock of last success, 0 if unknown
++  uint32_t fetchedAtMs_ = 0;     // millis() of last success
++  bool hasSnapshot_ = false;
++  bool broughtWifiUp_ = false;
++  bool clockSyncTried_ = false;
++  bool waitForInputRelease_ = false;
++
++  bool loadConfig();
++  void requestRefresh();
++  void launchWifiSelection();
++  void doFetch();
++  void teardownOwnedWifi();
++  bool consumeInputReleaseBarrier();
++  Rect refreshButtonRect() const;
++
++  void drawWindow(const Rect& bounds, const char* title, const ClaudeUsageWindow& window, uint32_t now,
++                  bool showResetDate) const;
++  void drawCompactWindow(int x, int y, int width, const char* title, const ClaudeUsageWindow& window) const;
++  void drawCenteredMessage(const Rect& content, const char* title, const char* detail,
++                           const char* detail2 = nullptr) const;
++  const char* problemText() const;
++};
+diff --git a/src/activities/apps/claude-usage/ClaudeUsageData.cpp b/src/activities/apps/claude-usage/ClaudeUsageData.cpp
+new file mode 100644
+index 0000000..9d765c7
+--- /dev/null
++++ b/src/activities/apps/claude-usage/ClaudeUsageData.cpp
+@@ -0,0 +1,174 @@
++#include "ClaudeUsageData.h"
++
++#include <ArduinoJson.h>
++
++#include <cctype>
++#include <cstdio>
++#include <cstring>
++
++namespace claude_usage {
++namespace {
++
++bool readDigits(const char*& p, const int count, int& out) {
++  out = 0;
++  for (int i = 0; i < count; ++i) {
++    if (!isdigit(static_cast<unsigned char>(p[i]))) return false;
++    out = out * 10 + (p[i] - '0');
++  }
++  p += count;
++  return true;
++}
++
++// Days from 1970-01-01 to the civil date (Howard Hinnant's algorithm).
++int64_t daysFromCivil(int year, const unsigned month, const unsigned day) {
++  year -= month <= 2 ? 1 : 0;
++  const int era = (year >= 0 ? year : year - 399) / 400;
++  const unsigned yoe = static_cast<unsigned>(year - era * 400);
++  const unsigned doy = (153 * (month > 2 ? month - 3 : month + 9) + 2) / 5 + day - 1;
++  const unsigned doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;
++  return static_cast<int64_t>(era) * 146097 + static_cast<int64_t>(doe) - 719468;
++}
++
++void readWindow(JsonVariantConst node, ClaudeUsageWindow& out) {
++  out = ClaudeUsageWindow{};
++  if (!node.is<JsonObjectConst>()) return;
++  JsonVariantConst utilization = node["utilization"];
++  if (!utilization.is<float>()) return;
++  // Read as floating point: producers emit both 35 and 35.0 (see esp32-pitfalls.md).
++  out.utilization = utilization.as<float>();
++  out.present = true;
++  const char* resetsAt = node["resets_at"] | static_cast<const char*>(nullptr);
++  uint32_t epoch = 0;
++  if (resetsAt && parseIso8601(resetsAt, epoch)) out.resetsAt = epoch;
++}
++
++void copyTrimmed(const char* src, char* dst, const size_t dstSize) {
++  if (dstSize == 0) return;
++  dst[0] = '\0';
++  if (!src) return;
++  while (*src && isspace(static_cast<unsigned char>(*src))) ++src;
++  size_t len = strlen(src);
++  while (len > 0 && isspace(static_cast<unsigned char>(src[len - 1]))) --len;
++  if (len >= dstSize) len = dstSize - 1;
++  memcpy(dst, src, len);
++  dst[len] = '\0';
++}
++
++}  // namespace
++
++bool parseIso8601(const char* text, uint32_t& epochOut) {
++  if (!text) return false;
++  const char* p = text;
++  int year = 0, month = 0, day = 0, hour = 0, minute = 0, second = 0;
++  if (!readDigits(p, 4, year) || *p++ != '-') return false;
++  if (!readDigits(p, 2, month) || *p++ != '-') return false;
++  if (!readDigits(p, 2, day)) return false;
++  if (*p != 'T' && *p != 't' && *p != ' ') return false;
++  ++p;
++  if (!readDigits(p, 2, hour) || *p++ != ':') return false;
++  if (!readDigits(p, 2, minute)) return false;
++  if (*p == ':') {
++    ++p;
++    if (!readDigits(p, 2, second)) return false;
++  }
++  if (*p == '.') {
++    ++p;
++    while (isdigit(static_cast<unsigned char>(*p))) ++p;  // fractional seconds are dropped
++  }
++  int offsetSeconds = 0;
++  if (*p == 'Z' || *p == 'z') {
++    ++p;
++  } else if (*p == '+' || *p == '-') {
++    const int sign = *p == '-' ? -1 : 1;
++    ++p;
++    int offH = 0, offM = 0;
++    if (!readDigits(p, 2, offH)) return false;
++    if (*p == ':') ++p;
++    if (isdigit(static_cast<unsigned char>(*p)) && !readDigits(p, 2, offM)) return false;
++    offsetSeconds = sign * (offH * 3600 + offM * 60);
++  } else if (*p != '\0') {
++    return false;
++  }
++  if (*p != '\0') return false;
++  if (month < 1 || month > 12 || day < 1 || day > 31 || hour > 23 || minute > 59 || second > 60) return false;
++
++  const int64_t epoch = daysFromCivil(year, static_cast<unsigned>(month), static_cast<unsigned>(day)) * 86400 +
++                        hour * 3600 + minute * 60 + second - offsetSeconds;
++  if (epoch <= 0 || epoch > 0xFFFFFFFFLL) return false;
++  epochOut = static_cast<uint32_t>(epoch);
++  return true;
++}
++
++bool parseUsageJson(const char* json, const size_t length, ClaudeUsageSnapshot& out) {
++  out = ClaudeUsageSnapshot{};
++  if (!json || length == 0) return false;
++
++  // Keep only the four windows we display; the endpoint also returns
++  // extra-usage/billing objects we do not need to hold in DRAM.
++  JsonDocument filter;
++  for (const char* key : {"five_hour", "seven_day", "seven_day_opus", "seven_day_sonnet"}) {
++    filter[key]["utilization"] = true;
++    filter[key]["resets_at"] = true;
++  }
++
++  JsonDocument doc;
++  const DeserializationError error = deserializeJson(doc, json, length, DeserializationOption::Filter(filter));
++  if (error) return false;
++
++  readWindow(doc["five_hour"], out.session);
++  readWindow(doc["seven_day"], out.weekly);
++  readWindow(doc["seven_day_opus"], out.weeklyOpus);
++  readWindow(doc["seven_day_sonnet"], out.weeklySonnet);
++  return out.hasAny();
++}
++
++bool parseConfig(const char* text, const size_t length, ClaudeUsageConfig& out) {
++  out = ClaudeUsageConfig{};
++  if (!text || length == 0) return false;
++
++  size_t start = 0;
++  while (start < length && isspace(static_cast<unsigned char>(text[start]))) ++start;
++  if (start == length) return false;
++
++  if (text[start] != '{') {
++    // Bare token file: the whole content (trimmed) is the token.
++    char buffer[sizeof(out.token)];
++    const size_t n = length - start < sizeof(buffer) - 1 ? length - start : sizeof(buffer) - 1;
++    memcpy(buffer, text + start, n);
++    buffer[n] = '\0';
++    copyTrimmed(buffer, out.token, sizeof(out.token));
++    return out.hasToken();
++  }
++
++  JsonDocument doc;
++  if (deserializeJson(doc, text, length)) return false;
++  copyTrimmed(doc["token"] | "", out.token, sizeof(out.token));
++  copyTrimmed(doc["url"] | "", out.url, sizeof(out.url));
++  return out.hasToken() || out.url[0] != '\0';
++}
++
++void formatDuration(const int64_t seconds, char* buffer, const size_t bufferSize) {
++  if (!buffer || bufferSize == 0) return;
++  if (seconds < 60) {
++    snprintf(buffer, bufferSize, "<1m");
++    return;
++  }
++  const int64_t minutes = seconds / 60;
++  const int64_t hours = minutes / 60;
++  const int64_t days = hours / 24;
++  if (days > 0) {
++    snprintf(buffer, bufferSize, "%dd %dh", static_cast<int>(days), static_cast<int>(hours % 24));
++  } else if (hours > 0) {
++    snprintf(buffer, bufferSize, "%dh %dm", static_cast<int>(hours), static_cast<int>(minutes % 60));
++  } else {
++    snprintf(buffer, bufferSize, "%dm", static_cast<int>(minutes));
++  }
++}
++
++int fillPermille(const float utilization) {
++  if (!(utilization > 0.0f)) return 0;  // also catches NaN
++  if (utilization >= 100.0f) return 1000;
++  return static_cast<int>(utilization * 10.0f + 0.5f);
++}
++
++}  // namespace claude_usage
+diff --git a/src/activities/apps/claude-usage/ClaudeUsageData.h b/src/activities/apps/claude-usage/ClaudeUsageData.h
+new file mode 100644
+index 0000000..266168a
+--- /dev/null
++++ b/src/activities/apps/claude-usage/ClaudeUsageData.h
+@@ -0,0 +1,69 @@
++#pragma once
++
++#include <cstddef>
++#include <cstdint>
++
++// Pure data + parsing for the Claude Usage app. No Arduino, storage or
++// network dependencies, so it compiles in host tests.
++//
++// The usage document is the JSON returned by Anthropic's OAuth usage endpoint
++// (the same numbers Claude Code's /usage screen shows):
++//
++//   {
++//     "five_hour":        {"utilization": 6.0,  "resets_at": "2026-11-01T04:59:59.94+00:00"},
++//     "seven_day":        {"utilization": 35.0, "resets_at": "2026-11-06T03:59:59.94+00:00"},
++//     "seven_day_opus":   {"utilization": 0.0,  "resets_at": null},
++//     "seven_day_sonnet": null,
++//     ...
++//   }
++//
++// A relay that forwards this document unchanged is accepted as well.
++
++struct ClaudeUsageWindow {
++  bool present = false;      // object existed and carried a utilization value
++  float utilization = 0.0f;  // percent of the limit used, 0..100 (may exceed 100)
++  uint32_t resetsAt = 0;     // UTC epoch seconds, 0 when unknown
++};
++
++struct ClaudeUsageSnapshot {
++  ClaudeUsageWindow session;       // "five_hour": the current rolling session window
++  ClaudeUsageWindow weekly;        // "seven_day": weekly limit, all models
++  ClaudeUsageWindow weeklyOpus;    // "seven_day_opus" (optional)
++  ClaudeUsageWindow weeklySonnet;  // "seven_day_sonnet" (optional)
++  bool hasAny() const { return session.present || weekly.present; }
++};
++
++struct ClaudeUsageConfig {
++  // Bearer token. For the Anthropic endpoint this is a Claude OAuth access
++  // token (sk-ant-oat01-...); for a relay it is whatever key the relay expects.
++  char token[512] = {0};
++  // Endpoint URL; empty means the Anthropic endpoint.
++  char url[256] = {0};
++  bool hasToken() const { return token[0] != '\0'; }
++};
++
++namespace claude_usage {
++
++inline constexpr const char* kDefaultUrl = "https://api.anthropic.com/api/oauth/usage";
++inline constexpr const char* kBetaHeader = "anthropic-beta";
++inline constexpr const char* kBetaValue = "oauth-2025-04-20";
++
++// Parse an ISO-8601 timestamp such as "2026-11-01T04:59:59.943648+00:00" or
++// "2026-11-01T04:59:59Z" into UTC epoch seconds. Returns false when malformed.
++bool parseIso8601(const char* text, uint32_t& epochOut);
++
++// Parse the usage JSON document. Returns false when it is not JSON or has
++// neither a session nor a weekly window.
++bool parseUsageJson(const char* json, size_t length, ClaudeUsageSnapshot& out);
++
++// Parse the SD config file. Accepts {"token": "...", "url": "..."}; a file
++// containing only a bare token (no JSON) is accepted too. Whitespace trimmed.
++bool parseConfig(const char* text, size_t length, ClaudeUsageConfig& out);
++
++// "2h 14m", "3d 4h", "12m", "<1m". `seconds` <= 0 yields "<1m".
++void formatDuration(int64_t seconds, char* buffer, size_t bufferSize);
++
++// Clamp a utilization percentage to a 0..1000 permille fill for bars.
++int fillPermille(float utilization);
++
++}  // namespace claude_usage
+diff --git a/src/activities/apps/claude-usage/README.md b/src/activities/apps/claude-usage/README.md
+new file mode 100644
+index 0000000..fc6828a
+--- /dev/null
++++ b/src/activities/apps/claude-usage/README.md
+@@ -0,0 +1,50 @@
++# Claude Usage
++
++Shows your Claude plan usage: the current 5-hour session and the weekly limit.
++These are the same numbers Claude Code's `/usage` screen shows. Each one is drawn
++as a percentage with a bar and a "Resets in 2h 14m · 15:00" line. If your plan
++reports separate weekly Opus or Sonnet limits, they appear as smaller rows.
++
++| Button  | Action                                       |
++|---------|----------------------------------------------|
++| Back    | Return to Apps                               |
++| Confirm | Refresh now (Retry when no token is set up)  |
++
++While the app is open and online it also refreshes on its own every 5 minutes.
++Wi-Fi comes up through the shared picker when you open the app. If the app
++started Wi-Fi, it turns it off again when you leave.
++
++## Configuration: `/claude-usage.json` on the SD card
++
++```json
++{ "token": "<bearer token>", "url": "<optional endpoint>" }
++```
++
++A file that holds only a bare token, with no JSON, works too.
++
++There are two ways to set it up:
++
++1. **Relay (recommended).** Run `claude_usage_relay.py` on the computer where you
++   use Claude Code. It reads Claude Code's own login, which Claude Code keeps
++   refreshed, and serves the usage JSON on your LAN behind a random key. The
++   relay prints the exact file to copy:
++   `{"url": "http://192.168.1.20:8787/usage", "token": "<relay key>"}`.
++   The device never holds your Claude credentials.
++2. **Direct.** Leave out `url` and set `token` to a Claude OAuth access token
++   (`sk-ant-oat01-…`). The device then calls
++   `https://api.anthropic.com/api/oauth/usage` itself. Access tokens copied from
++   `~/.claude/.credentials.json` expire within hours. A long-lived
++   `claude setup-token` token is the thing to try, but it may lack the scope
++   this endpoint needs. If the app says "Token rejected", use the relay.
++
++The endpoint is the undocumented one Claude Code uses. Anthropic may change it
++without notice.
++
++## Resources
++
++- Heap: one response `std::string` (capped at 8 KB, about 600 B in practice) and a
++  filtered `JsonDocument`, both freed when `doFetch()` returns. The config is a
++  fixed ~770 B member of the Activity, and the token is zeroed in `onExit()`.
++- TLS goes through `HttpDownloader` (wolfSSL), gated by
++  `HttpDownloader::hasMemoryForTls()`.
++- No SD writes.
+diff --git a/src/components/icons/claude_usage.h b/src/components/icons/claude_usage.h
+new file mode 100644
+index 0000000..9f623f9
+--- /dev/null
++++ b/src/components/icons/claude_usage.h
+@@ -0,0 +1,14 @@
++#pragma once
++
++#include <cstdint>
++
++// 32x32 usage gauge (same drawing as InxAppIcons::ClaudeUsage), pre-rotated 90 degrees CCW for drawIcon().
++static constexpr uint8_t ClaudeUsageIcon[128] = {
++    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE, 0xE1,
++    0x87, 0xFF, 0xE0, 0xED, 0xB7, 0xFF, 0x80, 0xED, 0xB7, 0xFF, 0x1E, 0xED, 0xB7, 0xFE, 0x3E, 0xED, 0xB7, 0xFC, 0x7E,
++    0xED, 0xB7, 0xFC, 0x3E, 0xED, 0xB7, 0xF9, 0x9E, 0xED, 0xB7, 0xF9, 0xC6, 0xE1, 0xB7, 0xF9, 0xF2, 0xE1, 0xB7, 0xF9,
++    0xF8, 0x61, 0xB7, 0xF1, 0xFC, 0x61, 0xB7, 0xF9, 0xFC, 0x61, 0xB7, 0xF9, 0xFE, 0xE1, 0xB7, 0xF9, 0xFE, 0xE1, 0xB7,
++    0xF9, 0xFE, 0xE1, 0x87, 0xFC, 0xFE, 0xE1, 0x87, 0xFC, 0x7E, 0xE1, 0x87, 0xFE, 0x3E, 0xE1, 0x87, 0xFF, 0x1E, 0xE1,
++    0x87, 0xFF, 0x80, 0xE1, 0x87, 0xFF, 0xE0, 0xE1, 0x87, 0xFF, 0xFE, 0xE1, 0x87, 0xFF, 0xFF, 0xE1, 0x87, 0xFF, 0xFF,
++    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
++};
+diff --git a/src/components/icons/inx_apps.h b/src/components/icons/inx_apps.h
+index b020ed7..9b64fbe 100644
+--- a/src/components/icons/inx_apps.h
++++ b/src/components/icons/inx_apps.h
+@@ -271,6 +271,28 @@ inline constexpr Icon ReadingProfile = readingProfile().data;
+ inline constexpr Icon Achievements = achievements().data;
+ inline constexpr Icon Calculator = calculator().data;
+ 
++// Usage gauge: a half-dial with a needle over two stacked usage bars.
++constexpr Bitmap claudeUsage() {
++  Bitmap icon;
++  for (int y = -11; y <= 0; ++y) {
++    for (int x = -11; x <= 11; ++x) {
++      const int distance = x * x + y * y;
++      if (distance <= 121 && distance >= 81) icon.ink(16 + x, 15 + y);
++    }
++  }
++  icon.line(5, 15, 27, 15);
++  icon.line(16, 15, 22, 8);
++  icon.line(16, 14, 21, 8);
++  icon.filledRect(15, 14, 3, 3);
++  icon.rect(4, 19, 24, 4);
++  icon.filledRect(5, 20, 15, 2);
++  icon.rect(4, 25, 24, 4);
++  icon.filledRect(5, 26, 8, 2);
++  return icon;
++}
++
++inline constexpr Icon ClaudeUsage = claudeUsage().data;
++
+ constexpr const uint8_t* get(const UIIcon icon) {
+   switch (icon) {
+     case UIIcon::Transfer:
+@@ -316,6 +338,8 @@ constexpr const uint8_t* get(const UIIcon icon) {
+       return Calculator.data();
+     case UIIcon::Woodfish:
+       return Woodfish.data();
++    case UIIcon::ClaudeUsage:
++      return ClaudeUsage.data();
+     default:
+       return nullptr;
+   }
+diff --git a/src/components/themes/BaseTheme.h b/src/components/themes/BaseTheme.h
+index 4361aba..f544e7c 100644
+--- a/src/components/themes/BaseTheme.h
++++ b/src/components/themes/BaseTheme.h
+@@ -182,6 +182,7 @@ enum UIIcon {
+   Achievements,
+   Calculator,
+   Woodfish,
++  ClaudeUsage,
+   Usb,
+   Blocks
+ };
+diff --git a/src/components/themes/lyra/LyraTheme.cpp b/src/components/themes/lyra/LyraTheme.cpp
+index 72dddd5..dd7b02f 100644
+--- a/src/components/themes/lyra/LyraTheme.cpp
++++ b/src/components/themes/lyra/LyraTheme.cpp
+@@ -21,6 +21,7 @@
+ #include "components/icons/bookmark.h"
+ #include "components/icons/buddy.h"
+ #include "components/icons/calculator.h"
++#include "components/icons/claude_usage.h"
+ #include "components/icons/sokoban.h"
+ #ifdef ENABLE_CHINESE_VERSION
+ #include "components/icons/chinese_chess.h"
+@@ -140,6 +141,8 @@ const uint8_t* LyraTheme::iconForName(UIIcon icon, int size) {
+         return CalculatorIcon;
+       case UIIcon::Woodfish:
+         return WoodfishIcon;
++      case UIIcon::ClaudeUsage:
++        return ClaudeUsageIcon;
+       default:
+         return nullptr;
+     }
+diff --git a/test/inx_navigation/InxNavigationTest.cpp b/test/inx_navigation/InxNavigationTest.cpp
+index beb8ceb..2470d35 100644
+--- a/test/inx_navigation/InxNavigationTest.cpp
++++ b/test/inx_navigation/InxNavigationTest.cpp
+@@ -526,15 +526,16 @@ TEST(InxNavigation, PaginatesButtonMenusAndKeepsIconIdsStable) {
+   EXPECT_EQ(static_cast<int>(UIIcon::Achievements), static_cast<int>(UIIcon::ReadingProfile) + 1);
+   EXPECT_EQ(static_cast<int>(UIIcon::Calculator), static_cast<int>(UIIcon::Achievements) + 1);
+   EXPECT_EQ(static_cast<int>(UIIcon::Woodfish), static_cast<int>(UIIcon::Calculator) + 1);
++  EXPECT_EQ(static_cast<int>(UIIcon::ClaudeUsage), static_cast<int>(UIIcon::Woodfish) + 1);
+ }
+ 
+ TEST(InxNavigation, KeepsAppIconAssetsValidAndDistinct) {
+-  constexpr std::array<const InxAppIcons::Icon*, 17> icons = {
++  constexpr std::array<const InxAppIcons::Icon*, 18> icons = {
+       &InxAppIcons::Transfer,    &InxAppIcons::Opds,        &InxAppIcons::WeRead,     &InxAppIcons::ReadingStats,
+       &InxAppIcons::Sudoku,      &InxAppIcons::Gomoku,      &InxAppIcons::Sokoban,    &InxAppIcons::ChineseChess,
+       &InxAppIcons::Minesweeper, &InxAppIcons::Game2048,    &InxAppIcons::Avatar,     &InxAppIcons::AirPage,
+       &InxAppIcons::Buddy,       &InxAppIcons::PixelSwitch, &InxAppIcons::Calculator, &InxAppIcons::Standby,
+-      &InxAppIcons::Woodfish,
++      &InxAppIcons::Woodfish,    &InxAppIcons::ClaudeUsage,
+   };
+ 
+   for (size_t index = 0; index < icons.size(); ++index) {
+@@ -565,6 +566,7 @@ TEST(InxNavigation, KeepsAppIconAssetsValidAndDistinct) {
+   EXPECT_EQ(InxAppIcons::get(UIIcon::AirPage), InxAppIcons::AirPage.data());
+   EXPECT_EQ(InxAppIcons::get(UIIcon::Calculator), InxAppIcons::Calculator.data());
+   EXPECT_EQ(InxAppIcons::get(UIIcon::Woodfish), InxAppIcons::Woodfish.data());
++  EXPECT_EQ(InxAppIcons::get(UIIcon::ClaudeUsage), InxAppIcons::ClaudeUsage.data());
+ }
+ 
+ TEST(InxNavigation, KeepsSubpageContentInsideChrome) {
+-- 
+2.43.0
+
