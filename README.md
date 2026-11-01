@@ -48,12 +48,28 @@ the app turned it on.
 
 ## 1. Build and flash the firmware
 
+You need a current PlatformIO (6.x). The `platformio` package from apt (4.3.x)
+is too old for CrossMux and crashes on recent Python, so install it in a venv:
+
 ```bash
-git clone --recursive https://github.com/0x1abin/crossmux
-cd crossmux
-git am /path/to/fantastic-octo-winner/patches/0001-Add-Claude-Usage-app.patch
+python3 -m venv ~/.pio-venv
+~/.pio-venv/bin/pip install -U platformio
+export PATH="$HOME/.pio-venv/bin:$PATH"   # add to ~/.bashrc to keep it
+```
+
+Then get CrossMux and this patch, and flash:
+
+```bash
+git clone --recursive https://github.com/0x1abin/crossmux ~/crossmux
+git clone -b ccr-c9aaae77-co1cwu https://github.com/fireh9lly/fantastic-octo-winner ~/fantastic-octo-winner
+cd ~/crossmux
+git am ~/fantastic-octo-winner/patches/0001-Add-Claude-Usage-app.patch
 pio run -e sticky -t upload         # reTerminal Sticky (other boards: see platformio.ini)
 ```
+
+The first build downloads the ESP32-S3 toolchain and ESP-IDF (1-2 GB). If the
+upload can't open the serial port, run `sudo usermod -aG dialout $USER` and log
+in again.
 
 The app shows up in **Apps** as "Claude Usage" and is visible by default. You can
 hide it in Settings → App Visibility.
