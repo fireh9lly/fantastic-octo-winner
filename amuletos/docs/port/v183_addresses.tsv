@@ -1,0 +1,266 @@
+old	module	region	new	shift	flag	how	used at
+0x03005764	0	ram	0x03005784	+0x20		literal evidence 5x	game/device/gbprobe.c:282
+0x030057c0		ram	0x03005800	+0x40		literal evidence 7x	game/device/timing.S:21
+0x03005a8c		ram	0x03005acc	+0x40		literal evidence 3x	game/device/blockz.c:27 game/device/test_module.c:14
+0x03005a8c	12	ram	0x03005acc	+0x40		literal evidence 3x	hooks/d1_diag.S:13 hooks/d1_diag.S:26
+0x030065c0	12	ram	0x03006600	+0x40		literal evidence 52x	hooks/d1_diag.S:10 hooks/d1_diag.S:25
+0x03006688		ram	0x030066c8	+0x40		literal evidence 9x	game/device/gbprobe.c:195
+0x030226e4		ram	0x03024724	+0x2040		literal evidence 3x	game/device/blockz.c:28 game/device/blockz.c:38 game/device/test_module.c:16
+0x030226e5		ram	0x03024725	+0x2040		literal evidence 2x	game/device/blockz.c:29 game/device/blockz.c:39 game/device/test_module.c:17
+0x030226e8		ram	0x03024728	+0x2040		literal evidence 2x	game/device/test_module.c:18
+0x0302288c		ram	0x030248cc	+0x2040		literal evidence 68x	game/device/blockz.c:5 game/device/blockz.c:24 game/device/test_module.c:15 game/device/timing.c:3
+0x03022894		ram	0x030248d4	+0x2040		literal evidence 195x	game/device/blockz.c:40
+0x03022bac		ram	0x03024bec	+0x2040		literal evidence 24x	game/device/bgmusic.c:257 game/device/playlists.c:147
+0x03022bba		ram	0x03024bfa	+0x2040		literal evidence 6x	game/device/blockz.c:296
+0x03022dec		ram	0x03024e2c	+0x2040		literal evidence 558x	game/stock.h:18
+0x03022dec	27	ram	0x03024e2c	+0x2040		literal evidence 558x	game/device/npui.c:43
+0x03023280		ram	0x030252c0	+0x2040		literal evidence 4x	game/stock.h:12
+0x030232bc		ram	0x030252fc	+0x2040		literal evidence 102x	game/device/blockz.c:275
+0x03023b44		ram	0x03025b84	+0x2040		literal evidence 1x	game/device/gbprobe.c:223
+0x03023b48		ram	0x03025b88	+0x2040		literal evidence 53x	tools/build_module.py:18 game/stock.h:29 game/device/blockz.c:344 game/device/module.ld:8 game/device/playlists.c:228 game/device/test_module.c:147
+0x03023b48	22	ram	0x03025b88	+0x2040		literal evidence 53x	game/device/m22_ext.S:7
+0x03023b48	82	ram	0x03025b88	+0x2040		literal evidence 53x	tools/build_module.py:27
+0x03023b48	98	ram	0x03025b88	+0x2040		literal evidence 53x	game/device/module.ld:3
+0x03023b64	21	ram	0x03025ba4	+0x2040		literal evidence 81x	game/device/m21_ext.c:8
+0x03023b94	21	ram	0x03025bd4	+0x2040		literal evidence 8x	game/device/m21_ext.S:8
+0x030361a4		ram	0x03038230	+0x208c		literal evidence 107x	game/device/blockz.c:83 game/device/blockz.c:275
+0x03036790	12	ram	0x030387d0	+0x2040		literal evidence 1x	hooks/amu_inq.S:4 hooks/amu_inq.S:12 hooks/d1_diag.S:6 hooks/d1_diag.S:23 hooks/h0_inquiry.S:10 hooks/h0_inquiry.S:22
+0x030483c8	27	ram	0x0304a458	+0x2090	CHECK	literal evidence 35x (conflicts: {50635864: 35, 50561320: 1})	game/device/bgmusic.c:239
+0x030483d0	33	ram	0x0304a460	+0x2090		literal evidence 8x	game/device/blockz.c:81
+0x03048450	27	ram	0x0304a4e0	+0x2090		literal evidence 8x	hooks/np_title.S:5 hooks/np_title.S:9
+0x03048580	27	ram	0x0304a610	+0x2090		literal evidence 7x	hooks/np_title.S:4
+0x030485e0	27	ram	0x0304a670	+0x2090		shift +0x2090 (same as known 0x3048580 and 0x30487c8)	hooks/np_title.S:8
+0x03050000		m0-code	0x03050000	+0x0		literal evidence 3x | code: no function at this address in the old image	tools/build_helpers.py:14 tools/build_overlay.py:13 tools/extend_module.py:20 tools/build_module.py:24
+0x03050000	12	m0-code	0x03050000	+0x0		literal evidence 3x | code: no function at this address in the old image	tools/build_hook.py:24
+0x0305094e		m0-code	0x0305094e	+0x0		exact function 0x3050906->0x3050906	game/device/gbprobe.c:304
+0x03050a00		m0-code	0x03050a00	+0x0		exact function 0x3050906->0x3050906	game/device/gbprobe.c:305
+0x03051f8e		m0-code	0x03051f8e	+0x0		exact function 0x3051cb2->0x3051cb2	game/device/gbprobe.c:301
+0x03052b20		m0-code	0x03052b20	+0x0		exact function 0x3052b20->0x3052b20	game/device/gbprobe.c:302
+0x03052bfc		m0-code	0x03052bfc	+0x0		exact function 0x3052bfc->0x3052bfc	game/device/gbprobe.c:297
+0x03053822		m0-code	0x03053822	+0x0		exact function 0x3053822->0x3053822	game/stock.h:23
+0x03055304		m0-code	0x030555e0	+0x2dc		exact function 0x3055304->0x30555e0	game/device/bgmusic.c:29 game/device/playlists.c:24
+0x03056774		m0-code	0x03056a50	+0x2dc		exact function 0x3056774->0x3056a50	game/device/gbprobe.c:308
+0x03056960		m0-code	0x03056c3c	+0x2dc	CHECK	aligned function 0x3056960->0x3056c3c (0.99)	game/device/gbprobe.c:303
+0x03056c2c		m0-code	0x03056f08	+0x2dc		exact function 0x3056c2c->0x3056f08	game/device/gbprobe.c:298
+0x03056c66		m0-code	0x03056f42	+0x2dc		exact function 0x3056c66->0x3056f42	game/device/gbprobe.c:299
+0x03057b96		m0-code	0x03057e72	+0x2dc		exact function 0x3057b96->0x3057e72	game/device/bgmusic.c:21
+0x03057bd4		m0-code	0x03057eb0	+0x2dc		exact function 0x3057bd4->0x3057eb0	game/device/playlists.c:22
+0x03057c38		m0-code	0x03057f14	+0x2dc		exact function 0x3057c38->0x3057f14	game/device/bgmusic.c:20 game/device/gbprobe.c:295
+0x03057c7c		m0-code	0x03057f58	+0x2dc		exact function 0x3057c7c->0x3057f58	game/device/bgmusic.c:19 game/device/blockz.c:83 game/device/blockz.c:275 game/device/gbprobe.c:44 game/device/playlists.c:21
+0x03057cc8		m0-code	0x03057fa4	+0x2dc		exact function 0x3057cc8->0x3057fa4	game/device/bgmusic.c:75 game/device/exfat.c:2 game/device/exfat.c:11
+0x03058526		m0-code	0x03058802	+0x2dc		exact function 0x3058526->0x3058802	game/device/bgmusic.c:23 game/device/gbprobe.c:37 game/device/playlists.c:23
+0x0305a6b4		m0-code	0x0305a990	+0x2dc		exact function 0x305a6b4->0x305a990	game/device/bgmusic.c:28
+0x0305bbca		m0-code	0x0305bea6	+0x2dc		exact function 0x305bbca->0x305bea6	game/device/bgmusic.c:25
+0x0305bbf6		m0-code	0x0305bed2	+0x2dc		exact function 0x305bbf6->0x305bed2	game/device/bgmusic.c:24
+0x0305bdf6		m0-code	0x0305c0d2	+0x2dc		exact function 0x305bdf6->0x305c0d2	game/device/bgmusic.c:27
+0x0305c364		m0-code	0x0305c640	+0x2dc	CHECK	aligned function 0x305c364->0x305c640 (0.68)	game/device/bgmusic.c:26
+0x0305e85c		m0-code	0x0305eb38	+0x2dc		exact function 0x305e85c->0x305eb38	game/device/np_stub.S:31
+0x0305e930		m0-code	0x0305ec0c	+0x2dc	CHECK	aligned function 0x305e930->0x305ec0c (1.00)	game/device/np_helpers.c:17 game/device/np_stub.S:7
+0x0305e930	0	m0-code	0x0305ec0c	+0x2dc	CHECK	aligned function 0x305e930->0x305ec0c (1.00)	tools/patch_code.py:252 tools/patch_code.py:257 tools/patch_code.py:257
+0x0305e935		m0-code	0x0305ec11	+0x2dc	CHECK	aligned function 0x305e930->0x305ec0c (1.00) (+thumb bit)	game/device/np_stub.S:24
+0x030614f8		m0-code	0x030617d4	+0x2dc		exact function 0x30614f8->0x30617d4	game/device/gbprobe.c:230
+0x03061524		m0-code	0x03061800	+0x2dc		exact function 0x3061524->0x3061800	game/device/gbprobe.c:231
+0x030622e4		m0-code	0x030625c0	+0x2dc		exact function 0x30622e4->0x30625c0	game/device/gbprobe.c:306
+0x0306242e		m0-code	0x0306270a	+0x2dc		exact function 0x306242e->0x306270a	game/device/gbprobe.c:307
+0x03062858		m0-code	0x03062b34	+0x2dc		exact function 0x3062858->0x3062b34	game/device/gbprobe.c:300
+0x03062a78		m0-code	0x03062d54	+0x2dc		exact function 0x3062a78->0x3062d54	game/device/blockz.c:38
+0x03062fa6		m0-code	0x03063282	+0x2dc	CHECK	aligned function 0x3062fa6->0x3063282 (0.99)	game/stock.h:11
+0x03063bc6		m0-code	0x03063ea2	+0x2dc		exact function 0x3063bc6->0x3063ea2	game/device/gbprobe.c:39 game/device/playlists.c:26
+0x03063d52	27	m0-code	0x0306402e	+0x2dc		exact function 0x3063d52->0x306402e	hooks/np_title.S:10
+0x03063e38		m0-code	0x03064114	+0x2dc		exact function 0x3063e38->0x3064114	game/stock.h:20
+0x03063f76	27	m0-code	0x03064252	+0x2dc	CHECK	aligned function 0x3063f76->0x3064252 (0.99)	hooks/np_title.S:11
+0x030643a2		m0-code	0x0306467e	+0x2dc		exact function 0x30643a2->0x306467e	game/device/gbprobe.c:38 game/device/playlists.c:25 game/device/test_module.c:11
+0x030643c6		m0-code	0x030646a2	+0x2dc		exact function 0x30643c6->0x30646a2	game/device/test_module.c:12
+0x030644a0	22	m0-code	0x0306477c	+0x2dc	CHECK	aligned function 0x30644a0->0x306477c (0.98)	game/device/m22_ext.c:5
+0x03064688		m0-code	0x03064964	+0x2dc		exact function 0x3064688->0x3064964	game/stock.h:19
+0x03064dc4		m0-code	0x030650a0	+0x2dc		exact function 0x3064dc4->0x30650a0	game/device/gbprobe.c:42 game/device/gbprobe.c:194
+0x03064ea8		m0-code	0x03065184	+0x2dc		exact function 0x3064ea8->0x3065184	game/device/gbprobe.c:41
+0x0306535c		m0-code	0x03065638	+0x2dc		exact function 0x306535c->0x3065638	game/device/gbprobe.c:40 game/device/playlists.c:27
+0x0306558a		m0-code	0x03065866	+0x2dc		exact function 0x306558a->0x3065866	game/device/gbprobe.c:43 game/device/gbprobe.c:194
+0x03065b58		m0-code	0x03065e34	+0x2dc		exact function 0x3065b58->0x3065e34	game/device/gbprobe.c:296
+0x03065bc4		m0-code	0x03065ea0	+0x2dc	CHECK	call-target evidence 53x | code: instruction changed in aligned function (aligned 0.71)	game/stock.h:25
+0x0306606e		m0-code	0x0306634a	+0x2dc		exact function 0x306602c->0x3066308	game/device/gbprobe.c:284
+0x030660e6		m0-code	0x030663c2	+0x2dc	CHECK	aligned function 0x30660e6->0x30663c2 (0.98)	game/device/gbprobe.c:283
+0x030661a4		m0-code	0x03066480	+0x2dc	CHECK	aligned function 0x30661a4->0x3066480 (0.76)	game/device/timing.S:33
+0x030661a9		m0-code	0x03066485	+0x2dc	CHECK	aligned function 0x30661a4->0x3066480 (0.76) (+thumb bit)	game/device/timing.S:35
+0x0306645a		m0-code	0x03066766	+0x30c		exact function 0x306645a->0x3066766	game/stock.h:24
+0x030664a2		m0-code	0x030667ae	+0x30c		exact function 0x30664a2->0x30667ae	game/stock.h:22
+0x03067ed4		m0-code	0x030681f0	+0x31c		exact function 0x3067ed4->0x30681f0	game/stock.h:13
+0x03067ef0		m0-code	0x0306820c	+0x31c		exact function 0x3067ef0->0x306820c	game/stock.h:14
+0x030680d4		m0-code	0x030683f0	+0x31c		exact function 0x30680d4->0x30683f0	game/stock.h:16 game/device/timing.S:20
+0x030680d4	21	m0-code	0x030683f0	+0x31c		exact function 0x30680d4->0x30683f0	tools/patch_code.py:222
+0x030680d4	32	m0-code	0x030683f0	+0x31c		exact function 0x30680d4->0x30683f0	hooks/settings_game.S:12
+0x030680d5	22	m0-code	0x030683f1	+0x31c		exact function 0x30680d4->0x30683f0 (+thumb bit)	game/device/m22_ext.S:33
+0x030680d9		m0-code	0x030683f5	+0x31c		exact function 0x30680d4->0x30683f0 (+thumb bit)	game/device/timing.S:23
+0x030683de		m0-code	0x030686fa	+0x31c		exact function 0x30683de->0x30686fa	game/device/gbprobe.c:309 game/device/timing.S:27
+0x030683de	12	m0-code	0x030686fa	+0x31c		exact function 0x30683de->0x30686fa	tools/build_hook.py:9
+0x030683e3		m0-code	0x030686ff	+0x31c		exact function 0x30683de->0x30686fa (+thumb bit)	game/device/timing.S:29
+0x030684e4		m0-code	0x03068800	+0x31c		exact function 0x30684e4->0x3068800	game/device/bgmusic.c:22
+0x0306d5c0	0	m0-code	0x0306da58	+0x498		exact function 0x306d564->0x306d9fc	tools/patch_code.py:159 tools/patch_code.py:159
+0x0306de9c		m0-code	0x0306e334	+0x498		exact function 0x306dcd4->0x306e16c	game/device/gbprobe.c:229
+0x0306fd50		m0-code	0x03070220	+0x4d0	CHECK	aligned function 0x306e4e2->0x306e9b2 (1.00)	game/device/gbprobe.c:195
+0x0307e710		ram-gap	0x0307ebe0	+0x4d0		literal evidence 59x	game/device/blockz.c:283 game/device/exfat.c:3
+0x0307e71c		ram-gap	0x0307ebec	+0x4d0		literal evidence 49x	game/device/bgmusic.c:215
+0x0307efc8		ram-gap	0x0307f498	+0x4d0		literal evidence 13x	game/device/blockz.c:283
+0x0307f250		ram-gap	0x0307f720	+0x4d0		literal evidence 9x	game/device/blockz.c:283
+0x03080eac	4	overlay	0x0308137c	+0x4d0		literal word 0x200149fe->0x200149fe, copy 1 of 1 (shift +0x0 (same as known 0x20014669 and 0x20016831))	game/device/gbprobe.c:223
+0x03080f28		overlay	0x030813f8	+0x4d0		all 1 modules agree: exact function 0x3080f28->0x30813f8	game/device/gbprobe.c:228
+0x03080fec	4	overlay	0x030814bc	+0x4d0		module 4: exact function 0x3080fec->0x30814bc	game/device/gbprobe.c:221
+0x030815c4		overlay	0x03081a94	+0x4d0		all 15 modules agree: exact function 0x30815c4->0x3081a94	tools/build_module.py:18 tools/build_module.py:26 game/device/module.ld:7 game/device/module.ld:7
+0x030815c4	27	overlay	0x03081a94	+0x4d0		module 27: exact function 0x30815c4->0x3081a94	game/device/bgmusic.c:239
+0x030815d4	21	overlay	0x03081aa4	+0x4d0		module 21: exact function 0x30815c4->0x3081a94	tools/patch_code.py:224 tools/patch_code.py:224
+0x03081654	27	overlay	0x03081b24	+0x4d0		module 27: exact function 0x30815c4->0x3081a94	tools/patch_code.py:175 tools/patch_code.py:175
+0x0308165a	22	overlay	0x03081b2a	+0x4d0		module 22: exact function 0x3081654->0x3081b24	tools/patch_code.py:245
+0x030816ec	22	overlay	0x03081bbc	+0x4d0		module 22: exact function 0x3081654->0x3081b24	tools/patch_code.py:246
+0x03081754	5	overlay	0x03081c24	+0x4d0	CHECK	module 5: aligned function 0x3081740->0x3081c10 (0.96)	tools/patch_code.py:157 tools/patch_code.py:158
+0x030818b4	21	overlay	0x03081d84	+0x4d0		module 21: exact function 0x308188e->0x3081d5e	tools/patch_code.py:204
+0x030818ba	21	overlay	0x03081d8a	+0x4d0		module 21: exact function 0x308188e->0x3081d5e	tools/patch_code.py:209
+0x030818d8	22	overlay	0x03081da8	+0x4d0	CHECK	module 22: aligned function 0x308170c->0x3081bdc (0.99)	tools/patch_code.py:247 tools/patch_code.py:247
+0x03081960	21	overlay	0x03081e30	+0x4d0		module 21: exact function 0x308188e->0x3081d5e	tools/patch_code.py:209
+0x03081966	21	overlay	0x03081e36	+0x4d0		module 21: exact function 0x308188e->0x3081d5e	tools/patch_code.py:55
+0x03081968	21	overlay	0x03081e38	+0x4d0		module 21: exact function 0x308188e->0x3081d5e	tools/patch_code.py:56
+0x03081976	21	overlay	0x03081e46	+0x4d0		module 21: exact function 0x308188e->0x3081d5e	tools/patch_code.py:210
+0x0308197e	22	overlay	0x03081e4e	+0x4d0	CHECK	module 22: aligned function 0x308170c->0x3081bdc (0.99)	tools/patch_code.py:258 tools/patch_code.py:258 game/device/m22_ext.S:23
+0x03081983	22	overlay	0x03081e53	+0x4d0	CHECK	module 22: aligned function 0x308170c->0x3081bdc (0.99) (+thumb bit)	game/device/m22_ext.S:38
+0x03081996	21	overlay	0x03081e66	+0x4d0		module 21: exact function 0x308188e->0x3081d5e	tools/patch_code.py:200 tools/patch_code.py:209 tools/patch_code.py:212 tools/patch_code.py:213
+0x030819bc	21	overlay	0x03081e8c	+0x4d0		module 21: exact function 0x308188e->0x3081d5e	tools/patch_code.py:210
+0x030819d0	21	overlay	0x03081ea0	+0x4d0		module 21: exact function 0x308188e->0x3081d5e	tools/patch_code.py:206 tools/patch_code.py:209 tools/patch_code.py:211
+0x03081aa4	10	overlay	0x03081f74	+0x4d0	CHECK	module 10: aligned function 0x3081aa4->0x3081f74 (0.99)	tools/build_hook.py:32 tools/build_hook.py:33 tools/build_hook.py:34 tools/build_hook.py:35 tools/build_hook.py:36 tools/build_hook.py:37 hooks/h0_inquiry.S:8
+0x03081aa5	10	overlay	0x03081f75	+0x4d0	CHECK	module 10: aligned function 0x3081aa4->0x3081f74 (0.99) (+thumb bit)	hooks/amu_inq.S:13 hooks/d1_diag.S:24 hooks/h0_inquiry.S:26 hooks/h0a_pass.S:19
+0x03081b28	22	overlay	0x03081ff8	+0x4d0		literal word 0x3023b48->0x3025b88, copy 1 of 3 (literal evidence 53x)	tools/patch_code.py:244
+0x03081b8a	21	overlay	0x0308205a	+0x4d0	CHECK	module 21: aligned function 0x30819e4->0x3081eb4 (0.99)	tools/patch_code.py:225 tools/patch_code.py:225 game/device/m21_ext.S:53
+0x03081ba6	21	overlay	0x03082076	+0x4d0	CHECK	module 21: aligned function 0x30819e4->0x3081eb4 (0.99)	tools/patch_code.py:221 game/device/m21_ext.S:54
+0x03081ba7	21	overlay	0x03082077	+0x4d0	CHECK	module 21: aligned function 0x30819e4->0x3081eb4 (0.99) (+thumb bit)	game/device/m21_ext.S:61
+0x03081bb0	21	overlay	0x03082080	+0x4d0	CHECK	module 21: aligned function 0x30819e4->0x3081eb4 (0.99)	tools/patch_code.py:222
+0x03081bb6	21	overlay	0x03082086	+0x4d0	CHECK	module 21: aligned function 0x30819e4->0x3081eb4 (0.99) (+2 inside the instruction at 0x3081bb4)	tools/patch_code.py:223
+0x03081c8e	32	overlay	0x0308215e	+0x4d0		module 32: exact function 0x3081c8e->0x308215e	tools/patch_code.py:273 hooks/settings_game.S:9
+0x03081cd6	21	overlay	0x030821a6	+0x4d0	CHECK	module 21: aligned function 0x30819e4->0x3081eb4 (0.99)	tools/patch_code.py:215 tools/patch_code.py:218
+0x03081cde	21	overlay	0x030821ae	+0x4d0	CHECK	module 21: aligned function 0x30819e4->0x3081eb4 (0.99)	tools/patch_code.py:220 tools/patch_code.py:220
+0x03081cf8	21	overlay	0x030821c8	+0x4d0	CHECK	module 21: aligned function 0x30819e4->0x3081eb4 (0.99)	tools/patch_code.py:214
+0x03081cfa	21	overlay	0x030821ca	+0x4d0	CHECK	module 21: aligned function 0x30819e4->0x3081eb4 (0.99) (+2 inside the instruction at 0x3081cf8)	tools/patch_code.py:215
+0x03081cfe	21	overlay	0x030821ce	+0x4d0	CHECK	module 21: aligned function 0x30819e4->0x3081eb4 (0.99)	tools/patch_code.py:215
+0x03081d24	21	overlay	0x030821f4	+0x4d0	CHECK	module 21: aligned function 0x30819e4->0x3081eb4 (0.99)	tools/patch_code.py:217
+0x03081d26	21	overlay	0x030821f6	+0x4d0	CHECK	module 21: aligned function 0x30819e4->0x3081eb4 (0.99) (+2 inside the instruction at 0x3081d24)	tools/patch_code.py:218
+0x03081d2a	21	overlay	0x030821fa	+0x4d0	CHECK	module 21: aligned function 0x30819e4->0x3081eb4 (0.99)	tools/patch_code.py:218
+0x03081d74	21	overlay	0x03082244	+0x4d0	CHECK	module 21: aligned function 0x30819e4->0x3081eb4 (0.99)	tools/patch_code.py:220 tools/patch_code.py:223
+0x03081d75	21	overlay	0x03082245	+0x4d0	CHECK	module 21: aligned function 0x30819e4->0x3081eb4 (0.99) (+thumb bit)	game/device/m21_ext.S:62
+0x03081e6e	81	overlay	0x030823d4	+0x566		game exit pattern (movs r0,#0xa; bl TaskSwitch), site 1 of 1	tools/patch_code.py:62
+0x03081eb0	22	overlay	0x03082380	+0x4d0	CHECK	module 22: aligned function 0x3081e20->0x30822f0 (0.99)	game/device/m22_ext.c:4
+0x03081f54	22	overlay	0x03082424	+0x4d0	CHECK	module 22: aligned function 0x3081e20->0x30822f0 (0.99)	tools/patch_code.py:260 tools/patch_code.py:260 game/device/m22_ext.c:5
+0x03081f6c	22	overlay	0x0308243c	+0x4d0	CHECK	module 22: literal of aligned function 0x3081e20->0x30822f0	tools/patch_code.py:244
+0x03082034	22	overlay	0x03082504	+0x4d0	CHECK	module 22: aligned function 0x3081e20->0x30822f0 (0.99)	tools/patch_code.py:261 tools/patch_code.py:261 game/device/m22_ext.c:5
+0x03082054	102	overlay	0x0308270c	+0x6b8		game exit pattern (movs r0,#0xa; bl TaskSwitch), site 1 of 1	tools/patch_code.py:63
+0x030820b8	83	overlay	0x0308267c	+0x5c4		game exit pattern (movs r0,#0xa; bl TaskSwitch), site 1 of 1	tools/patch_code.py:62
+0x03082146	84	overlay	0x030827c4	+0x67e	CHECK	module 84: aligned function 0x308201e->0x308266c (0.68)	tools/patch_code.py:62
+0x03082174	22	overlay	0x03082644	+0x4d0		literal word 0x3023b48->0x3025b88, copy 3 of 3 (literal evidence 53x)	tools/patch_code.py:244
+0x0308219e	31	overlay	0x0308266e	+0x4d0	CHECK	module 31: aligned function 0x3082140->0x3082610 (0.99)	tools/patch_code.py:160 tools/patch_code.py:160
+0x030821b4	1	overlay	0x03082684	+0x4d0	CHECK	module 1: aligned function 0x3082090->0x3082560 (0.99)	tools/patch_code.py:21
+0x0308229e	101	overlay	0x03082a02	+0x764		game exit pattern (movs r0,#0xa; bl TaskSwitch), site 1 of 1	tools/patch_code.py:62
+0x03082306	1	overlay	0x030827d6	+0x4d0	CHECK	module 1: aligned function 0x3082090->0x3082560 (0.99)	tools/patch_code.py:26
+0x03082398	107	overlay	0x03082abe	+0x726	CHECK	module 107: aligned function 0x30821a4->0x30828ea (0.65)	tools/patch_code.py:64
+0x0308247c	32	overlay	0x0308294c	+0x4d0	CHECK	module 32: aligned function 0x3081edc->0x30823ac (0.98)	tools/patch_code.py:273 tools/patch_code.py:289 tools/patch_code.py:290 hooks/settings_game.S:5
+0x03082484	105	overlay	0x03082bb8	+0x734		game exit pattern (movs r0,#0xa; bl TaskSwitch), site 1 of 1	tools/patch_code.py:63
+0x0308248c	32	overlay	0x0308295c	+0x4d0	CHECK	module 32: aligned function 0x3081edc->0x30823ac (0.98)	hooks/settings_game.S:10
+0x0308250a	32	overlay	0x030829da	+0x4d0	CHECK	module 32: aligned function 0x3081edc->0x30823ac (0.98)	hooks/settings_game.S:11
+0x03082668	109	overlay	0x03082d14	+0x6ac	CHECK	module 109: aligned function 0x3082524->0x3082bb4 (0.66)	tools/patch_code.py:64
+0x03082748	103	overlay	0x03082e4c	+0x704	CHECK	module 103: aligned function 0x308260c->0x3082d0e (0.70)	tools/patch_code.py:63
+0x030827ba	106	overlay	0x03082fea	+0x830		game exit pattern (movs r0,#0xa; bl TaskSwitch), site 1 of 1	tools/patch_code.py:63
+0x030827ea	1	overlay	0x03082cba	+0x4d0	CHECK	module 1: aligned function 0x3082090->0x3082560 (0.99)	tools/patch_code.py:161 tools/patch_code.py:161
+0x0308296e	27	overlay	0x03082e3e	+0x4d0	CHECK	module 27: aligned function 0x30826f8->0x3082bc8 (0.97)	tools/patch_code.py:49
+0x03082996	27	overlay	0x03082e66	+0x4d0	CHECK	module 27: aligned function 0x30826f8->0x3082bc8 (0.97)	tools/patch_code.py:50
+0x030829b2	27	overlay	0x03082e82	+0x4d0	CHECK	module 27: aligned function 0x30829a2->0x3082e72 (1.00)	tools/patch_code.py:181 tools/patch_code.py:181
+0x030829bc	27	overlay	0x03082e8c	+0x4d0	CHECK	module 27: aligned function 0x30829a2->0x3082e72 (1.00)	tools/patch_code.py:182
+0x030829c6	27	overlay	0x03082e96	+0x4d0	CHECK	module 27: aligned function 0x30829a2->0x3082e72 (1.00)	tools/patch_code.py:183
+0x03082a2a	27	overlay	0x03082efa	+0x4d0	CHECK	module 27: aligned function 0x30829a2->0x3082e72 (1.00)	tools/patch_code.py:132 tools/patch_code.py:132 tools/patch_code.py:176 tools/patch_code.py:176
+0x03082a2e	27	overlay	0x03082efe	+0x4d0	CHECK	module 27: aligned function 0x30829a2->0x3082e72 (1.00)	tools/patch_code.py:107 tools/patch_code.py:107 tools/patch_code.py:133 tools/patch_code.py:133 tools/patch_code.py:177 tools/patch_code.py:177
+0x03082a30	27	overlay	0x03082f00	+0x4d0	CHECK	module 27: aligned function 0x30829a2->0x3082e72 (1.00)	hooks/np_title.S:3
+0x03082a30	109	overlay	0x030830dc	+0x6ac		module 109: exact function 0x3082950->0x3082ffc	tools/patch_code.py:68
+0x03082a78	27	overlay	0x03082f48	+0x4d0	CHECK	module 27: aligned function 0x30829a2->0x3082e72 (1.00)	tools/patch_code.py:38
+0x03082a7c	27	overlay	0x03082f4c	+0x4d0	CHECK	module 27: aligned function 0x30829a2->0x3082e72 (1.00)	tools/patch_code.py:133 tools/patch_code.py:177
+0x03082a90	27	overlay	0x03082f60	+0x4d0	CHECK	module 27: aligned function 0x30829a2->0x3082e72 (1.00)	tools/patch_code.py:134 tools/patch_code.py:178
+0x03082ac6	27	overlay	0x03082f96	+0x4d0	CHECK	module 27: aligned function 0x30829a2->0x3082e72 (1.00)	tools/patch_code.py:40 tools/patch_code.py:145 tools/patch_code.py:145 tools/patch_code.py:179 tools/patch_code.py:179
+0x03082aca	27	overlay	0x03082f9a	+0x4d0	CHECK	module 27: aligned function 0x30829a2->0x3082e72 (1.00)	tools/patch_code.py:107
+0x03082aca	109	overlay	0x03083176	+0x6ac	CHECK	module 109: aligned function 0x3082a66->0x3083112 (1.00)	tools/patch_code.py:68
+0x03082ae0	27	overlay	0x03082fb0	+0x4d0	CHECK	module 27: aligned function 0x30829a2->0x3082e72 (1.00)	tools/patch_code.py:146 tools/patch_code.py:146 tools/patch_code.py:180 tools/patch_code.py:180
+0x03082af2	27	overlay	0x03082fc2	+0x4d0	CHECK	module 27: aligned function 0x30829a2->0x3082e72 (1.00)	tools/patch_code.py:39
+0x03082b04	27	overlay	0x03082fd4	+0x4d0	CHECK	module 27: aligned function 0x30829a2->0x3082e72 (1.00)	tools/patch_code.py:41 tools/patch_code.py:147 tools/patch_code.py:184
+0x03082f4e	11	overlay	0x0308341e	+0x4d0	CHECK	module 11: aligned function 0x3082f4e->0x308341e (0.99)	game/device/gbprobe.c:281
+0x03083114	27	overlay	0x030835e4	+0x4d0	CHECK	module 27: aligned function 0x3082d28->0x30831f8 (0.99)	tools/patch_code.py:190 tools/patch_code.py:190
+0x0308316a	27	overlay	0x0308363a	+0x4d0	CHECK	module 27: aligned function 0x3082d28->0x30831f8 (0.99)	tools/patch_code.py:192
+0x0308317a	27	overlay	0x0308364a	+0x4d0	CHECK	module 27: aligned function 0x3082d28->0x30831f8 (0.99)	tools/patch_code.py:193 tools/patch_code.py:193
+0x03083208	27	overlay	0x030836d8	+0x4d0	CHECK	module 27: aligned function 0x3082d28->0x30831f8 (0.99)	tools/patch_code.py:194 tools/patch_code.py:195
+0x0308320c	27	overlay	0x030836dc	+0x4d0	CHECK	module 27: aligned function 0x3082d28->0x30831f8 (0.99)	tools/patch_code.py:195
+0x030833da	27	overlay	0x030838aa	+0x4d0	CHECK	module 27: aligned function 0x3082d28->0x30831f8 (0.99)	tools/patch_code.py:195
+0x0308341e	27	overlay	0x030838ee	+0x4d0	CHECK	module 27: aligned function 0x3082d28->0x30831f8 (0.99)	tools/patch_code.py:191 tools/patch_code.py:191
+0x0308344c	27	overlay	0x0308391c	+0x4d0	CHECK	module 27: aligned function 0x3082d28->0x30831f8 (0.99)	tools/patch_code.py:185 tools/patch_code.py:186
+0x03083466	27	overlay	0x03083936	+0x4d0	CHECK	module 27: aligned function 0x3082d28->0x30831f8 (0.99)	tools/patch_code.py:110 tools/patch_code.py:110 tools/patch_code.py:136 tools/patch_code.py:136
+0x03083478	27	overlay	0x03083948	+0x4d0	CHECK	module 27: aligned function 0x3082d28->0x30831f8 (0.99)	tools/patch_code.py:186 tools/patch_code.py:187 tools/patch_code.py:188
+0x0308349a	27	overlay	0x0308396a	+0x4d0	CHECK	module 27: aligned function 0x3082d28->0x30831f8 (0.99)	tools/patch_code.py:109 tools/patch_code.py:109 tools/patch_code.py:135 tools/patch_code.py:135
+0x030834f4	27	overlay	0x030839c4	+0x4d0	CHECK	module 27: aligned function 0x3082d28->0x30831f8 (0.99)	tools/patch_code.py:188 tools/patch_code.py:188
+0x030834f8	27	overlay	0x030839c8	+0x4d0	CHECK	module 27: aligned function 0x3082d28->0x30831f8 (0.99)	tools/patch_code.py:186
+0x030834fc	85	overlay	0x03083d62	+0x866	CHECK	module 85: aligned function 0x3083360->0x3083bb0 (0.67)	tools/patch_code.py:62
+0x0308350e	27	overlay	0x030839de	+0x4d0	CHECK	module 27: aligned function 0x3082d28->0x30831f8 (0.99)	tools/patch_code.py:189 tools/patch_code.py:189
+0x03083550	27	overlay	0x03083a20	+0x4d0	CHECK	module 27: literal of aligned function 0x3082d28->0x30831f8	tools/patch_code.py:45
+0x03083554	27	overlay	0x03083a24	+0x4d0	CHECK	module 27: literal of aligned function 0x3082d28->0x30831f8	tools/patch_code.py:111 tools/patch_code.py:137
+0x03083770	32	overlay	0x03083c40	+0x4d0	CHECK	module 32: aligned function 0x30836fc->0x3083bcc (0.99)	tools/patch_code.py:274 tools/patch_code.py:277
+0x030838e2	27	overlay	0x03083db2	+0x4d0	CHECK	module 27: aligned function 0x3083688->0x3083b58 (0.99)	tools/patch_code.py:31
+0x03083978	12	overlay	0x03083e48	+0x4d0	CHECK	module 12: aligned function 0x30837ee->0x3083cbe (0.99)	tools/build_hook.py:32 tools/build_hook.py:33 tools/build_hook.py:34 tools/build_hook.py:35 tools/build_hook.py:36 tools/build_hook.py:37 hooks/amu_inq.S:4 hooks/d1_diag.S:5 hooks/h0_inquiry.S:8 hooks/h0a_pass.S:4
+0x03083a06	104	overlay	0x030844ac	+0xaa6	CHECK	module 104: aligned function 0x30838ac->0x30842fc (0.66)	tools/patch_code.py:63
+0x03083c0a	32	overlay	0x030840da	+0x4d0	CHECK	module 32: aligned function 0x30836fc->0x3083bcc (0.99)	tools/patch_code.py:275 tools/patch_code.py:277
+0x03083c1c	32	overlay	0x030840ec	+0x4d0	CHECK	module 32: aligned function 0x30836fc->0x3083bcc (0.99)	tools/patch_code.py:277 tools/patch_code.py:280 hooks/settings_game.S:3
+0x03083c2e	32	overlay	0x030840fe	+0x4d0	CHECK	module 32: aligned function 0x30836fc->0x3083bcc (0.99)	tools/patch_code.py:280
+0x03083c40	32	overlay	0x03084110	+0x4d0	CHECK	module 32: aligned function 0x30836fc->0x3083bcc (0.99)	tools/patch_code.py:280
+0x03083c52	32	overlay	0x03084122	+0x4d0	CHECK	module 32: aligned function 0x30836fc->0x3083bcc (0.99)	tools/patch_code.py:280
+0x03083c64	32	overlay	0x03084134	+0x4d0	CHECK	module 32: aligned function 0x30836fc->0x3083bcc (0.99)	tools/patch_code.py:280
+0x03083c76	32	overlay	0x03084146	+0x4d0	CHECK	module 32: aligned function 0x30836fc->0x3083bcc (0.99)	tools/patch_code.py:281
+0x03083c88	32	overlay	0x03084158	+0x4d0	CHECK	module 32: aligned function 0x30836fc->0x3083bcc (0.99)	tools/patch_code.py:281
+0x03083c9a	32	overlay	0x0308416a	+0x4d0	CHECK	module 32: aligned function 0x30836fc->0x3083bcc (0.99)	tools/patch_code.py:281
+0x03083cac	32	overlay	0x0308417c	+0x4d0	CHECK	module 32: aligned function 0x30836fc->0x3083bcc (0.99)	tools/patch_code.py:281
+0x03083cbe	32	overlay	0x0308418e	+0x4d0	CHECK	module 32: aligned function 0x30836fc->0x3083bcc (0.99)	tools/patch_code.py:281
+0x03083cd0	32	overlay	0x030841a0	+0x4d0	CHECK	module 32: aligned function 0x30836fc->0x3083bcc (0.99)	tools/patch_code.py:282
+0x03083ce0	32	overlay	0x030841b0	+0x4d0	CHECK	module 32: aligned function 0x30836fc->0x3083bcc (0.99)	tools/patch_code.py:277 tools/patch_code.py:282
+0x03083f0c		overlay	0x030843dc	+0x4d0		layout: end of module 27 = Now Playing overlay slot start	tools/build_overlay.py:4 build.sh:61 game/device/np_helpers.c:10
+0x03083f0c	27	overlay	0x030843dc	+0x4d0		layout: end of module 27 = Now Playing overlay slot start	game/device/npui.c:5
+0x03083f72	108	overlay	0x03084a98	+0xb26	CHECK	module 108: aligned function 0x3083d9a->0x308485e (0.91)	tools/patch_code.py:64
+0x03083fa4	109	overlay	0x030846e4	+0x740	CHECK	module 109: aligned function 0x3083edc->0x3084620 (0.83)	tools/patch_code.py:64
+0x03084664	27	overlay	0x03084b34	+0x4d0		layout: start of module 18 = Now Playing overlay slot end	game/device/npui.c:6
+0x0308bf84	33	overlay	0x0308c454	+0x4d0		module 33: exact function 0x308bf84->0x308c454	tools/build_module.py:26 game/device/bgmusic.c:31 game/device/gbprobe.c:21 game/device/module.ld:2 game/device/module.ld:7
+0x0308bf84	33	overlay	0x0308c454	+0x4d0		module 33: exact function 0x308bf84->0x308c454	tools/extend_module.py:21 game/device/gbprobe.c:286
+0x0308c8ee	33	overlay	0x0308d872	+0xf84	CHECK	module 33: aligned function 0x308c8ee->0x308d872 (0.74)	tools/patch_code.py:235 tools/patch_code.py:235 game/device/gbprobe.c:280 game/device/timing.S:45
+0x0308c8f3		overlay			REVIEW	modules disagree: m33->0x308d877; m39->0x308cdc3	game/device/timing.S:47
+0x0308cfb8		overlay	0x0308d488	+0x4d0		all 1 modules agree: exact function 0x3082214->0x30826e4	game/device/bgmusic.c:275
+0x0308d86e	33	overlay	0x0308eae6	+0x1278	CHECK	module 33: aligned function 0x308d86e->0x308eae6 (0.85)	game/device/bgmusic.c:30
+0x0308dd48	33	overlay	0x0308efe8	+0x12a0		module 33: exact function 0x308dd48->0x308efe8	game/device/np_stub.S:31
+0x0308ddd0	33	overlay	0x0308f070	+0x12a0	CHECK	module 33: aligned function 0x308ddd0->0x308f070 (0.90)	tools/patch_code.py:234 tools/patch_code.py:234 game/device/gbprobe.c:280 game/device/timing.S:39
+0x0308ddd5		overlay			REVIEW	modules disagree: m33->0x308f075; m39->0x308e2a5	game/device/timing.S:41
+0x0308df12	33	overlay	0x0308f1b2	+0x12a0	CHECK	module 33: aligned function 0x308ddd0->0x308f070 (0.90)	game/device/np_stub.S:33
+0x0308df12	33	overlay	0x0308f1b2	+0x12a0	CHECK	module 33: aligned function 0x308ddd0->0x308f070 (0.90)	tools/patch_code.py:264 tools/patch_code.py:264
+0x0308df1a	33	overlay	0x0308f1ba	+0x12a0	CHECK	module 33: aligned function 0x308ddd0->0x308f070 (0.90)	game/device/np_stub.S:36
+0x0308df26	33	overlay	0x0308f1c6	+0x12a0	CHECK	module 33: aligned function 0x308ddd0->0x308f070 (0.90)	game/device/np_stub.S:33 game/device/np_stub.S:35
+0x0308df40	33	overlay	0x0308f21a	+0x12da	CHECK	module 33: aligned function 0x308ddd0->0x308f070 (0.90)	game/device/np_stub.S:34
+0x0308dfb8	33	overlay	0x0308f292	+0x12da	CHECK	module 33: aligned function 0x308ddd0->0x308f070 (0.90)	game/device/np_stub.S:52
+0x0308dfb8	33	overlay	0x0308f292	+0x12da	CHECK	module 33: aligned function 0x308ddd0->0x308f070 (0.90)	tools/patch_code.py:265 tools/patch_code.py:266
+0x0308dfc4	33	overlay	0x0308f29e	+0x12da	CHECK	module 33: aligned function 0x308ddd0->0x308f070 (0.90)	game/device/np_stub.S:39
+0x0308dffa	33	overlay	0x0308f2d6	+0x12dc	CHECK	module 33: aligned function 0x308ddd0->0x308f070 (0.90)	game/device/np_stub.S:38 game/device/np_stub.S:52
+0x0308e014	33	overlay	0x0308f2f0	+0x12dc	CHECK	module 33: aligned function 0x308ddd0->0x308f070 (0.90)	game/device/np_stub.S:37
+0x0308ff84		overlay	0x03090454	+0x4d0		layout: Game Boy sound ring end = module 33 start + 16 KB	game/device/gbprobe.c:319
+0x0308ffbc		overlay	0x03091370	+0x13b4		layout: start of the decoder front-ends (module 40)	game/device/gbprobe.c:319
+0x03090800	39	overlay	0x03090cd0	+0x4d0		module 39: exact function 0x3082214->0x30826e4	game/device/gbprobe.c:20
+0x0309f7c0	39	overlay	0x0309fc90	+0x4d0		module 39: exact function 0x3082214->0x30826e4	game/device/gbprobe.c:20
+0x0309f7cc	12	ours			REVIEW	amuletOS-owned RAM: re-plan for V1.8.3 (resident area moved/shrank)	tools/build_hook.py:15
+0x0309f7cc	39	ours			REVIEW	amuletOS-owned RAM: re-plan for V1.8.3 (resident area moved/shrank)	game/device/timing.c:6
+0x0309f800		ours			REVIEW	amuletOS-owned RAM: re-plan for V1.8.3 (resident area moved/shrank)	tools/build_helpers.py:15 game/device/np_helpers.c:1
+0x0309f800	1	ours			REVIEW	amuletOS-owned RAM: re-plan for V1.8.3 (resident area moved/shrank)	tools/build_helpers.py:6
+0x0309f800	12	ours			REVIEW	amuletOS-owned RAM: re-plan for V1.8.3 (resident area moved/shrank)	tools/build_hook.py:27
+0x0309f800	39	ours			REVIEW	amuletOS-owned RAM: re-plan for V1.8.3 (resident area moved/shrank)	game/device/timing.c:6
+0x0309ff28		ours			REVIEW	amuletOS-owned RAM: re-plan for V1.8.3 (resident area moved/shrank)	tools/build_helpers.py:15 game/device/pl_table.h:3
+0x0309ffc0		ours			REVIEW	amuletOS-owned RAM: re-plan for V1.8.3 (resident area moved/shrank)	game/device/pl_table.h:3
+0x0309ffe4	21	ours			REVIEW	amuletOS-owned RAM: re-plan for V1.8.3 (resident area moved/shrank)	game/device/m21_ext.S:6 game/device/m21_ext.S:9
+0x0309fff0	12	ours			REVIEW	amuletOS-owned RAM: re-plan for V1.8.3 (resident area moved/shrank)	tools/build_hook.py:15
+0x40000010	21	periph	0x40000010	+0x0		hardware / core B: unchanged	game/device/m21_ext.S:53
+0x40000100	21	periph	0x40000100	+0x0		hardware / core B: unchanged	game/device/m21_ext.S:54
+0x40030024	0	periph	0x40030024	+0x0		hardware / core B: unchanged	game/device/gbprobe.c:282
+0x4012000c		periph	0x4012000c	+0x0		hardware / core B: unchanged	game/device/gbprobe.c:300
+0x6007002c		periph	0x6007002c	+0x0		hardware / core B: unchanged	game/device/gbprobe.c:222
+0xe000e014		periph	0xe000e014	+0x0		hardware / core B: unchanged	game/device/blockz.c:25
+0xe000e018		periph	0xe000e018	+0x0		hardware / core B: unchanged	game/device/blockz.c:26
