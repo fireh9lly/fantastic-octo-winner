@@ -303,6 +303,29 @@ EVA-01 (purple + green; colours only, no logos/artwork), Light, Dark.
 - Progress is saved per story; music keeps playing; opened from Games.
 - Ships with one short original sample story.
 
+**Remove the stock e-reader** (D-pad adventures get their own module):
+- Module 30, task 8: 7.3 KB of flash.
+- **One 382-byte module-0 function that only the e-reader calls.** That's resident RAM back, almost half of what
+  V1.8.3 squeezed out. Check for stored pointers to it before reuse (calls found: only from module 30).
+- Task 8 becomes a free screen slot for our own modules.
+
+**Screen off without the backlight-only glow:**
+- Today "screen off" only cuts the backlight. The LCD keeps showing the last frame, which is visible under room
+  light (owner's photo: clock and volume ring readable on a dark screen).
+- Fix: draw a black frame before cutting the backlight; redraw on wake.
+- Later, once the panel controller is identified (its init table is in flash, LcdInterface.c), also send the
+  display-off/sleep commands to save power.
+
+**Wheel click = power key:**
+- The wheel click is the key that turns the screen off today: almost certainly the GPIO2 pin 5 key (stock code
+  0x001, checked first by the key decoder).
+- Planned:
+  - screen on: click = play/pause;
+  - screen off: click = wake only (no accidental pause);
+  - screen-off gesture: owner's choice pending (double-click recommended);
+  - hold = stock power-off, unchanged.
+- Auto screen-off timer stays.
+
 **Smaller extras:**
 - **Wheel click = play/pause.** The click is most likely the GPIO2 pin 5 key, which combines with face buttons.
   Confirm with a key-test screen.
