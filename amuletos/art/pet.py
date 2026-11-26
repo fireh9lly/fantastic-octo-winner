@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
-"""Song pet mock-ups (v3): an original teardrop creature for the custom AP30 firmware.
+"""Peak, the song pet (mock-ups v4): an original soft-serve creature for the custom AP30 firmware.
 
-Look: a soft teardrop whose tip curls into a little hook like a music note's flag (its signature), stubby feet, big
-glossy eyes and rosy cheeks, banded cel shading lit from the top left, outlines in a deeper shade of the body colour.
-No arms, no floating head ornament. Drawn procedurally at 40x40 so diet can reshape it, not just recolour it.
+Look: stacked soft-serve tiers (a wide bottom scoop, two smaller swirls) ending in a peak that curls over like a
+music note's flag. Stubby feet, big glossy eyes, rosy cheeks, banded cel shading lit from the top left, a shadow
+line under every overhang, outlines in a deeper shade of the body colour. No arms, no floating head ornament.
+Drawn procedurally at 40x40 so diet reshapes it, not just recolours it. Melting = sulking.
+Dark diet: thick rounded locks spill from the peak like melting drips, arch over and hang down at staggered
+lengths; eyebags and half-lidded eyes.
 
   python art/pet.py OUT.png      contact sheet of poses and diet forms (scaled 4x)
 """
@@ -13,16 +16,15 @@ from PIL import Image, ImageDraw
 S = 40
 EYE, EYE_LO, WHITE = (46, 48, 86), (110, 118, 190), (255, 255, 255)
 BLUSH, MOUTH, TONGUE = (255, 150, 172), (128, 44, 66), (240, 120, 140)
-NOTE, SPAT = (115, 83, 224), (158, 162, 176)
-TEXT = (35, 37, 46)
+NOTE, SPAT, TEXT = (115, 83, 224), (158, 162, 176), (35, 37, 46)
 
 # fill, shade, deep, outline, light
-PAL = {"mint":    ((132, 220, 200), (92, 186, 174), (64, 148, 148), (44, 100, 108), (214, 248, 238)),
-       "spiky":   ((250, 140, 160), (222, 100, 128), (182, 70, 102), (124, 44, 74), (255, 214, 222)),
-       "sleepy":  ((150, 186, 242), (112, 150, 216), (84, 116, 184), (58, 80, 138), (220, 234, 255)),
-       "sparkly": ((255, 218, 104), (238, 184, 64), (206, 146, 40), (150, 100, 30), (255, 246, 196)),
-       "goth":    ((140, 112, 178), (108, 84, 148), (80, 60, 116), (50, 36, 76), (196, 178, 222))}
-HAIR = ((54, 40, 80), (82, 64, 116))            # goth strands: dark, lit edge
+PAL = {"mint":    ((150, 226, 206), (102, 192, 178), (70, 152, 150), (44, 100, 108), (222, 250, 242)),
+       "spiky":   ((250, 146, 166), (224, 104, 132), (184, 72, 104), (124, 44, 74), (255, 218, 226)),
+       "sleepy":  ((156, 190, 244), (116, 154, 218), (86, 118, 186), (58, 80, 138), (222, 236, 255)),
+       "sparkly": ((255, 220, 112), (240, 186, 70), (208, 148, 44), (150, 100, 30), (255, 247, 200)),
+       "goth":    ((146, 118, 184), (112, 88, 152), (84, 64, 120), (40, 28, 62), (200, 182, 226))}
+LOCK = ((86, 64, 124), (60, 44, 92), (128, 104, 170))   # dark-diet locks: base, shadow side, lit side
 
 GLYPH = {"h": ["1..", "1..", "111", "1.1", "1.1"], "i": ["1", ".", "1", "1", "1"], "c": ["...", "111", "1..", "1..", "111"],
          "!": ["1", "1", "1", ".", "1"], "z": ["111", "..1", ".1.", "1..", "111"], "Z": ["1111", "...1", "..1.", ".1..", "1111"],
@@ -63,104 +65,167 @@ class Pix:
         return im
 
 
-def teardrop(cx=20.0, cy=25.0, r=12.0, tip=8.0, squash=0.0):
-    """round bottom (flattened where it sits) tapering with concave sides up to a tip; squash = rounder/squatter"""
-    rx, ry = r * (1 + squash), r * (1 - squash * 0.45)
-    tip_y = cy - ry - tip * (1 - squash)
-    m = set()
+def ellipse(cx, cy, rx, ry, flat=None):
+    """pixels of an ellipse; flat cuts the bottom at cy + flat * ry (where it sits)"""
+    out = set()
     for y in range(S):
-        yc = y + 0.5
         for x in range(S):
-            xc = x + 0.5
-            if yc >= cy:
-                inside = ((xc - cx) / rx) ** 2 + ((yc - cy) / ry) ** 2 <= 1 and yc - cy <= ry * 0.84
-            elif yc >= tip_y:
-                t = (yc - tip_y) / (cy - tip_y)
-                inside = abs(xc - cx) <= rx * t ** 1.35
-            else:
-                inside = False
-            if inside:
-                m.add((x, y))
-    return m, int(tip_y), int(cy + ry * 0.84)
+            dx, dy = (x + 0.5 - cx) / rx, (y + 0.5 - cy) / ry
+            if dx * dx + dy * dy <= 1 and (flat is None or dy <= flat):
+                out.add((x, y))
+    return out
+
+
+def tube(points, r):
+    """a soft round-ended tube of radius r along a polyline"""
+    out = set()
+    for (ax, ay), (bx, by) in zip(points, points[1:]):
+        n = max(1, int(math.hypot(bx - ax, by - ay) * 3))
+        for k in range(n + 1):
+            f = k / n
+            out |= ellipse(ax + (bx - ax) * f, ay + (by - ay) * f, r, r)
+    return out
+
+
+def tiers(form, pose):
+    """soft-serve tiers bottom to top as (cx, cy, rx, ry, flat)"""
+    if pose == "sulk":                                   # melted: a wide puddle with a lump on top
+        return [(20, 33.5, 17.5, 4.6, 0.8), (18.5, 29.5, 6.5, 2.8, None)]
+    t = [(20, 27.5, 12.8, 8.6, 0.86), (21, 18.8, 8.8, 4.8, None), (19.6, 12.6, 5.6, 3.5, None), (20.4, 8.6, 2.8, 2.3, None)]
+    if form == "sleepy":                                 # squatter and wider: settled
+        t = [(cx, 35.5 - (35.5 - cy) * 0.86, rx * 1.1, ry * 0.92, f) for cx, cy, rx, ry, f in t]
+    return t
+
+
+def shade_tube(p, shape, outline, behind=None):
+    """locks: lit on the left, shadowed on the right, outlined where they meet anything else"""
+    for (x, y) in shape:
+        if behind is not None and (x, y) in behind:
+            continue
+        left_open, right_open = (x - 1, y) not in shape, (x + 1, y) not in shape
+        p.set(x, y, LOCK[2] if left_open else LOCK[1] if right_open else LOCK[0])
+    for (x, y) in shape:
+        if behind is not None and (x, y) in behind:
+            continue
+        if any((x + dx, y + dy) not in shape for dx, dy in ((0, 1), (-1, 0), (1, 0))) and (x, y + 1) not in shape:
+            p.set(x, y, outline)                         # round tips
+        elif any((x + dx, y + dy) not in shape and (behind is None or (x + dx, y + dy) not in behind)
+                 for dx, dy in ((1, 0), (-1, 0))):
+            p.set(x, y, outline)
+
+
+def locks(tx, ty):
+    """dark diet: thick locks spilling from the peak, arching over, hanging at staggered lengths.
+    Returns (back, front): back locks sit behind the body, front locks fall over its sides."""
+    spec = [(6.5, 31), (10.0, 36), (13.5, 26), (27.0, 26), (30.5, 37), (34.0, 30),      # behind
+            (8.5, 33.5), (32.0, 34.5)]                                                    # in front
+    shapes = []
+    for xf, end in spec:
+        side = -1 if xf < tx else 1
+        rise = ty - 2 - (4 - abs(xf - tx) / 4)                                            # arch height
+        pts = [(tx + 0.5 + side, ty + 1), (tx + 0.5 + (xf - tx) * 0.45, rise),
+               (xf - side * 0.8, ty + 2.5), (xf, ty + 8), (xf, end)]
+        shapes.append(tube(pts, 1.6))
+    return shapes[:6], shapes[6:]
 
 
 def creature(form="mint", pose="idle"):
     p = Pix()
     fill, shade, deep, outline, light = PAL[form]
-    squash = {"sleepy": 0.22, "sparkly": 0.05}.get(form, 0.0)
-    cx, cy, r = 20.0, 25.0, 12.0
-    if pose == "sulk":
-        squash, cy = 0.75, 31.0
-    body, tip_y, bottom = teardrop(cx, cy, r, squash=squash)
-    mask = set(body)
+    goth = form == "goth"
+    T = tiers(form, pose)
+    owner = {}                                            # pixel -> index of the tier in front (the higher one)
+    for i, (cx, cy, rx, ry, flat) in enumerate(T):
+        for px in ellipse(cx, cy, rx, ry, flat):
+            owner[px] = i
+    mask = set(owner)
 
-    # signature: the tip curls over into a hook (a note's flag)
-    tipx = int(cx)
-    curl = [(tipx, tip_y - 1), (tipx + 1, tip_y - 2), (tipx + 2, tip_y - 2), (tipx + 3, tip_y - 1), (tipx + 3, tip_y)]
+    # the peak curls over like a note's flag, growing out of the top tier
+    top_cx, top_cy, _, top_ry, _ = T[-1]
+    tx, ty = int(top_cx), int(top_cy - top_ry)
     if pose == "sulk":
-        curl = [(tipx + 1, tip_y), (tipx + 2, tip_y), (tipx + 3, tip_y + 1)]      # drooping
-    mask |= set(curl)
-    # intense diet: soft rounded bumps down the back of the head
-    if form == "spiky":
-        for by in (tip_y + 4, tip_y + 8, tip_y + 12):
-            row = [x for (x, y) in body if y == by]
-            for ex, out in ((min(row), -1), (max(row), 1)):
-                for (dx, dy) in ((out, 0), (out, -1), (out, 1), (2 * out, -1), (2 * out, 0), (3 * out, -1)):
-                    mask.add((ex + dx, by + dy))
-    # feet: two stubby nubs
+        curl = [(tx + 1, ty), (tx + 2, ty), (tx + 3, ty + 1), (tx + 4, ty + 1)]          # flopped over
+    else:
+        curl = [(tx, ty), (tx, ty - 1), (tx + 1, ty - 2), (tx + 2, ty - 2), (tx + 3, ty - 2),
+                (tx + 4, ty - 1), (tx + 4, ty), (tx + 1, ty - 1), (tx + 1, ty)]
+    for px in curl:
+        mask.add(px); owner[px] = len(T) - 1
+
+    if form == "spiky":                                   # soft bumps on the swirls' sides
+        for i in (1, 2):
+            cx, cy, rx, ry, _ = T[i]
+            for side in (-1, 1):
+                bx, by = int(cx + side * (rx + 0.5)) - (1 if side < 0 else 0), int(cy)
+                for dx, dy in ((0, 0), (side, 0), (0, -1), (side, -1), (2 * side, -1), (0, 1)):
+                    mask.add((bx + dx, by + dy)); owner[(bx + dx, by + dy)] = i
+
     feet = set()
     if pose != "sulk":
-        for fx in (int(cx - r * 0.45) - 1, int(cx + r * 0.45) - 2):
+        cx, cy, rx, ry, flat = T[0]
+        bottom = int(cy + ry * flat)
+        for fx in (int(cx - rx * 0.42) - 2, int(cx + rx * 0.42) - 1):
             for dx in range(4):
                 for dy in (0, 1):
                     if not (dy == 1 and dx in (0, 3)):
-                        feet.add((fx + dx, bottom - 1 + dy))
-    mask |= feet
+                        feet.add((fx + dx, bottom + dy)); owner[(fx + dx, bottom + dy)] = 0
+        mask |= feet
 
-    # banded cel shading from a sphere normal, light from the top left
-    sx, sy, R = cx, cy - r * 0.25, r * 1.25
+    back, front = locks(tx, ty) if goth and pose != "sulk" else ([], [])
+    for shape in back:                                    # behind the body: drawn first, body paints over
+        shade_tube(p, shape, outline, behind=mask)
+
+    # shading: each tier lit as its own soft sphere, light from the top left
     L = (-0.45, -0.6, 0.66)
     for (x, y) in mask:
-        nx, ny = (x + 0.5 - sx) / R, (y + 0.5 - sy) / R
+        cx, cy, rx, ry, _ = T[owner[(x, y)]]
+        nx, ny = (x + 0.5 - cx) / (rx * 1.15), (y + 0.5 - cy) / (ry * 1.3)
         nz = math.sqrt(max(0.0, 1 - nx * nx - ny * ny))
         i = nx * L[0] + ny * L[1] + nz * L[2]
-        c = fill if i > 0.5 else shade if i > 0.18 else deep
+        c = light if i > 0.86 else fill if i > 0.45 else shade if i > 0.12 else deep
         if (x, y) in feet:
-            c = shade if i > 0.3 else deep
+            c = shade if x < 20 else deep
         p.set(x, y, c)
-    for (x, y) in mask:                                       # soft outline: deeper tone of the body colour
+    for (x, y) in mask:
+        here = owner[(x, y)]
+        above = owner.get((x, y - 1))
         if any((x + dx, y + dy) not in mask for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))):
-            p.set(x, y, outline)
-    hx, hy = int(cx - r * 0.5), int(cy - r * 0.62) if pose != "sulk" else int(cy - 3)
-    for (x, y) in ((hx, hy), (hx + 1, hy), (hx, hy + 1), (hx + 2, hy - 1 if pose != "sulk" else hy)):   # gloss
-        if (x, y) in body:
-            p.set(x, y, light)
-    if pose != "sulk":
-        p.set(hx + 1, hy + 1, light)
+            p.set(x, y, outline)                          # soft outline in the body's own deep tone
+        elif above is not None and above > here:
+            p.set(x, y, outline)                          # crisp line under each overhang...
+            if (x, y + 1) in mask and owner[(x, y + 1)] == here:
+                p.set(x, y + 1, deep)                     # ...and its shadow
 
-    if pose == "sulk":                                        # melted face-down: no face, just "..."
-        p.word("...", 17, tip_y - 7, TEXT)
+    if pose == "sulk":                                    # melted face-down: no face, just "..."
+        p.word("...", 16, 22, TEXT)
         return p
 
-    # face
+    # face on the bottom scoop
+    cx, cy, rx, ry, _ = T[0]
     ey, my = int(cy - 3), int(cy + 3)
     eyes = (int(cx - 5), int(cx + 3))
 
     def open_eye(ex, star=False, lid=False):
         for dy in range(5):
             for dx in range(3):
-                if (dy in (0, 4)) and dx != 1:
+                if dy in (0, 4) and dx != 1:
                     continue
                 p.set(ex + dx, ey + dy, EYE)
         p.set(ex + 1, ey + 3, EYE_LO); p.set(ex + 2, ey + 3, EYE_LO)
         if star:
-            p.set(ex + 1, ey + 1, WHITE); p.set(ex, ey + 1, (255, 236, 150)); p.set(ex + 2, ey + 1, (255, 236, 150))
-            p.set(ex + 1, ey, (255, 236, 150)); p.set(ex + 1, ey + 2, (255, 236, 150))
+            p.set(ex + 1, ey + 1, WHITE)
+            for dx, dy in ((0, 1), (2, 1), (1, 0), (1, 2)):
+                p.set(ex + dx, ey + dy, (255, 236, 150))
         else:
             p.set(ex, ey + 1, WHITE); p.set(ex, ey + 2, WHITE); p.set(ex + 2, ey + 3, WHITE)
-        if lid:                                               # half-lidded, unimpressed
+        if lid:                                           # half-lidded, unimpressed
             for dx in range(-1, 4):
                 p.set(ex + dx, ey, outline); p.set(ex + dx, ey + 1, outline)
+
+    def eyebags(ex):
+        for dx in range(-1, 4):
+            p.set(ex + dx, ey + 5, deep)
+        for dx in range(0, 3):
+            p.set(ex + dx, ey + 6, deep)
 
     def closed_eye(ex, happy):
         if happy:   # ^
@@ -174,91 +239,75 @@ def creature(form="mint", pose="idle"):
             for dx in range(4 if wide else 3):
                 p.set(bx + dx - (1 if wide and side < 0 else 0), ey + 6, BLUSH)
 
+    def smile():
+        for (x, y) in ((18, my), (19, my + 1), (20, my + 1), (21, my)):
+            p.set(x, y, MOUTH)
+
     if form == "sleepy":
-        for ex in eyes: closed_eye(ex, False)
+        for ex in eyes:
+            closed_eye(ex, False)
         blush()
         p.set(19, my + 1, MOUTH); p.set(20, my + 1, MOUTH)
-        p.word("zZ", 28, 4, TEXT)
-        return p
-    if pose == "feast":
-        for ex in eyes: closed_eye(ex, True)
+        p.word("zZ", 29, 6, TEXT)
+    elif pose == "feast":
+        for ex in eyes:
+            closed_eye(ex, True)
         blush()
-        for dx in range(-2, 2):                               # big happy open mouth
+        for dx in range(-2, 2):
             p.set(20 + dx, my, MOUTH)
-        for dx in range(-1, 1):
-            p.set(20 + dx, my + 1, TONGUE)
+        p.set(19, my + 1, TONGUE); p.set(20, my + 1, TONGUE)
         p.set(17, my - 1, MOUTH); p.set(22, my - 1, MOUTH)
-        return p
-    if pose == "hiccup":
-        p.set(eyes[0], ey + 1, EYE); p.set(eyes[0] + 1, ey + 2, EYE); p.set(eyes[0], ey + 3, EYE)       # >
-        p.set(eyes[1] + 2, ey + 1, EYE); p.set(eyes[1] + 1, ey + 2, EYE); p.set(eyes[1] + 2, ey + 3, EYE)  # <
+    elif pose == "hiccup":
+        p.set(eyes[0], ey + 1, EYE); p.set(eyes[0] + 1, ey + 2, EYE); p.set(eyes[0], ey + 3, EYE)        # >
+        p.set(eyes[1] + 2, ey + 1, EYE); p.set(eyes[1] + 1, ey + 2, EYE); p.set(eyes[1] + 2, ey + 3, EYE)   # <
         blush()
-        p.set(19, my, MOUTH); p.set(20, my, MOUTH); p.set(19, my + 1, MOUTH); p.set(20, my + 1, MOUTH)
-        p.word("hic!", 26, 3, TEXT)
-        for (x, y) in ((25, 12), (26, 11), (26, 13), (27, 12)):
+        for (x, y) in ((19, my), (20, my), (19, my + 1), (20, my + 1)):
+            p.set(x, y, MOUTH)
+        p.word("hic!", 26, 2, TEXT)
+        for (x, y) in ((29, 10), (30, 9), (30, 11), (31, 10)):
             p.set(x, y, (200, 230, 250))
-        return p
-
-    goth = form == "goth"
-    open_eye(eyes[0], star=form == "sparkly", lid=goth)
-    open_eye(eyes[1], star=form == "sparkly", lid=goth)
-    if not goth:
-        blush(wide=pose == "spit")
-    if pose == "eat":
-        for (x, y) in ((19, my), (20, my), (18, my + 1), (21, my + 1), (19, my + 2), (20, my + 2)):
-            p.set(x, y, MOUTH)
-        p.set(19, my + 1, TONGUE); p.set(20, my + 1, MOUTH)
-        for (x, y) in ((13, my + 1), (14, my + 1), (13, my + 2), (14, my + 2), (14, my), (14, my - 1), (15, my - 2)):
-            p.set(x, y, NOTE)                                 # a little note going in
-        p.word("nom", 26, 3, TEXT)
-    elif pose == "spit":
-        p.set(22, my, MOUTH); p.set(23, my, MOUTH)
-        for (x, y) in ((28, my - 1), (29, my - 1), (28, my), (29, my), (30, my), (31, my - 2), (32, my - 3)):
-            p.set(x, y, SPAT)
-        p.word("pt", 29, 4, TEXT)
-    elif goth:
-        p.set(18, my + 1, MOUTH); p.set(19, my + 1, MOUTH); p.set(20, my + 1, MOUTH)   # flat, unimpressed
-    elif form == "spiky":
-        p.set(17, ey - 2, EYE); p.set(18, ey - 1, EYE)        # determined brows
-        p.set(24, ey - 2, EYE); p.set(23, ey - 1, EYE)
-        for (x, y) in ((18, my), (19, my + 1), (20, my + 1), (21, my)):
-            p.set(x, y, MOUTH)
-        p.set(21, my + 1, WHITE)                              # tiny fang
     else:
-        for (x, y) in ((18, my), (19, my + 1), (20, my + 1), (21, my)):
-            p.set(x, y, MOUTH)
+        open_eye(eyes[0], star=form == "sparkly", lid=goth)
+        open_eye(eyes[1], star=form == "sparkly", lid=goth)
+        if goth:
+            eyebags(eyes[0]); eyebags(eyes[1])
+        else:
+            blush(wide=pose == "spit")
+        if pose == "eat":
+            for (x, y) in ((19, my), (20, my), (18, my + 1), (21, my + 1), (19, my + 2), (20, my + 2)):
+                p.set(x, y, MOUTH)
+            p.set(19, my + 1, TONGUE); p.set(20, my + 1, MOUTH)
+            for (x, y) in ((13, my + 1), (14, my + 1), (13, my + 2), (14, my + 2), (14, my), (14, my - 1), (15, my - 2)):
+                p.set(x, y, NOTE)
+            p.word("nom", 27, 2, TEXT)
+        elif pose == "spit":
+            p.set(22, my, MOUTH); p.set(23, my, MOUTH)
+            for (x, y) in ((28, my - 1), (29, my - 1), (28, my), (29, my), (30, my), (31, my - 2), (32, my - 3)):
+                p.set(x, y, SPAT)
+            p.word("pt", 30, 3, TEXT)
+        elif goth:
+            p.set(18, my + 2, MOUTH); p.set(19, my + 2, MOUTH); p.set(20, my + 2, MOUTH)    # flat, unimpressed
+        elif form == "spiky":
+            p.set(eyes[0] - 1, ey - 2, EYE); p.set(eyes[0], ey - 1, EYE)                       # determined brows
+            p.set(eyes[1] + 3, ey - 2, EYE); p.set(eyes[1] + 2, ey - 1, EYE)
+            smile()
+            p.set(21, my + 1, WHITE)                                                           # tiny fang
+        else:
+            smile()
+
+    for shape in front:                                   # front locks fall over the body's sides
+        shade_tube(p, shape, outline)
 
     if form == "sparkly":
-        for (x, y) in ((5, 12), (34, 9), (6, 30), (33, 27)):
+        for (x, y) in ((5, 12), (34, 9), (5, 30), (34, 27)):
             for dx, dy in ((0, 0), (1, 0), (-1, 0), (0, 1), (0, -1)):
                 p.set(x + dx, y + dy, WHITE if (dx, dy) == (0, 0) else (255, 210, 70))
-
-    if goth:
-        # one lank mass of hair: starts at the tip, drapes along the head's slope, covers the left eye and hangs
-        # past the chin; lighter strands inside, ragged uneven ends, a little outward drift at the bottom
-        xs = [x for (x, y) in body]
-        left, right = min(xs) - 1, eyes[0] + 4
-        for x in range(left, right + 1):
-            ys = [y for (xx, y) in body if xx in (x, x + 1)]
-            if not ys:
-                continue
-            y0 = min(ys)
-            span = (right - x) / max(1, right - left)            # 1 at the outer edge, 0 at the parting
-            y1 = int(my + 2 + span * 11) + (x * 5) % 3            # ragged ends
-            for y in range(y0, y1):
-                drift = 1 if (y > bottom - 3 and span > 0.6) else 0
-                c = HAIR[1] if (x % 3 == 0 and y < y1 - 2) else HAIR[0]   # continuous lighter strands
-                p.set(x - drift, y, c)
-            p.set(x, y1, HAIR[0]) if x % 2 else None
-        for y in range(tip_y, tip_y + 3):                         # parting at the tip
-            for x in range(tipx - 1, tipx + 1):
-                p.set(x, y, HAIR[0])
     return p
 
 
 def sheet(path):
     cells = [("idle", "mint", "idle"), ("eating", "mint", "eat"), ("spits a skip", "mint", "spit"),
-             ("MP3 hiccups", "mint", "hiccup"), ("hi-res feast", "mint", "feast"), ("sulking", "mint", "sulk"),
+             ("MP3 hiccups", "mint", "hiccup"), ("hi-res feast", "mint", "feast"), ("sulking (melted)", "mint", "sulk"),
              ("intense diet", "spiky", "idle"), ("calm diet", "sleepy", "idle"), ("bright diet", "sparkly", "idle"),
              ("dark diet", "goth", "idle")]
     k, cols = 4, 5

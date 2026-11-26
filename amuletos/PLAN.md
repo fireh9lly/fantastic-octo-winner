@@ -326,7 +326,7 @@ EVA-01 (purple + green; colours only, no logos/artwork), Light, Dark.
   - hold = stock power-off, unchanged.
 - Auto screen-off timer stays.
 
-**Song pet (useless and weird, on purpose):** an original creature that eats the songs you play. Not modelled on any
+**Peak, the song pet (useless and weird, on purpose):** an original creature that eats the songs you play. Not modelled on any
 existing virtual pet.
 - **It never dies, but it's dramatic.** Unfed for days, it sulks face-down and leaves passive-aggressive notes on
   its screen. One song and it bounces back.
@@ -348,19 +348,20 @@ existing virtual pet.
   - The pet screen looks the moods of those tracks up from `/_Mood/` when you visit.
   - State (~32 B) is saved in the system config flash block next to the library fingerprint, so no SD writes;
     hunger uses the date/time clock.
-- **Look (mock-up v3, `docs/design/pet_mockup_v3.png`, drawn by `art/pet.py`):**
-  - Body: a soft chubby teardrop whose tip curls over into a hook like a music note's flag (its signature), with
-    two stubby feet.
-  - Face: big glossy eyes, rosy cheeks.
-  - Shading: banded cel shading lit from the top left, outlined in a deeper shade of the body colour (no black
-    lines). 40×40.
-  - Inspired by the softness of Japanese virtual pets. Deliberately has no arms and no floating head ornament, so
-    it's its own character (not a Chao).
-  - Poses: idle, eating ("nom"), spitting a skip, MP3 hiccups, hi-res feast, melted sulking puddle.
-  - Diet forms: intense = pink with soft bumps, determined brows and a tiny fang; calm = round blue, dozing;
-    bright = gold with star eyes and sparkles; dark = purple with a lank fringe over one eye, the other
-    half-lidded.
-  - Mock-up v2 (`pet_mockup_v2.png`: grille mouth, note antennae) was rejected as too hard.
+- **Look (mock-up v4, `docs/design/peak_mockup_v4.png`, drawn by `art/pet.py`):**
+  - Body: a soft-serve creature, a wide bottom scoop plus two smaller swirl tiers, ending in a **peak that curls
+    over like a music note's flag** (hence the name), with two stubby feet.
+  - Face: big glossy eyes and rosy cheeks on the bottom scoop.
+  - Shading: banded cel shading per tier, lit from the top left, with a crisp line and shadow under each overhang;
+    outlines in a deeper shade of the body colour.
+  - No arms, no floating head ornament (own character, not a Chao). Sulking = melted into a puddle.
+  - **Dark diet:** thick round-ended locks spill from the peak like melting drips, arch over and hang down at
+    staggered lengths, some behind the body and two over its sides (a mop of locks, inspired by the shape of
+    LocoRoco's Ojaja from the owner's reference, drawn as Peak's own); half-lidded eyes with **eyebags**,
+    flat mouth.
+  - Watch-out: a three-tier swirl shares the poop emoji's silhouette; avoid brown themes for Peak.
+  - Earlier mock-ups: v2 (grille mouth + note antennae) rejected as too hard; v3 (plain teardrop, tail not
+    connected, hair curtain) superseded.
 
 **Smaller extras:**
 - **Wheel click = play/pause.** The click is most likely the GPIO2 pin 5 key, which combines with face buttons.
