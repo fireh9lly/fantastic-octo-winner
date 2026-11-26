@@ -17,32 +17,32 @@
     pop     {r0-r3, r12, lr}
     .endm
 
-    STUB t_task, 1                      @ TaskSwitch(id, arg) 0x030680D4 (build 59: the key press that opens Now Playing)
-    ldr     r3, =0x030057C0             @ replayed: "ldr r3, [pc, #0xb8]; strb r0, [r3]"
+    STUB t_task, 1                      @ TaskSwitch(id, arg) 0x030683F0 (build 59: the key press that opens Now Playing)
+    ldr     r3, =0x03005800             @ replayed: "ldr r3, [pc, #0xb8]; strb r0, [r3]"
     strb    r0, [r3]
-    ldr     r12, =0x030680D9
+    ldr     r12, =0x030683F5
     bx      r12
     .ltorg
 
-    STUB t_ovl, 2                       @ ModuleOverlay(module, type) 0x030683DE
+    STUB t_ovl, 2                       @ ModuleOverlay(module, type) 0x030686FA
     push.w  {r4-r11, lr}                @ replayed
-    ldr     r12, =0x030683E3
+    ldr     r12, =0x030686FF
     bx      r12
     .ltorg
 
-    STUB t_irq, 6                       @ audio refill interrupt 0x030661A4 (logged once after each start)
+    STUB t_irq, 6                       @ audio refill interrupt 0x03066480 (logged once after each start)
     push.w  {r4-r9, lr}                 @ replayed
-    ldr     r12, =0x030661A9
+    ldr     r12, =0x03066485
     bx      r12
     .ltorg
 
-    STUB t_music, 3                     @ player thread init (MusicInit) m33 0x0308DDD0
+    STUB t_music, 3                     @ player thread init (MusicInit) m33 0x0308F070
     push.w  {r4-r9, lr}                 @ replayed
     ldr     r12, =0x0308DDD5
     bx      r12
     .ltorg
 
-    STUB t_astart, 4                    @ Audio Start (file open) m33 0x0308C8EE
+    STUB t_astart, 4                    @ Audio Start (file open) m33 0x0308D872
     push.w  {r4-r11, lr}                @ replayed
     ldr     r12, =0x0308C8F3
     bx      r12

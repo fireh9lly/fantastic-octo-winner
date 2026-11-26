@@ -59,7 +59,23 @@ corner + A + B while plugging in USB (BootROM loader mode), then restore with `t
 - Done: amuletOS v0.3 imported, builds on Linux (`build.sh`, `BUILDING.md`).
 - Done: **reproduces the v0.3 release byte for byte** from the official V1.7.8 with the pinned GCC 13.3.1
   (`tools/get_toolchain.sh`).
-- Now: mapping ~250 addresses to V1.8.3.
+- Done: **address translation.**
+  - `tools/xlate.py` matches functions between the images: 3,828 exact, 494 aligned, 57 unmatched of 4,379.
+  - `tools/port_inventory.py` covers all 265 uses (`docs/port/v183_addresses.tsv`).
+  - Special cases: the 14 stock-game exits (pattern), the music-menu table pointers (by value), the
+    layout gaps (Now Playing slot still exactly 0x758 B, Game Boy sound ring still fits).
+- Done: **every patch site verified.** `tools/port_patches.py`: of 78 patches, 53 have identical original bytes,
+  25 are equivalent after relocation (calls and literals retargeted), 0 differ.
+- Done: **trial build on V1.8.3 runs end to end** and the image passes the container checks.
+- Done: **source converted to V1.8.3** (`tools/port_convert.py`).
+  - Output named `HIFIYF23.IMG`; both versions' updaters look for `HIFIYF??.IMG`.
+  - Default stamp 2620261101 (newer than V1.8.3's 2620231103).
+  - `tools/resident.py` stops the build while the always-loaded code overlaps module 39.
+- Next:
+  1. the resident-RAM rework (below);
+  2. hand-review the 117 translated addresses in functions Hidizs changed that amuletOS calls or reads
+     without a byte check;
+  3. a flashable image plus an on-device test checklist.
 
 **Obstacle found: resident RAM.** amuletOS keeps always-loaded code in "slot 2" above the highest overlay.
 - That overlay is **module 39, the music-library builder** (122 KB). It ends at 0x0309F7CC on V1.7.8 but at

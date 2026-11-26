@@ -1,6 +1,6 @@
 /* v0.4 timing log (builds 57..59), resident in slot 2: where the time between choosing a track and hearing it goes.
  * There is no phone video, so the device timestamps its own play path (owner, Notion "amuletOS: Build Plan to 1.0").
- * Hooks: timing.S. Readout: the Games screen's "Timing" row (gbprobe.c). Times are stock's 10 ms tick (0x0302288C,
+ * Hooks: timing.S. Readout: the Games screen's "Timing" row (gbprobe.c). Times are stock's 10 ms tick (0x030248CC,
  * counts from power-on).
  *
  * Log: the 52 B between the library builder's code end (module 39, 0x0309F7CC) and slot 2 (0x0309F800), which no

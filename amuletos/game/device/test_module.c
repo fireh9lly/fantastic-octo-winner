@@ -8,14 +8,14 @@
 #define MSG_CLEAR  0x18C            /* module 82's own ids: full redraw, values redraw */
 #define MSG_VALUES 0x186
 
-#define SET_FONT(n)   STOCK_FN(0x030643A2, uint32_t, uint32_t)(n)   /* returns previous */
-#define SET_MODE(n)   STOCK_FN(0x030643C6, uint32_t, uint32_t)(n)
+#define SET_FONT(n)   STOCK_FN(0x0306467E, uint32_t, uint32_t)(n)   /* returns previous */
+#define SET_MODE(n)   STOCK_FN(0x030646A2, uint32_t, uint32_t)(n)
 
-#define ADC_CH1   (*(volatile uint16_t *)(0x03005A8C + 2))
-#define SYS_TIME  (*(volatile uint32_t *)0x0302288C)
-#define WHEEL_A   (*(volatile uint8_t *)0x030226E4)
-#define WHEEL_B   (*(volatile uint8_t *)0x030226E5)
-#define WHEEL_T   (*(volatile uint32_t *)0x030226E8)
+#define ADC_CH1   (*(volatile uint16_t *)(0x03005ACC + 2))
+#define SYS_TIME  (*(volatile uint32_t *)0x030248CC)
+#define WHEEL_A   (*(volatile uint8_t *)0x03024724)
+#define WHEEL_B   (*(volatile uint8_t *)0x03024725)
+#define WHEEL_T   (*(volatile uint32_t *)0x03024728)
 
 static struct {
     uint32_t ticks, services, paints;
@@ -144,6 +144,6 @@ static void paint(void)
     SET_FONT(old_font);
 }
 
-/* window descriptor: must be the first bytes of the data section (0x03023B48) */
+/* window descriptor: must be the first bytes of the data section (0x03025B88) */
 __attribute__((section(".desc"), used))
 const win_desc_t blockz_desc = { 0, 0, tick, service, paint, init, deinit };

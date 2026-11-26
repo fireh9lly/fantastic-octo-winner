@@ -2,8 +2,8 @@
  *
  * Stock keeps all behaviour (keys, track changes, cover decode into the framebuffer at (17, 46), its
  * redraw messages); these functions replace what it draws in the right panel, the bottom band and the
- * status bar. Code-only overlay in module slot 28, run address 0x03083F0C, at most 0x758 B (free while Now
- * Playing runs: module 27 ends there, module 18 starts at 0x03084664; modules 9 and 12 there are USB only), loaded by np_load (slot 2) at the end of
+ * status bar. Code-only overlay in module slot 28, run address 0x030843DC, at most 0x758 B (free while Now
+ * Playing runs: module 27 ends there, module 18 starts at 0x03084b34; modules 9 and 12 there are USB only), loaded by np_load (slot 2) at the end of
  * module 27's init. No data or ZI: stack only; the title scroll state lives at SCROLL (RAM above slot 2).
  * Layout (owner, option A): art/np_options.py; Pocket frames: art/pocket.py now_playing(); patches: tools/patch_code.py np_v4. */
 #include <stdint.h>
@@ -40,7 +40,7 @@ typedef struct { uint16_t x0, y0, x1, y1; } rect_t;
 
 #ifndef NPUI_HOST          /* game/pc/np_preview.c supplies these on the PC */
 #define COLOR      (*(volatile uint16_t *)0x03022DECu)
-#define SPACING    (*(volatile int16_t *)0x03022E04u)      /* 0x03022DEC + 0x18: letter spacing stock adds */
+#define SPACING    (*(volatile int16_t *)0x03022E04u)      /* 0x03024E2C + 0x18: letter spacing stock adds */
 #define FONTBASE   (*(volatile uint32_t *)0x03022868u)
 #define TICK       (*(volatile uint32_t *)0x0302288Cu)     /* 10 ms */
 #define PLAY       (*(volatile uint32_t **)0x030483D0u)    /* [0] total ms, [1] position ms */

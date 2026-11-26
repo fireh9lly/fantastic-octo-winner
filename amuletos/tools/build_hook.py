@@ -6,7 +6,7 @@
 The hook (hooks/*.S) is linked at its run address and its bytes are stored in
 code.bin at GAP_FILE (16 KB of zeros between module 0's code and data sources).
 
-Loading: the boot ROM / ModuleOverlay (0x030683DE) copy modules from FLASH by
+Loading: the boot ROM / ModuleOverlay (0x030686FA) copy modules from FLASH by
 module-table entry; the file gap itself is never loaded (H0/H0a proved this).
 So a hook gets a module-table slot: stock already calls ModuleOverlay(2, 7) on
 an empty slot 2 in ~21 places, including module 10's USB start right after
@@ -21,20 +21,21 @@ import argparse, os, shutil, struct, subprocess, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 from toolchain import tool as tool_path   # noqa: E402  (tools/toolchain.py)
+import resident                           # noqa: E402  (tools/resident.py: no overlap with stock RAM)
 BASE = 0x03050000
-GAP_FILE, GAP_SIZE = 0x57B8C, 0x4000
+GAP_FILE, GAP_SIZE = 0x5805C, 0x4000
 GAP_RUN = 0x030A7B8C                     # H0/H0a assumption: NOT loaded, past end of 640 KB RAM
 HOOK_RUN, HOOK_MAX = 0x0309F800, 0x7F0   # free RAM 0x0309F800..0x0309FFF0
 TABLE = 8                                # module table starts at code.bin 8, 32 bytes per entry
 
 # name -> (source, entry symbol, run address, module slot or None, BL site run, BL site code.bin, original target)
 HOOKS = {
-    "h0":  ("h0_inquiry.S", "h0_send",  GAP_RUN,  None, 0x03083978, 0x81750, 0x03081AA4),  # failed on device
-    "h0a": ("h0a_pass.S",   "h0a_send", GAP_RUN,  None, 0x03083978, 0x81750, 0x03081AA4),  # failed on device
-    "h1":  ("h0_inquiry.S", "h0_send",  HOOK_RUN, 2,    0x03083978, 0x81750, 0x03081AA4),
-    "h1a": ("h0a_pass.S",   "h0a_send", HOOK_RUN, 2,    0x03083978, 0x81750, 0x03081AA4),
-    "d1":  ("d1_diag.S",    "d1_send",  HOOK_RUN, 2,    0x03083978, 0x81750, 0x03081AA4),
-    "amu": ("amu_inq.S",    "amu_send", HOOK_RUN, 2,    0x03083978, 0x81750, 0x03081AA4),  # build 36: name only
+    "h0":  ("h0_inquiry.S", "h0_send",  GAP_RUN,  None, 0x03083e48, 0x81c60, 0x03081F74),  # failed on device
+    "h0a": ("h0a_pass.S",   "h0a_send", GAP_RUN,  None, 0x03083e48, 0x81c60, 0x03081F74),  # failed on device
+    "h1":  ("h0_inquiry.S", "h0_send",  HOOK_RUN, 2,    0x03083e48, 0x81c60, 0x03081F74),
+    "h1a": ("h0a_pass.S",   "h0a_send", HOOK_RUN, 2,    0x03083e48, 0x81c60, 0x03081F74),
+    "d1":  ("d1_diag.S",    "d1_send",  HOOK_RUN, 2,    0x03083e48, 0x81c60, 0x03081F74),
+    "amu": ("amu_inq.S",    "amu_send", HOOK_RUN, 2,    0x03083e48, 0x81c60, 0x03081F74),  # build 36: name only
 }
 
 def bl_decode(hw, pc):
@@ -91,6 +92,8 @@ def main():
     cp = os.path.join(out, "code.bin")
     code = bytearray(open(cp, "rb").read())
     assert not any(code[GAP_FILE:GAP_FILE + GAP_SIZE]), "gap is not empty in source code.bin"
+    if slot is not None:
+        resident.check(code, run, run + len(blob), f"slot {slot} hook")
     got = bl_decode(code[site_file:site_file + 4], site_run)
     assert got == orig, f"site holds BL to {got and hex(got)}, expected {orig:#x}"
     code[GAP_FILE:GAP_FILE + len(blob)] = blob

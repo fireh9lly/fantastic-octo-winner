@@ -2,7 +2,7 @@
  * Unity build: core.c and render.c are included here with BG_FILL_EXTERN so every pixel goes
  * through stock's FillRect (the RAM-framebuffer flush path is still untraced).
  *
- * Timing: stock runs SysTick at 10 ms and counts ticks at 0x0302288C; SysTick VAL gives the
+ * Timing: stock runs SysTick at 10 ms and counts ticks at 0x030248CC; SysTick VAL gives the
  * position inside the tick, so time = ticks * 10 ms + (LOAD - VAL) / (LOAD + 1) * 10 ms,
  * independent of the CPU clock. The core steps at a fixed 60 fps from that clock.
  * Input: Left/Right/Down held state from the button ADC (ch1, measured midpoints), debounced: a reading
@@ -21,12 +21,12 @@
 #define MSG_CLEAR  0x18C
 #define MSG_DRAW   0x186
 
-#define SYS_TICKS  (*(volatile uint32_t *)0x0302288C)
+#define SYS_TICKS  (*(volatile uint32_t *)0x030248CC)
 #define ST_LOAD    (*(volatile uint32_t *)0xE000E014)
 #define ST_VAL     (*(volatile uint32_t *)0xE000E018)
-#define ADC_CH1    (*(volatile uint16_t *)(0x03005A8C + 2))
-#define WHEEL_A    (*(volatile uint8_t *)0x030226E4)
-#define WHEEL_B    (*(volatile uint8_t *)0x030226E5)
+#define ADC_CH1    (*(volatile uint16_t *)(0x03005ACC + 2))
+#define WHEEL_A    (*(volatile uint8_t *)0x03024724)
+#define WHEEL_B    (*(volatile uint8_t *)0x03024725)
 
 #define EV_PRESS   0x40u
 #define K_SELECT   0x002
@@ -35,9 +35,9 @@
 #define K_B        0x040
 #define K_A        0x080
 #define K_START    0x100
-#define K_WHEEL_A  0x200            /* GetKey turns wheel steps into events (0x03062A78): counter 0x030226E4 */
-#define K_WHEEL_B  0x400            /* counter 0x030226E5; which one is "up" is still to be confirmed */
-#define VOLUME     (*(volatile uint8_t *)(0x03022894 + 0x12))   /* 0..100; applied by player command 0xF8 */
+#define K_WHEEL_A  0x200            /* GetKey turns wheel steps into events (0x03062D54): counter 0x03024724 */
+#define K_WHEEL_B  0x400            /* counter 0x03024725; which one is "up" is still to be confirmed */
+#define VOLUME     (*(volatile uint8_t *)(0x030248d4 + 0x12))   /* 0..100; applied by player command 0xF8 */
 
 static bg_game_t G;
 static bg_rcache_t CACHE;
@@ -78,9 +78,9 @@ void bg_fill_rect(int x, int y, int w, int h, uint16_t c)
 /* music position in ms (stock play state P[1], real time while a track plays), 0 if none */
 static uint32_t play_ms(void)
 {
-    /* 0x030483D0 is in the music engine's (module 33) RAM: only valid while the player runs (build 31 crashed
+    /* 0x0304A460 is in the music engine's (module 33) RAM: only valid while the player runs (build 31 crashed
      * on open after a boot with nothing played: it followed whatever was there) */
-    if (STOCK_FN(0x03057C7C, uint32_t, uint32_t, uint32_t)(*(volatile uint32_t *)0x030232BCu, 0x030361A4) != 1) return 0;
+    if (STOCK_FN(0x03057F58, uint32_t, uint32_t, uint32_t)(*(volatile uint32_t *)0x030232BCu, 0x03038230) != 1) return 0;
     uint32_t p = *(volatile uint32_t *)0x030483D0u;
     if (p < 0x03000000u || p >= 0x030A0000u - 8 || (p & 3)) return 0;
     return ((volatile uint32_t *)p)[1];
@@ -272,7 +272,7 @@ static void info_line(int row, const char *label, const uint32_t *v, const uint8
 static void info_page(void)
 {
     fill(0, 0, BG_SCR_W, BG_SCR_H, C_PANEL);
-    uint32_t running = STOCK_FN(0x03057C7C, uint32_t, uint32_t, uint32_t)(rd32(0x030232BC), 0x030361A4);
+    uint32_t running = STOCK_FN(0x03057F58, uint32_t, uint32_t, uint32_t)(rd32(0x030252FC), 0x03038230);
     static const uint8_t d4[3] = {4, 4, 4}, d8[2] = {8, 8}, dfs[3] = {2, 8, 2}, ddk[3] = {2, 2, 1};
     uint32_t v[3];
     text(14, 10, "INFO  B BACK", C_DIM);
@@ -280,7 +280,7 @@ static void info_page(void)
     v[0] = rd16(SYSC + 0x18B); v[1] = rd16(PREC + 0xF4); info_line(2, "DEP", v, d4, 2);
     v[0] = rd16(SYSC + 0x5E);  v[1] = rd16(PREC + 6);    info_line(3, "IDX", v, d4, 2);
     v[0] = rd32(PREC + 0x34);  v[1] = rd32(PREC + 0x38); info_line(4, "CL", v, d8, 2);
-    v[0] = rd8(0x0307E710); v[1] = rd32(0x0307F250); v[2] = rd8(0x0307EFC8); info_line(5, "FS", v, dfs, 3);
+    v[0] = rd8(0x0307EBE0); v[1] = rd32(0x0307F720); v[2] = rd8(0x0307F498); info_line(5, "FS", v, dfs, 3);
     for (int i = 0; i < 3; i++) v[i] = rd16(SYSC + 0x18D + 2 * i); info_line(7, "SX", v, d4, 3);
     v[0] = rd32(SYSC + 0x79);  v[1] = rd32(SYSC + 0x7D); info_line(8, "XX", v, d8, 2);
     /* clock check (owner: timer runs ~1.5x fast): ms since Blockz opened by SysTick vs by the music position */
@@ -293,7 +293,7 @@ static void info_page(void)
     char b[24]; int k = 0;                      /* first letters of the current path */
     b[k++] = 'P'; b[k++] = ' ';
     for (int i = 0; i < 18; i++) {
-        uint32_t c = rd16(0x03022BBA + 2 * i);
+        uint32_t c = rd16(0x03024BFA + 2 * i);
         if (!c) break;
         if (c >= 'a' && c <= 'z') c -= 32;
         b[k++] = (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') ? (char)c : '-';
@@ -341,6 +341,6 @@ static void paint(void)
     COLOR = old_color;
 }
 
-/* window descriptor: must be the first bytes of the data section (0x03023B48) */
+/* window descriptor: must be the first bytes of the data section (0x03025B88) */
 __attribute__((section(".desc"), used))
 const win_desc_t blockz_desc = { 0, 0, tick, service, paint, init, deinit };

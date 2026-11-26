@@ -18,13 +18,13 @@
 #define REC        0x03022F14u
 #define PHAND      0x030232BCu
 #define PDESC      0x030361A4u
-#define ThreadRunning(h, d) STOCK_FN(0x03057C7C, uint32_t, uint32_t, uint32_t)(h, d)
-#define ThreadStop(hp, d)   STOCK_FN(0x03057BD4, void, uint32_t, uint32_t)(hp, d)
-#define DiskSwitch(n)       STOCK_FN(0x03058526, void, uint32_t)(n)
-#define RecPrepare()        STOCK_FN(0x03055304, void, void)()
-#define SetFont(n)          STOCK_FN(0x030643A2, uint32_t, uint32_t)(n)
-#define CharW(c)            STOCK_FN(0x03063BC6, uint32_t, uint32_t)(c)
-#define FontRead(o, b, n)   STOCK_FN(0x0306535C, void, uint32_t, void *, uint32_t)(o, b, n)
+#define ThreadRunning(h, d) STOCK_FN(0x03057F58, uint32_t, uint32_t, uint32_t)(h, d)
+#define ThreadStop(hp, d)   STOCK_FN(0x03057EB0, void, uint32_t, uint32_t)(hp, d)
+#define DiskSwitch(n)       STOCK_FN(0x03058802, void, uint32_t)(n)
+#define RecPrepare()        STOCK_FN(0x030555e0, void, void)()
+#define SetFont(n)          STOCK_FN(0x0306467E, uint32_t, uint32_t)(n)
+#define CharW(c)            STOCK_FN(0x03063EA2, uint32_t, uint32_t)(c)
+#define FontRead(o, b, n)   STOCK_FN(0x03065638, void, uint32_t, void *, uint32_t)(o, b, n)
 #define FONTBASE            (*(volatile uint32_t *)0x03022868u)
 #define SPACING             (*(volatile int16_t *)0x03022E04u)
 #define S8(o)   (*(volatile uint8_t *)(SYSC + (o)))
@@ -144,7 +144,7 @@ static void play(void)
 
     if (ThreadRunning(*(volatile uint32_t *)PHAND, PDESC) == 1) ThreadStop(PHAND, PDESC);
     RecPrepare();                                          /* the browser's play-request prep */
-    *(volatile uint16_t *)0x03022BAC = 0x63;               /* list type, as the browser sets it */
+    *(volatile uint16_t *)0x03024BEC = 0x63;               /* list type, as the browser sets it */
     R16(0xF2) = 0x63;
     R32(0x10) = 0x030056C0u;                               /* browser folder state */
     R32(0x34) = t->clus[0];
@@ -225,6 +225,6 @@ static void paint(void)
     COLOR = old;
 }
 
-/* window descriptor: must be the first bytes of the data section (0x03023B48) */
+/* window descriptor: must be the first bytes of the data section (0x03025B88) */
 __attribute__((section(".desc"), used))
 const win_desc_t pl_desc = { 0, 0, tick, service, paint, init, deinit };

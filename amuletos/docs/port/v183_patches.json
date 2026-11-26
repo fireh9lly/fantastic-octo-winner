@@ -1,0 +1,782 @@
+[
+ {
+  "patch": "np_v4",
+  "module": 27,
+  "old": "0x3081654",
+  "new": "0x3081b24",
+  "status": "relocated",
+  "why": "b.w 0x30684e4->0x3068800",
+  "old_bytes": "e6f746bf",
+  "new_bytes": "e6f76cbe"
+ },
+ {
+  "patch": "np_v4",
+  "module": 27,
+  "old": "0x3082a2a",
+  "new": "0x3082efa",
+  "status": "relocated",
+  "why": "bl 0x3063f76->0x3064252",
+  "old_bytes": "e1f7a4fa",
+  "new_bytes": "e1f7aaf9"
+ },
+ {
+  "patch": "np_v4",
+  "module": 27,
+  "old": "0x3082a2e",
+  "new": "0x3082efe",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "0020",
+  "new_bytes": "0020"
+ },
+ {
+  "patch": "np_v4",
+  "module": 27,
+  "old": "0x3082a90",
+  "new": "0x3082f60",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "b1f85a13",
+  "new_bytes": "b1f85a13"
+ },
+ {
+  "patch": "np_v4",
+  "module": 27,
+  "old": "0x3082ac6",
+  "new": "0x3082f96",
+  "status": "relocated",
+  "why": "bl 0x3063f76->0x3064252",
+  "old_bytes": "e1f756fa",
+  "new_bytes": "e1f75cf9"
+ },
+ {
+  "patch": "np_v4",
+  "module": 27,
+  "old": "0x3082ae0",
+  "new": "0x3082fb0",
+  "status": "relocated",
+  "why": "bl 0x30644a0->0x306477c",
+  "old_bytes": "e1f7defc",
+  "new_bytes": "e1f7e4fb"
+ },
+ {
+  "patch": "np_v4",
+  "module": 27,
+  "old": "0x30829b2",
+  "new": "0x3082e82",
+  "status": "relocated",
+  "why": "bl 0x30648ec->0x3064bc8",
+  "old_bytes": "e1f79bff",
+  "new_bytes": "e1f7a1fe"
+ },
+ {
+  "patch": "np_v4",
+  "module": 27,
+  "old": "0x30829bc",
+  "new": "0x3082e8c",
+  "status": "relocated",
+  "why": "bl 0x30648ec->0x3064bc8",
+  "old_bytes": "e1f796ff",
+  "new_bytes": "e1f79cfe"
+ },
+ {
+  "patch": "np_v4",
+  "module": 27,
+  "old": "0x30829c6",
+  "new": "0x3082e96",
+  "status": "relocated",
+  "why": "bl 0x30648ec->0x3064bc8",
+  "old_bytes": "e1f791ff",
+  "new_bytes": "e1f797fe"
+ },
+ {
+  "patch": "np_v4",
+  "module": 27,
+  "old": "0x3082b04",
+  "new": "0x3082fd4",
+  "status": "relocated",
+  "why": "bl 0x30644a0->0x306477c",
+  "old_bytes": "e1f7ccfc",
+  "new_bytes": "e1f7d2fb"
+ },
+ {
+  "patch": "np_v4",
+  "module": 27,
+  "old": "0x308344c",
+  "new": "0x308391c",
+  "status": "relocated",
+  "why": "bl 0x3064d20->0x3064ffc; bl 0x3063f76->0x3064252",
+  "old_bytes": "adf80840adf80c90adf80a50adf80e60ac2200211c20e1f75dfc02a9a8f800400223384a0846e0f780fd3fe0",
+  "new_bytes": "adf80840adf80c90adf80a50adf80e60ac2200211c20e1f763fb02a9a8f800400223384a0846e0f786fc3fe0"
+ },
+ {
+  "patch": "np_v4",
+  "module": 27,
+  "old": "0x3083478",
+  "new": "0x3083948",
+  "status": "relocated",
+  "why": "bl 0x30646ce->0x30649aa; bl 0x3064d20->0x3064ffc; bl 0x3063d52->0x306402e; bl 0x3064286->0x3064562; bl 0x3067ed4->0x30681f0; bl 0x3067f16->0x3068232; bl 0x3063f76->0x3064252",
+  "old_bytes": "adf80840adf80c90adf80a50adf80e6008a91c20e1f71ff9ac2200211c20e1f743fc2e48e0f759fcbdf8201088421ad9bdf80890294d4ff01e0c69f30f01bdf80a90cde9005c352664f30f0202a869f31f416bf31f4266f30f03e0f7d8fe4420e4f7fcfc02e04420e4f719fd02a9a8f800400223194a0846e0f741fd",
+  "new_bytes": "adf80840adf80c90adf80a50adf80e6008a91c20e1f725f8ac2200211c20e1f749fb2e48e0f75ffbbdf8201088421ad9bdf80890294d4ff01e0c69f30f01bdf80a90cde9005c352664f30f0202a869f31f416bf31f4266f30f03e0f7defd4420e4f722fc02e04420e4f73ffc02a9a8f800400223194a0846e0f747fc"
+ },
+ {
+  "patch": "np_v4",
+  "module": 27,
+  "old": "0x308350e",
+  "new": "0x30839de",
+  "status": "relocated",
+  "why": "bl 0x30641ec->0x30644c8",
+  "old_bytes": "e0f76dfe",
+  "new_bytes": "e0f773fd"
+ },
+ {
+  "patch": "np_v4",
+  "module": 27,
+  "old": "0x3083114",
+  "new": "0x30835e4",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "fff7f9fc",
+  "new_bytes": "fff7f9fc"
+ },
+ {
+  "patch": "np_v4",
+  "module": 27,
+  "old": "0x308341e",
+  "new": "0x30838ee",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "fff774fb",
+  "new_bytes": "fff774fb"
+ },
+ {
+  "patch": "np_v4",
+  "module": 27,
+  "old": "0x308316a",
+  "new": "0x308363a",
+  "status": "relocated",
+  "why": "bl 0x3064d20->0x3064ffc",
+  "old_bytes": "e1f7d9fd",
+  "new_bytes": "e1f7dffc"
+ },
+ {
+  "patch": "np_v4",
+  "module": 27,
+  "old": "0x308317a",
+  "new": "0x308364a",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "fff74efa",
+  "new_bytes": "fff74efa"
+ },
+ {
+  "patch": "np_v4",
+  "module": 27,
+  "old": "0x3083208",
+  "new": "0x30836d8",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "daf8440001283068",
+  "new_bytes": "daf8440001283068"
+ },
+ {
+  "patch": "np_hide_format",
+  "module": 27,
+  "old": "0x308296e",
+  "new": "0x3082e3e",
+  "status": "relocated",
+  "why": "bl 0x3064d20->0x3064ffc",
+  "old_bytes": "e2f7d7f9",
+  "new_bytes": "e2f7ddf8"
+ },
+ {
+  "patch": "np_hide_format",
+  "module": 27,
+  "old": "0x3082996",
+  "new": "0x3082e66",
+  "status": "relocated",
+  "why": "bl 0x3063f76->0x3064252",
+  "old_bytes": "e1f7eefa",
+  "new_bytes": "e1f7f4f9"
+ },
+ {
+  "patch": "menu_games_to_blockz",
+  "module": 21,
+  "old": "0x3081966",
+  "new": "0x3081e36",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "6946",
+  "new_bytes": "6946"
+ },
+ {
+  "patch": "menu_games_to_blockz",
+  "module": 21,
+  "old": "0x3081968",
+  "new": "0x3081e38",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "0a20",
+  "new_bytes": "0a20"
+ },
+ {
+  "patch": "lib_skip",
+  "module": 5,
+  "old": "0x3081754",
+  "new": "0x3081c24",
+  "status": "relocated",
+  "why": "bl 0x3067ed4->0x30681f0",
+  "old_bytes": "a5f8424085f86440fff764ff40f28d10e6f7b6fb",
+  "new_bytes": "a5f8424085f86440fff764ff40f28d10e6f7dcfa"
+ },
+ {
+  "patch": "lib_skip",
+  "module": 0,
+  "old": "0x306d5c0",
+  "new": "0x306da58",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "fff79eff",
+  "new_bytes": "fff79eff"
+ },
+ {
+  "patch": "lib_skip",
+  "module": 31,
+  "old": "0x308219e",
+  "new": "0x308266e",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "a5f84290",
+  "new_bytes": "a5f84290"
+ },
+ {
+  "patch": "lib_skip",
+  "module": 1,
+  "old": "0x30827ea",
+  "new": "0x3082cba",
+  "status": "relocated",
+  "why": "bl 0x306d500->0x306d998",
+  "old_bytes": "eaf789fe",
+  "new_bytes": "eaf76dfe"
+ },
+ {
+  "patch": "menu_carousel",
+  "module": 21,
+  "old": "0x30818b4",
+  "new": "0x3081d84",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "035661718e84",
+  "new_bytes": "035661718e84"
+ },
+ {
+  "patch": "menu_carousel",
+  "module": 21,
+  "old": "0x30819d0",
+  "new": "0x3081ea0",
+  "status": "relocated",
+  "why": "bl 0x30680d4->0x30683f0",
+  "old_bytes": "adf8001069460a20e6f77cfb07b00120bde8f083",
+  "new_bytes": "adf8001069460a20e6f7a2fa07b00120bde8f083"
+ },
+ {
+  "patch": "menu_carousel",
+  "module": 21,
+  "old": "0x3081996",
+  "new": "0x3081e66",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "6948017005208df80000adf8",
+  "new_bytes": "6948017005208df80000adf8"
+ },
+ {
+  "patch": "menu_carousel",
+  "module": 21,
+  "old": "0x3081cf8",
+  "new": "0x30821c8",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "b8f80000032808d2401c80b2a8f80000",
+  "new_bytes": "b8f80000032808d2401c80b2a8f80000"
+ },
+ {
+  "patch": "menu_carousel",
+  "module": 21,
+  "old": "0x3081d24",
+  "new": "0x30821f4",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "b8f80000032888bf401e08bf0520dad2002800e0",
+  "new_bytes": "b8f80000032888bf401e08bf0520dad2002800e0"
+ },
+ {
+  "patch": "menu_carousel",
+  "module": 21,
+  "old": "0x3081cde",
+  "new": "0x30821ae",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "b8f8",
+  "new_bytes": "b8f8"
+ },
+ {
+  "patch": "menu_carousel",
+  "module": 21,
+  "old": "0x3081ba6",
+  "new": "0x3082076",
+  "status": "relocated",
+  "why": "bl 0x3067ed4->0x30681f0; bl 0x3057c7c->0x3057f58",
+  "old_bytes": "4ff4bd70e6f793f9e849d9f80000d6f762f8",
+  "new_bytes": "4ff4bd70e6f7b9f8e849d9f80000d5f768ff"
+ },
+ {
+  "patch": "menu_carousel",
+  "module": 21,
+  "old": "0x30815d4",
+  "new": "0x3081aa4",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "21780180",
+  "new_bytes": "21780180"
+ },
+ {
+  "patch": "menu_carousel",
+  "module": 21,
+  "old": "0x3081b8a",
+  "new": "0x308205a",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "00f0f3b8",
+  "new_bytes": "00f0f3b8"
+ },
+ {
+  "patch": "music_update",
+  "module": 22,
+  "old": "0x3081b28",
+  "new": "0x3081ff8",
+  "status": "relocated",
+  "why": "literal 0x3023b48 -> 0x3025b88 (literal evidence 53x)",
+  "old_bytes": "483b0203",
+  "new_bytes": "885b0203"
+ },
+ {
+  "patch": "music_update",
+  "module": 22,
+  "old": "0x3081f6c",
+  "new": "0x308243c",
+  "status": "relocated",
+  "why": "literal 0x3023b48 -> 0x3025b88 (literal evidence 53x)",
+  "old_bytes": "483b0203",
+  "new_bytes": "885b0203"
+ },
+ {
+  "patch": "music_update",
+  "module": 22,
+  "old": "0x3082174",
+  "new": "0x3082644",
+  "status": "relocated",
+  "why": "literal 0x3023b48 -> 0x3025b88 (literal evidence 53x)",
+  "old_bytes": "483b0203",
+  "new_bytes": "885b0203"
+ },
+ {
+  "patch": "music_update",
+  "module": 22,
+  "old": "0x308165a",
+  "new": "0x3081b2a",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "072604462e70",
+  "new_bytes": "072604462e70"
+ },
+ {
+  "patch": "music_update",
+  "module": 22,
+  "old": "0x30816ec",
+  "new": "0x3081bbc",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "0728ccbf2e712871",
+  "new_bytes": "0728ccbf2e712871"
+ },
+ {
+  "patch": "music_update",
+  "module": 22,
+  "old": "0x30818d8",
+  "new": "0x3081da8",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "a7f84290",
+  "new_bytes": "a7f84290"
+ },
+ {
+  "patch": "playlists",
+  "module": 0,
+  "old": "0x305e930",
+  "new": "0x305ec0c",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "2de9f84f",
+  "new_bytes": "2de9f84f"
+ },
+ {
+  "patch": "playlists",
+  "module": 22,
+  "old": "0x308197e",
+  "new": "0x3081e4e",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "07b02846",
+  "new_bytes": "07b02846"
+ },
+ {
+  "patch": "playlists",
+  "module": 22,
+  "old": "0x3081f54",
+  "new": "0x3082424",
+  "status": "relocated",
+  "why": "bl 0x30644a0->0x306477c",
+  "old_bytes": "e2f7a4fa",
+  "new_bytes": "e2f7aaf9"
+ },
+ {
+  "patch": "playlists",
+  "module": 22,
+  "old": "0x3082034",
+  "new": "0x3082504",
+  "status": "relocated",
+  "why": "bl 0x30644a0->0x306477c",
+  "old_bytes": "e2f734fa",
+  "new_bytes": "e2f73af9"
+ },
+ {
+  "patch": "playlists",
+  "module": 33,
+  "old": "0x308df12",
+  "new": "0x308f1b2",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "b7f8f200632805d0",
+  "new_bytes": "b7f8f200632805d0"
+ },
+ {
+  "patch": "playlists",
+  "module": 33,
+  "old": "0x308dfb8",
+  "new": "0x308f292",
+  "status": "relocated",
+  "why": "beq 0x308dffa->0x308f2d6",
+  "old_bytes": "b7f8f200632818bf06281ad0",
+  "new_bytes": "b7f8f200632818bf06281bd0"
+ },
+ {
+  "patch": "keep_settings",
+  "module": 1,
+  "old": "0x30821b4",
+  "new": "0x3082684",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "cae7",
+  "new_bytes": "cae7"
+ },
+ {
+  "patch": "english",
+  "module": 1,
+  "old": "0x3082306",
+  "new": "0x30827d6",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "9df84000",
+  "new_bytes": "9df84000"
+ },
+ {
+  "patch": "np_back_home",
+  "module": 27,
+  "old": "0x30838e2",
+  "new": "0x3083db2",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "2b4c",
+  "new_bytes": "2b4c"
+ },
+ {
+  "patch": "games_back",
+  "module": 81,
+  "old": "0x3081e6e",
+  "new": "0x30823d4",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "0a20",
+  "new_bytes": "0a20"
+ },
+ {
+  "patch": "games_back",
+  "module": 83,
+  "old": "0x30820b8",
+  "new": "0x308267c",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "0a20",
+  "new_bytes": "0a20"
+ },
+ {
+  "patch": "games_back",
+  "module": 84,
+  "old": "0x3082146",
+  "new": "0x30827c4",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "0a20",
+  "new_bytes": "0a20"
+ },
+ {
+  "patch": "games_back",
+  "module": 85,
+  "old": "0x30834fc",
+  "new": "0x3083d62",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "0a20",
+  "new_bytes": "0a20"
+ },
+ {
+  "patch": "games_back",
+  "module": 101,
+  "old": "0x308229e",
+  "new": "0x3082a02",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "0a20",
+  "new_bytes": "0a20"
+ },
+ {
+  "patch": "games_back",
+  "module": 102,
+  "old": "0x3082054",
+  "new": "0x308270c",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "0a20",
+  "new_bytes": "0a20"
+ },
+ {
+  "patch": "games_back",
+  "module": 103,
+  "old": "0x3082748",
+  "new": "0x3082e4c",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "0a20",
+  "new_bytes": "0a20"
+ },
+ {
+  "patch": "games_back",
+  "module": 104,
+  "old": "0x3083a06",
+  "new": "0x30844ac",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "0a20",
+  "new_bytes": "0a20"
+ },
+ {
+  "patch": "games_back",
+  "module": 105,
+  "old": "0x3082484",
+  "new": "0x3082bb8",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "0a20",
+  "new_bytes": "0a20"
+ },
+ {
+  "patch": "games_back",
+  "module": 106,
+  "old": "0x30827ba",
+  "new": "0x3082fea",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "0a20",
+  "new_bytes": "0a20"
+ },
+ {
+  "patch": "games_back",
+  "module": 107,
+  "old": "0x3082398",
+  "new": "0x3082abe",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "0a20",
+  "new_bytes": "0a20"
+ },
+ {
+  "patch": "games_back",
+  "module": 108,
+  "old": "0x3083f72",
+  "new": "0x3084a98",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "0a20",
+  "new_bytes": "0a20"
+ },
+ {
+  "patch": "games_back",
+  "module": 109,
+  "old": "0x3082668",
+  "new": "0x3082d14",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "0a20",
+  "new_bytes": "0a20"
+ },
+ {
+  "patch": "games_back",
+  "module": 109,
+  "old": "0x3083fa4",
+  "new": "0x30846e4",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "0a20",
+  "new_bytes": "0a20"
+ },
+ {
+  "patch": "settings_game",
+  "module": 32,
+  "old": "0x30839d4",
+  "new": "0x3083ea4",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "ac040000",
+  "new_bytes": "ac040000"
+ },
+ {
+  "patch": "settings_game",
+  "module": 32,
+  "old": "0x30839d0",
+  "new": "0x3083ea0",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "be040000",
+  "new_bytes": "be040000"
+ },
+ {
+  "patch": "settings_game",
+  "module": 32,
+  "old": "0x30839dc",
+  "new": "0x3083eac",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "d0040000",
+  "new_bytes": "d0040000"
+ },
+ {
+  "patch": "settings_game",
+  "module": 32,
+  "old": "0x30839e0",
+  "new": "0x3083eb0",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "e2040000",
+  "new_bytes": "e2040000"
+ },
+ {
+  "patch": "settings_game",
+  "module": 32,
+  "old": "0x30839e4",
+  "new": "0x3083eb4",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "f4040000",
+  "new_bytes": "f4040000"
+ },
+ {
+  "patch": "settings_game",
+  "module": 32,
+  "old": "0x30839e8",
+  "new": "0x3083eb8",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "06050000",
+  "new_bytes": "06050000"
+ },
+ {
+  "patch": "settings_game",
+  "module": 32,
+  "old": "0x30839ec",
+  "new": "0x3083ebc",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "18050000",
+  "new_bytes": "18050000"
+ },
+ {
+  "patch": "settings_game",
+  "module": 32,
+  "old": "0x30839f0",
+  "new": "0x3083ec0",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "2a050000",
+  "new_bytes": "2a050000"
+ },
+ {
+  "patch": "settings_game",
+  "module": 32,
+  "old": "0x30839f4",
+  "new": "0x3083ec4",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "3c050000",
+  "new_bytes": "3c050000"
+ },
+ {
+  "patch": "settings_game",
+  "module": 32,
+  "old": "0x3083a14",
+  "new": "0x3083ee4",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "4e050000",
+  "new_bytes": "4e050000"
+ },
+ {
+  "patch": "settings_game",
+  "module": 32,
+  "old": "0x30839f8",
+  "new": "0x3083ec8",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "60050000",
+  "new_bytes": "60050000"
+ },
+ {
+  "patch": "settings_game",
+  "module": 32,
+  "old": "0x30839fc",
+  "new": "0x3083ecc",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "70050000",
+  "new_bytes": "70050000"
+ },
+ {
+  "patch": "settings_game",
+  "module": 32,
+  "old": "0x3083c1c",
+  "new": "0x30840ec",
+  "status": "relocated",
+  "why": "bl 0x30680d4->0x30683f0; bl 0x30680d4->0x30683f0",
+  "old_bytes": "9248002104701520e4f756fa012500f06bb98e48002104701620e4f74dfa012500f062b98948",
+  "new_bytes": "9248002104701520e4f77cf9012500f06bb98e48002104701620e4f773f9012500f062b98948"
+ },
+ {
+  "patch": "settings_game",
+  "module": 32,
+  "old": "0x308247c",
+  "new": "0x308294c",
+  "status": "identical",
+  "why": "",
+  "old_bytes": "6179a068102202eb4101405afff701fc",
+  "new_bytes": "6179a068102202eb4101405afff701fc"
+ }
+]

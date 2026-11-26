@@ -4,7 +4,7 @@
     .thumb
 
 @ ---- Music menu (module 22) with an eighth item "Update" (text 90) -> stock's index-8 library update ----
-@ {icon image, text id, action index}; stock's table (data 0x03023B48) has no room before the window descriptor.
+@ {icon image, text id, action index}; stock's table (data 0x03025B88) has no room before the window descriptor.
     .text
     .global music_menu
     .balign 4
@@ -20,7 +20,7 @@ music_menu:
     .hword 0xEB, 0x5A, 8      @ Update (refresh arrows, build 34)
                               @ (Games, builds 41..53, moved to the main menu in build 54)
 
-@ Music menu select routine's exit (module 22 0x0308197E, was "add sp, #0x1c; mov r0, r5"): action 0x50 (the
+@ Music menu select routine's exit (module 22 0x03081E4E, was "add sp, #0x1c; mov r0, r5"): action 0x50 (the
 @ Playlists row) opens the Playlists screen, task 19 (module 86, game/device/playlists.c).
     .section .text.pl_menu_exit
     .global pl_menu_exit
@@ -30,12 +30,12 @@ pl_menu_exit:
     cmp     r4, #0x50
     bne     1f
     movs    r1, #0
-    ldr     r2, =0x030680D5         @ TaskSwitch(19, NULL)
+    ldr     r2, =0x030683F1         @ TaskSwitch(19, NULL)
     blx     r2
     movs    r5, #1
 1:  add     sp, #0x1c
     mov     r0, r5
-    ldr     r2, =0x03081983         @ pop.w {r4-r11, pc}
+    ldr     r2, =0x03081e53         @ pop.w {r4-r11, pc}
     bx      r2
     .ltorg
 

@@ -15,24 +15,30 @@ working firmware but order a few instructions differently, so their output won't
 
 ## Firmware
 
-You need the official firmware from the
+You need Hidizs's official **V1.8.3** firmware, `HIFIYF23.IMG` (SHA-256 `79d186f5…`), from the
 [Hidizs download center](https://www.hidizs.net/pages/download-center). **Never commit or share it, or any image
 built from it.**
 
 ```sh
-./build.sh path/to/HIFIYF18.IMG [build-dir]
+./build.sh path/to/HIFIYF23.IMG [build-dir]
 ```
 
-This writes `build-dir/v060/HIFIYF18.IMG` (default `build/`, which git ignores). The log is in `build-dir/build.log`.
+This writes `build-dir/out/HIFIYF23.IMG`, the same file name as Hidizs's update. The default `build-dir` is
+`build/`, which git ignores, and the log is in `build-dir/build.log`.
 
-### Reference check: amuletOS v0.3 baseline
+**Status (2026-11-26): the build stops on purpose.** `tools/resident.py` refuses to place amuletOS's always-loaded
+code where module 39 (the music-library builder) would overwrite it. On V1.8.3 that module reaches 0x0309FC9C, and
+the always-loaded code has to shrink first (PLAN.md, Step 1).
 
-With the official **V1.7.8** `HIFIYF18.IMG` (SHA-256 `c7601873…`) and the pinned compiler, the output is
-byte-identical to the amuletOS v0.3 release (SHA-256 `3cfeeac7…`). `build.sh` checks this and prints
-`reference check: OK`. This was verified on 2026-11-26.
+### History: the amuletOS v0.3 baseline
 
-With Debian/Ubuntu's `gcc-arm-none-eabi` 13.2.1, only 22 bytes differ, in two places: slot-2 helpers and the Game
-Boy module. Both are instruction-order differences with the same behaviour.
+Commit `21f8ac1` (and earlier) builds amuletOS v0.3 from the official **V1.7.8** `HIFIYF18.IMG` (SHA-256
+`c7601873…`). With the pinned compiler its output is byte-identical to the v0.3 release (SHA-256 `3cfeeac7…`),
+verified on 2026-11-26. The source was then converted to V1.8.3 by `tools/port_convert.py`, using:
+- `docs/port/v183_addresses.tsv`: every address translated, with how;
+- `docs/port/v183_patches.json`: every patch's original bytes, identical or relocated.
+
+`docs/HARDWARE.md` and amuletOS's other notes still use V1.7.8 addresses.
 
 ## PC tests
 

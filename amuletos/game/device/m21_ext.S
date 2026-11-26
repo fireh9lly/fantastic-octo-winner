@@ -5,7 +5,7 @@
 @ ---- v0.3 one-level carousel (main menu, module 21; tools/patch_code.py menu_carousel) ----
 @ The carousel position is kept here across screens (0x0309FFE4, above slot 2): stock passes its own tile
 @ numbers back to the menu, which no longer match the new order.
-    .equ MENU_IDX, 0x03023B94
+    .equ MENU_IDX, 0x03025BD4
     .equ MENU_RAM, 0x0309FFE4
     .equ MENU_TAG, 0xCA5100
 
@@ -50,16 +50,16 @@ menu_step:
     bx      lr
     .ltorg
 
-@ main menu key dispatch fallthrough (module 21 0x03081B8A, was "b.w exit"): r1 = event - 0x40000010.
-@ Start press (0x40000100, r1 = 0xF0) -> the Settings code at 0x03081BA6 (menu_carousel); anything else -> exit.
+@ main menu key dispatch fallthrough (module 21 0x0308205A, was "b.w exit"): r1 = event - 0x40000010.
+@ Start press (0x40000100, r1 = 0xF0) -> the Settings code at 0x03082076 (menu_carousel); anything else -> exit.
     .section .text.menu_key_more
     .global menu_key_more
     .thumb_func
 menu_key_more:
     cmp     r1, #0xF0
     ite     eq
-    ldreq   r0, =0x03081BA7
-    ldrne   r0, =0x03081D75
+    ldreq   r0, =0x03082077
+    ldrne   r0, =0x03082245
     bx      r0
     .ltorg
 

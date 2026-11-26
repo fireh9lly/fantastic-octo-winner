@@ -17,8 +17,8 @@
  * Build 53 (owner): no stats; the picture fills the screen height (266 x 240) in a DMG look (gb_scale.h).
  *
  * Memory (docs/HARDWARE.md "Game Boy probe"): the emulator state, the list and part of the page cache use
- * 0x03090800..0x0309F7C0, which only the library builder (module 39) ever loads into; more cache pages use the
- * overlay window after this module's code, up to the music engine (0x0308BF84). Music can keep playing. */
+ * 0x03090cd0..0x0309FC90, which only the library builder (module 39) ever loads into; more cache pages use the
+ * overlay window after this module's code, up to the music engine (0x0308C454). Music can keep playing. */
 #include <stdint.h>
 #include "../stock.h"
 #define EX_NAME 26
@@ -34,14 +34,14 @@ void abort(void) { for (;;) {} }
 
 #define SYSC       0x03022894u
 #define S8(o)      (*(volatile uint8_t *)(SYSC + (o)))
-#define DiskSwitch(n)       STOCK_FN(0x03058526, void, uint32_t)(n)
-#define SetFont(n)          STOCK_FN(0x030643A2, uint32_t, uint32_t)(n)
-#define CharW(c)            STOCK_FN(0x03063BC6, uint32_t, uint32_t)(c)
-#define FontRead(o, b, n)   STOCK_FN(0x0306535C, void, uint32_t, void *, uint32_t)(o, b, n)
-#define Window(a, b, c, d)  STOCK_FN(0x03064EA8, void, int, int, int, int)(a, b, c, d)
-#define Pixel(c)            STOCK_FN(0x03064DC4, void, uint32_t)(c)
-#define Flush()             STOCK_FN(0x0306558A, void, void)()
-#define ThreadRunning(h, d) STOCK_FN(0x03057C7C, uint32_t, uint32_t, uint32_t)(h, d)
+#define DiskSwitch(n)       STOCK_FN(0x03058802, void, uint32_t)(n)
+#define SetFont(n)          STOCK_FN(0x0306467E, uint32_t, uint32_t)(n)
+#define CharW(c)            STOCK_FN(0x03063EA2, uint32_t, uint32_t)(c)
+#define FontRead(o, b, n)   STOCK_FN(0x03065638, void, uint32_t, void *, uint32_t)(o, b, n)
+#define Window(a, b, c, d)  STOCK_FN(0x03065184, void, int, int, int, int)(a, b, c, d)
+#define Pixel(c)            STOCK_FN(0x030650A0, void, uint32_t)(c)
+#define Flush()             STOCK_FN(0x03065866, void, void)()
+#define ThreadRunning(h, d) STOCK_FN(0x03057F58, uint32_t, uint32_t, uint32_t)(h, d)
 #define FONTBASE   (*(volatile uint32_t *)0x03022868u)
 #define SPACING    (*(volatile int16_t *)0x03022E04u)
 #define SYS_TICKS  (*(volatile uint32_t *)0x0302288Cu)
@@ -191,8 +191,8 @@ void gbx_read_page(gbx_t *x, uint32_t page, uint8_t *dst)
 }
 
 /* Draw straight into stock's RAM framebuffer (build 42; build 41 went through stock's Window + Pixel: 15 ms a
- * frame). Layout, from Pixel 0x03064DC4 / flush 0x0306558A (docs/HARDWARE.md "Display"): rows 0..189 at
- * 0x03006688 + page * 0x1B760, rows 190..239 at 0x0306FD50 + page * 0x73A0, 592 bytes a row; the panel is mounted
+ * frame). Layout, from Pixel 0x030650A0 / flush 0x03065866 (docs/HARDWARE.md "Display"): rows 0..189 at
+ * 0x030066c8 + page * 0x1B760, rows 190..239 at 0x03070220 + page * 0x73A0, 592 bytes a row; the panel is mounted
  * mirrored (column = 295 - x while the rotation flag is set) and pixels are swapped in pairs (index ^ 1). After a
  * frame, Window() over the Game Boy area marks the rows dirty for the flush, as Pixel would. */
 #define FBS        0x03022E48u
@@ -218,17 +218,17 @@ void gbx_line(const uint16_t *sh, int line)
     push_service();
 }
 
-/* Background push (build 47). The panel driver's push (module 4, ops[5] = 0x03080FEC, called by stock's flush)
+/* Background push (build 47). The panel driver's push (module 4, ops[5] = 0x030814BC, called by stock's flush)
  * sets the LCD window, sends command 6, starts a DMA from the framebuffer to the LCD FIFO 0x6007002C and then
- * loops until the DMA's completion handler (0x03080EAC) sets *(u16 *)0x03023B44 = 1: build 46 measured 3.2 ms
+ * loops until the DMA's completion handler (0x0308137C) sets *(u16 *)0x03025B84 = 1: build 46 measured 3.2 ms
  * of waiting per frame. We do the same steps and return at once; the next push (or any stock flush) first waits
  * for the flag. The DMA reads rows top to bottom at ~22 us a row, ahead of the next frame's line writes (~86 us
  * a line), so it never shows a half-new frame. Full-width rows: the transfer is one contiguous block. */
 #define LCD_DONE   (*(volatile uint16_t *)0x03023B44u)
-#define LcdWindow(a, b, c, d)  STOCK_FN(0x03080F28, void, int, int, int, int)(a, b, c, d)
-#define VopCmd(a, b)           STOCK_FN(0x0306DE9C, void, uint32_t, uint32_t)(a, b)
-#define DmaGet()               STOCK_FN(0x030614F8, uint32_t, void)()
-#define DmaStart(ch, src, dst, n, cfg, cb)     STOCK_FN(0x03061524, void, uint32_t, uint32_t, uint32_t, uint32_t, void *, uint32_t)(ch, src, dst, n, cfg, cb)
+#define LcdWindow(a, b, c, d)  STOCK_FN(0x030813F8, void, int, int, int, int)(a, b, c, d)
+#define VopCmd(a, b)           STOCK_FN(0x0306E334, void, uint32_t, uint32_t)(a, b)
+#define DmaGet()               STOCK_FN(0x030617D4, uint32_t, void)()
+#define DmaStart(ch, src, dst, n, cfg, cb)     STOCK_FN(0x03061800, void, uint32_t, uint32_t, uint32_t, uint32_t, void *, uint32_t)(ch, src, dst, n, cfg, cb)
 
 /* Build 53: the whole screen, in two parts as stock's flush does: rows 0..189 (page), then ~1 ms after that DMA has
  * finished, rows 190..239 (second area) with their own window. The second part is started from the line callback
@@ -277,13 +277,13 @@ static void push_async(void)
 }
 
 /* ---- sound (build 48; 50: ring buffer, game sound) ---- docs/HARDWARE.md "Sound output"
- * Traced from the music engine (module 33: MusicInit 0x0308DDD0, Audio Start 0x0308C8EE) and USB audio (module 11
- * 0x03082F4E). Output = DMA channel 5 (reserved for audio; the allocator hands out 0..4) from RAM to the I2S1 FIFO
- * 0x40030024 with stock's settings block 0x03005764 (module 0 initialised data), one 32-bit word per sample, left
- * then right, MSB-aligned: s16 << 16 (build 51; 50 sent s16 << 8, as stock's refill converter 0x030660E6 does, and
- * the owner heard almost nothing: 48 dB down. Stock's first-buffer converter 0x0306606E gives s16 << 16).
+ * Traced from the music engine (module 33: MusicInit 0x0308F070, Audio Start 0x0308D872) and USB audio (module 11
+ * 0x0308341E). Output = DMA channel 5 (reserved for audio; the allocator hands out 0..4) from RAM to the I2S1 FIFO
+ * 0x40030024 with stock's settings block 0x03005784 (module 0 initialised data), one 32-bit word per sample, left
+ * then right, MSB-aligned: s16 << 16 (build 51; 50 sent s16 << 8, as stock's refill converter 0x030663C2 does, and
+ * the owner heard almost nothing: 48 dB down. Stock's first-buffer converter 0x0306634A gives s16 << 16).
  * The music player is stopped first (it owns the same channel).
- * Build 50: a ring of NCH chunks of CHF frames in the music engine's code window (0x0308BF84.., m33 + the start of
+ * Build 50: a ring of NCH chunks of CHF frames in the music engine's code window (0x0308C454.., m33 + the start of
  * m34; idle once the player is stopped; reloaded from flash on close). Each chunk's DMA completion starts the next
  * chunk at once, then clears the finished one (a late chunk plays silence, not old sound). Games: the emulator runs
  * a frame whenever fewer than SND_MARGIN frames are queued past the playing chunk, so the sound clock paces the game
@@ -292,21 +292,21 @@ static void push_async(void)
 #define DAC_ON      (*(volatile uint8_t *)0x030227DAu)   /* stock: DAC powered (MusicInit / USB audio / music exit) */
 #define PHAND       0x030232BCu                          /* player thread handle, descriptor (bgmusic.c) */
 #define PDESC       0x030361A4u
-#define ThreadDelete(hp)      STOCK_FN(0x03057C38, void, uint32_t)(hp)
-#define DelayMs(n)            STOCK_FN(0x03065B58, void, uint32_t)(n)
+#define ThreadDelete(hp)      STOCK_FN(0x03057F14, void, uint32_t)(hp)
+#define DelayMs(n)            STOCK_FN(0x03065E34, void, uint32_t)(n)
 #define IoMux(p, n, f)        STOCK_FN(0x03052BFC, void, uint32_t, uint32_t, uint32_t)(p, n, f)
-#define GpioDir(p, n, d)      STOCK_FN(0x03056C2C, void, uint32_t, uint32_t, uint32_t)(p, n, d)
-#define GpioSet(p, n, v)      STOCK_FN(0x03056C66, void, uint32_t, uint32_t, uint32_t)(p, n, v)
-#define WdtKick()             STOCK_FN(0x03062858, uint32_t, void)()          /* 0x76 -> 0x4012000C */
+#define GpioDir(p, n, d)      STOCK_FN(0x03056F08, void, uint32_t, uint32_t, uint32_t)(p, n, d)
+#define GpioSet(p, n, v)      STOCK_FN(0x03056F42, void, uint32_t, uint32_t, uint32_t)(p, n, v)
+#define WdtKick()             STOCK_FN(0x03062b34, uint32_t, void)()          /* 0x76 -> 0x4012000C */
 #define DacRestart()          STOCK_FN(0x03051F8E, void, void)()              /* CS43198 power-up */
 #define ClkGate(n, on)        STOCK_FN(0x03052B20, void, uint32_t, uint32_t)(n, on)
-#define I2sInit(a, b, c, rate, d, fmt, e) STOCK_FN(0x03056960, void, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t)(a, b, c, rate, d, fmt, e)
+#define I2sInit(a, b, c, rate, d, fmt, e) STOCK_FN(0x03056c3c, void, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t)(a, b, c, rate, d, fmt, e)
 #define I2sTxStart(i, m)      STOCK_FN(0x0305094E, uint32_t, uint32_t, uint32_t)(i, m)
 #define I2sTxStop(i, m)       STOCK_FN(0x03050A00, void, uint32_t, uint32_t)(i, m)
-#define CodecRate(r)          STOCK_FN(0x030622E4, void, uint32_t)(r)
-#define SetVolume(v)          STOCK_FN(0x0306242E, void, uint32_t)(v)
-#define DmaBusy(ch)           STOCK_FN(0x03056774, uint32_t, uint32_t)(ch)
-#define ModuleOverlay(n, t)   STOCK_FN(0x030683DE, uint32_t, uint32_t, uint32_t)(n, t)
+#define CodecRate(r)          STOCK_FN(0x030625C0, void, uint32_t)(r)
+#define SetVolume(v)          STOCK_FN(0x0306270A, void, uint32_t)(v)
+#define DmaBusy(ch)           STOCK_FN(0x03056a50, uint32_t, uint32_t)(ch)
+#define ModuleOverlay(n, t)   STOCK_FN(0x030686FA, uint32_t, uint32_t, uint32_t)(n, t)
 #define I2S_TXDR    0x40030024u
 #define AUDIO_DMA   0x03005764u
 #define SND_RATE    48000u
@@ -316,7 +316,7 @@ static void push_async(void)
 #define SND_MARGIN  960u                                  /* 20 ms queued before a frame is emulated (build 52;
                                                               51: 768). Ring limit: SND_MARGIN + 803 <= 7 chunks */
 #define SKIP_BELOW  (SND_MARGIN - CHF)                    /* fewer queued at a frame start: behind, skip drawing */
-#define SND_RING    ((int32_t *)0x0308BF84u)              /* .. 0x0308FF84, below the decoders (0x0308FFBC) */
+#define SND_RING    ((int32_t *)0x0308BF84u)              /* .. 0x03090454, below the decoders (0x03091370) */
 
 static void redraw(void);
 static volatile uint32_t snd_n, snd_p, snd_irqs, snd_under, snd_t_first, snd_t_last;

@@ -1,6 +1,6 @@
 /* Minimal synchronous exFAT reader for amuletOS modules (playlists.c; Blockz has its own incremental walk in
- * bgmusic.c). Reads 512-byte sectors through the stock raw read (0x03057CC8) using the volume info stock keeps
- * at 0x0307E710, as libscan.c does. Host tests (game/test/test_playlists.c, game/pc/pl_card.c) supply ReadSec
+ * bgmusic.c). Reads 512-byte sectors through the stock raw read (0x03057FA4) using the volume info stock keeps
+ * at 0x0307EBE0, as libscan.c does. Host tests (game/test/test_playlists.c, game/pc/pl_card.c) supply ReadSec
  * and the volume themselves (EXFAT_HOST).
  *
  * A file is addressed the way the player does it (docs/HARDWARE.md): folder cluster + "file number" =
@@ -8,7 +8,7 @@
 #include <stdint.h>
 
 #ifndef EXFAT_HOST
-#define ReadSec(l, b) STOCK_FN(0x03057CC8, uint32_t, uint32_t, void *)(l, b)
+#define ReadSec(l, b) STOCK_FN(0x03057FA4, uint32_t, uint32_t, void *)(l, b)
 #define EX_VOL        ((const volatile uint8_t *)0x0307E710u)
 #endif
 

@@ -18,7 +18,7 @@ import argparse, json, os, shutil, struct, subprocess, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE = 0x03050000
-WINDOW_END = 0x0308BF84              # music engine (module 33) starts here
+WINDOW_END = 0x0308C454              # music engine (module 33) starts here
 
 from toolchain import tool                # noqa: E402  (tools/toolchain.py: ARM_TOOLCHAIN_BIN or PATH)
 

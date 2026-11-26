@@ -1,8 +1,8 @@
 /* Music menu (module 22) extension, linked after the module's own code by tools/extend_module.py (build 37).
  * Stack only, no data / rodata.
  *
- * Row icons: stock's row paint (0x03081EB0) never draws the table's icon ids, only the selection bar (image 184)
- * and the row text at x = 15 (0x030644A0). Both of its text calls (0x03081F54 full redraw, 0x03082034 selection
+ * Row icons: stock's row paint (0x03082380) never draws the table's icon ids, only the selection bar (image 184)
+ * and the row text at x = 15 (0x0306477C). Both of its text calls (0x03082424 full redraw, 0x03082504 selection
  * change) come here instead: draw the row's icon (art/pocket.py LIST_GLYPHS; +10 = the set on the selection bar),
  * then the text 26 px further right. */
 #include <stdint.h>

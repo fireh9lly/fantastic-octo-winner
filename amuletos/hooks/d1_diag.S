@@ -2,15 +2,15 @@
  * D1: diagnostics through the internal disk's INQUIRY name.
  *
  * Loaded by stock through module slot 2 (see build_hook.py) and called in place
- * of `bl usb_send` at 0x03083978 (module 12). When the PC asks the internal
- * disk (stock block 0x03036790) for its identity, we answer with:
+ * of `bl usb_send` at 0x03083e48 (module 12). When the PC asks the internal
+ * disk (stock block 0x030387d0) for its identity, we answer with:
  *
  *   vendor   "SCHALAOS"
  *   product  "CCCCCCCC BBB AAA"   CCCCCCCC = system clock in Hz (hex), from
- *                                  *(0x030065C0 + 0x18), read by DelayMs/DelayUs
+ *                                  *(0x03006600 + 0x18), read by DelayMs/DelayUs
  *                                  BBB = ADC ch1 (8 face buttons), AAA = ADC ch0
  *                                  (battery), 10-bit, hex, from the sampler's
- *                                  table at 0x03005A8C (u16 per channel)
+ *                                  table at 0x03005ACC (u16 per channel)
  *   revision "D1  "
  *
  * Read-only: no hardware register is touched. SD card INQUIRY is unchanged.
@@ -20,10 +20,10 @@
     .cpu cortex-m3
     .thumb
 
-    .equ STOCK_INQ,  0x03036790     @ internal-disk INQUIRY block
-    .equ USB_SEND,   0x03081AA5     @ usb_send(ep r0, len r1, src r2) | Thumb
-    .equ CLK_VAR,    0x030065C0     @ +0x18 = system clock (Hz)
-    .equ ADC_TAB,    0x03005A8C     @ u16[ch]
+    .equ STOCK_INQ,  0x030387d0     @ internal-disk INQUIRY block
+    .equ USB_SEND,   0x03081F75     @ usb_send(ep r0, len r1, src r2) | Thumb
+    .equ CLK_VAR,    0x03006600     @ +0x18 = system clock (Hz)
+    .equ ADC_TAB,    0x03005ACC     @ u16[ch]
 
     .section .text.d1, "ax"
     .global d1_send

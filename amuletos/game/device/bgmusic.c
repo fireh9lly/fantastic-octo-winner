@@ -16,19 +16,19 @@
 #endif
 #define FTYPE  6u               /* entry type the library scanner uses */
 
-#define ThreadRunning(h, d)  STOCK_FN(0x03057C7C, uint32_t, uint32_t, uint32_t)(h, d)
-#define ThreadDelete(hp)     STOCK_FN(0x03057C38, void, uint32_t)(hp)
-#define ThreadCreate(hp, d, a) STOCK_FN(0x03057B96, void, uint32_t, uint32_t, void *)(hp, d, a)
-#define ModuleLoad(n)        STOCK_FN(0x030684E4, uint32_t, uint32_t, uint32_t)(n, 7)
-#define DiskSwitch(d)        STOCK_FN(0x03058526, void, uint32_t)(d)
-#define FindFirst(f, it, e, t) STOCK_FN(0x0305BBF6, uint32_t, void *, void *, const void *, uint32_t)(f, it, e, t)
-#define FindNext(f, it, e, t)  STOCK_FN(0x0305BBCA, uint32_t, void *, void *, const void *, uint32_t)(f, it, e, t)
-#define FatName(c, i, t, o)  STOCK_FN(0x0305C364, uint32_t, uint32_t, uint32_t, uint32_t, uint16_t *)(c, i, t, o)
-#define FatFiles(c, e, t)    STOCK_FN(0x0305BDF6, uint32_t, uint32_t, const void *, uint32_t)(c, e, t)
-#define FatDirs(c, t)        STOCK_FN(0x0305A6B4, uint32_t, uint32_t, uint32_t)(c, t)
-#define RecPrepare()         STOCK_FN(0x03055304, void, void)()
-#define AudioClose()         STOCK_FN(0x0308D86E, void, uint32_t)(1)
-#define AudioControl(c, a)   STOCK_FN(0x0308BF84, uint32_t, uint32_t, uint32_t)(c, a)
+#define ThreadRunning(h, d)  STOCK_FN(0x03057F58, uint32_t, uint32_t, uint32_t)(h, d)
+#define ThreadDelete(hp)     STOCK_FN(0x03057F14, void, uint32_t)(hp)
+#define ThreadCreate(hp, d, a) STOCK_FN(0x03057E72, void, uint32_t, uint32_t, void *)(hp, d, a)
+#define ModuleLoad(n)        STOCK_FN(0x03068800, uint32_t, uint32_t, uint32_t)(n, 7)
+#define DiskSwitch(d)        STOCK_FN(0x03058802, void, uint32_t)(d)
+#define FindFirst(f, it, e, t) STOCK_FN(0x0305BED2, uint32_t, void *, void *, const void *, uint32_t)(f, it, e, t)
+#define FindNext(f, it, e, t)  STOCK_FN(0x0305BEA6, uint32_t, void *, void *, const void *, uint32_t)(f, it, e, t)
+#define FatName(c, i, t, o)  STOCK_FN(0x0305C640, uint32_t, uint32_t, uint32_t, uint32_t, uint16_t *)(c, i, t, o)
+#define FatFiles(c, e, t)    STOCK_FN(0x0305C0D2, uint32_t, uint32_t, const void *, uint32_t)(c, e, t)
+#define FatDirs(c, t)        STOCK_FN(0x0305A990, uint32_t, uint32_t, uint32_t)(c, t)
+#define RecPrepare()         STOCK_FN(0x030555e0, void, void)()
+#define AudioClose()         STOCK_FN(0x0308EAE6, void, uint32_t)(1)
+#define AudioControl(c, a)   STOCK_FN(0x0308C454, uint32_t, uint32_t, uint32_t)(c, a)
 
 enum { BGM_OFF, BGM_KEPT, BGM_NOCARD, BGM_NOFOLDER, BGM_NOFILE, BGM_PLAY, BGM_ERRFIND, BGM_ERRSTART, BGM_SCAN };
 
@@ -72,7 +72,7 @@ static uint32_t m_random(uint32_t n)
  * count the files whose extension is in stock's audio filter. A few sectors per service call (MUSIC panel SCAN).
  * Owner's card: /_blockgame/ = cluster 0x000A0C32 (Windows LCN 0xA0C30), one file. */
 #ifndef BGWALK_HOST             /* game/test/test_bgwalk.c supplies these */
-#define ReadSec(l, b) STOCK_FN(0x03057CC8, uint32_t, uint32_t, void *)(l, b)
+#define ReadSec(l, b) STOCK_FN(0x03057FA4, uint32_t, uint32_t, void *)(l, b)
 #define VOLI      0x0307E710u   /* +0 FS type (3 = exFAT), +2 sectors/cluster shift, +4 bytes/sector shift;
                                    +0x0C volume info: +0x0D root cluster, +0x1F heap LBA, +0x23 partition LBA */
 #endif
@@ -212,7 +212,7 @@ static int find_folder(void)
     static fs_iter_t it;
     static uint8_t fdt[0x40];
     uint16_t *name = (uint16_t *)W.buf;        /* 0x104 chars, shares the walk's sector buffer */
-    M.root = m_rd32(0x0307E71C + 0x0D);
+    M.root = m_rd32(0x0307EBEC + 0x0D);
     for (unsigned i = 0; i < sizeof it; i++) ((uint8_t *)&it)[i] = 0;
     it.clus = M.root;
     it.count = FatFiles(M.root, FILTER, FTYPE) + FatDirs(M.root, FTYPE);
@@ -236,7 +236,7 @@ static int find_folder(void)
 
 /* Start the player on the folder's tracks in a shuffled order (build 35). The tracks go in the playlist table
  * (pl_table.h), so the player itself moves to the next one at track end (np_helpers.c pl_step); the record and
- * the start copy Now Playing's init (m27 0x030815C4), including the engine byte 0x030483C8 = 1 that builds 25-34
+ * the start copy Now Playing's init (m27 0x03081A94), including the engine byte 0x0304A458 = 1 that builds 25-34
  * left out (the player ran but played nothing). */
 static void bgm_play(void)
 {
@@ -254,7 +254,7 @@ static void bgm_play(void)
     t->magic = PLT_MAGIC;
 
     RecPrepare();                                          /* the browser's play-request prep */
-    *(volatile uint16_t *)0x03022BAC = 0x63;
+    *(volatile uint16_t *)0x03024BEC = 0x63;
     *(volatile uint16_t *)(PREC + 0xF2) = 0x63;            /* source as when playing from Folders */
     *(volatile uint32_t *)(PREC + 0x10) = 0x030056C0u;
     *(volatile uint32_t *)(PREC + 0x34) = M.clus;
@@ -272,7 +272,7 @@ static void bgm_play(void)
     ThreadDelete(PHAND);
     ModuleLoad(33);
     ThreadCreate(PHAND, PDESC, arg);
-    *(volatile uint8_t *)0x030483C8u = 1;                  /* 0x0308CFB8(1) in Now Playing's init */
+    *(volatile uint8_t *)0x030483C8u = 1;                  /* 0x0308D488(1) in Now Playing's init */
     M.cur = order[0];
     if (ThreadRunning(m_rd32(PHAND), PDESC) != 1) { M.status = BGM_ERRSTART; return; }
     M.status = BGM_PLAY;

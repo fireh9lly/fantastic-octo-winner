@@ -15,7 +15,7 @@ data + ZI limit (default 0x708, Blockz's; the overlay data window holds at least
 SRC_DIR is an unpacked image (e.g. build/d1np). OUT_DIR gets a copy with code.bin changed:
 the module's .text and .data are written into the zero gap at code.bin --at (the gap is
 0x57B8C..0x5BB8C; slot 2's D1 hook uses the first 0x8C bytes), and the module's 8 table words
-are pointed at them. Link layout: game/device/module.ld (code at 0x030815C4, data at 0x03023B48
+are pointed at them. Link layout: game/device/module.ld (code at 0x03081A94, data at 0x03025B88
 starting with the window descriptor, ZI after). Then pack with build_reskin.py as usual.
 """
 import argparse, json, os, shutil, struct, subprocess, sys
@@ -23,8 +23,8 @@ import argparse, json, os, shutil, struct, subprocess, sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE = 0x03050000
 GAP = (0x57B8C + 0x8C, 0x5BB8C)          # usable gap (after the D1 hook)
-CODE_EXEC, CODE_END = 0x030815C4, 0x0308BF84
-DATA_EXEC, DATA_MAX = 0x03023B48, 0x708   # module 82's data + ZI footprint
+CODE_EXEC, CODE_END = 0x03081A94, 0x0308C454
+DATA_EXEC, DATA_MAX = 0x03025B88, 0x708   # module 82's data + ZI footprint
 
 from toolchain import tool                # noqa: E402  (tools/toolchain.py: ARM_TOOLCHAIN_BIN or PATH)
 

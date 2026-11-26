@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Install C code as a code-only overlay in an empty module slot.
 
-  build_overlay.py SRC_DIR OUT_DIR SOURCE [SOURCE ...] --slot 28 --run 0x03083F0C --max 0x684 --at 0x5B400 --json npui.json
+  build_overlay.py SRC_DIR OUT_DIR SOURCE [SOURCE ...] --slot 28 --run 0x030843DC --max 0x684 --at 0x5B400 --json npui.json
 
 The sources are linked at --run (no data, ZI or rodata: stack only), written into code.bin's file gap
 at --at, and slot N's table entry points at them (code only; data/ZI sizes 0). Stock loads it with
@@ -11,7 +11,7 @@ symbol addresses for tools/patch_code.py.
 import argparse, json, os, shutil, struct, subprocess, sys
 
 BASE = 0x03050000
-GAP = (0x57B8C, 0x5BB8C)
+GAP = (0x5805C, 0x5C05C)
 
 from toolchain import tool                # noqa: E402  (tools/toolchain.py: ARM_TOOLCHAIN_BIN or PATH)
 

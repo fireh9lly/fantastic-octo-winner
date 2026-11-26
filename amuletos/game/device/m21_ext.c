@@ -5,7 +5,7 @@
 /* v0.3 main menu (module 21): the Now Playing card is greyed out and inert while the player thread is not
  * running (fresh boot: stock's Now Playing would open on an empty record and show an error). Same running test
  * as stock's Music menu "Now playing" item. Module 21's tile table {1, i, i, 0, image, text} x6 sits in RAM at
- * 0x03023B64 and paint reads the image from it, so we set the image ids (art/pocket.py STATES / GREY_STATES).
+ * 0x03025BA4 and paint reads the image from it, so we set the image ids (art/pocket.py STATES / GREY_STATES).
  * Build 54: five cards, Now Playing 16 (greyed 8), Music 14, Blockz 18, Games 20, Library 22 (greyed 24: its right
  * side icon is Now Playing). */
 #define PLAYER_ON() (((uint32_t (*)(uint32_t, uint32_t))(0x03057C7Cu | 1))(*(volatile uint32_t *)0x030232BCu, \

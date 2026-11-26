@@ -7,14 +7,14 @@
 #include <stdint.h>
 
 /* v0.3 Now Playing: module 27's init ends with "ModuleOverlay(18, 7)" (cover decoder); patched to come here
- * so the layout A drawing code (game/device/npui.c, module slot 28 at 0x03083F0C) is loaded first. */
+ * so the layout A drawing code (game/device/npui.c, module slot 28 at 0x030843DC) is loaded first. */
 uint32_t np_load(void)
 {
     ((uint32_t (*)(uint32_t, uint32_t))(0x030684E4u | 1))(28, 7);
     return ((uint32_t (*)(uint32_t, uint32_t))(0x030684E4u | 1))(18, 7);
 }
 
-/* v0.3 M3U playlists: one step of the music source record (0x0305E930's entry, via np_stub.S pl_step_hook).
+/* v0.3 M3U playlists: one step of the music source record (0x0305EC0C's entry, via np_stub.S pl_step_hook).
  * Next, Prev and track end all come through here (docs/HARDWARE.md). While the record is still on the playlist's
  * current entry (source 0x63 "files", cluster and number as in the table), move along the table and fill the
  * record the way stock's lookups do; anything else (another playback started since) runs stock's step. */

@@ -1,14 +1,14 @@
 @ Stock Now Playing (module 27): show the title tag on the scrolling line, falling back to the
 @ file name when a song has no title. Placed in module 27's own dead code (the album/genre
-@ lines, skipped by np_hide_album_genre) at 0x03082A30; see tools/patch_code.py np_title_tag.
-@ Title: tag record 0x03048580 + 0x60 (filled by the tag reader at play start, 127 UTF-16 max).
-@ File name: 0x03048450 (library record +0x400, 64 UTF-16 max).
+@ lines, skipped by np_hide_album_genre) at 0x03082F00; see tools/patch_code.py np_title_tag.
+@ Title: tag record 0x0304a610 + 0x60 (filled by the tag reader at play start, 127 UTF-16 max).
+@ File name: 0x0304a4e0 (library record +0x400, 64 UTF-16 max).
     .syntax unified
     .thumb
-    .equ TITLE, 0x030485E0
-    .equ FNAME, 0x03048450
-    .equ TEXTW, 0x03063D52          @ text width (r0 = str16)
-    .equ DRAW,  0x03063F76          @ text in rect (r0, r1 = rect*, r2 = str16, r3 = mode)
+    .equ TITLE, 0x0304A670
+    .equ FNAME, 0x0304a4e0
+    .equ TEXTW, 0x0306402E          @ text width (r0 = str16)
+    .equ DRAW,  0x03064252          @ text in rect (r0, r1 = rect*, r2 = str16, r3 = mode)
 
     .text
     .global np_fill_strlen, np_fill_draw

@@ -1,7 +1,7 @@
 /*
  * amuletOS name for the internal disk (build 36; replaces the D1 diagnostics hook, which built the reply live and
  * took 0x8C bytes of slot 2). Loaded by stock through module slot 2 (build_hook.py) and called in place of
- * `bl usb_send` at 0x03083978 (module 12): when the PC asks the internal disk (stock block 0x03036790) for its
+ * `bl usb_send` at 0x03083e48 (module 12): when the PC asks the internal disk (stock block 0x030387d0) for its
  * identity, send this reply instead. Windows shows "AMULETOS AP30 USB Device"; tools/inquiry.py reads it.
  * SD card INQUIRY is unchanged. Keep the revision field current with the release.
  */
@@ -9,8 +9,8 @@
     .cpu cortex-m3
     .thumb
 
-    .equ STOCK_INQ,  0x03036790     @ internal-disk INQUIRY block
-    .equ USB_SEND,   0x03081AA5     @ usb_send(ep r0, len r1, src r2) | Thumb
+    .equ STOCK_INQ,  0x030387d0     @ internal-disk INQUIRY block
+    .equ USB_SEND,   0x03081F75     @ usb_send(ep r0, len r1, src r2) | Thumb
 
     .section .text.amu, "ax"
     .global amu_send
