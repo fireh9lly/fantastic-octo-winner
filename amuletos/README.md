@@ -1,4 +1,8 @@
-# amuletOS mods: four-way D-pad main menu (step 1)
+# amuletOS mods: four-way D-pad main menu (early draft)
+
+> **Superseded.** The full plan is in [PLAN.md](PLAN.md). This draft predates later decisions (A selects, no
+> double-tap; Left = Settings; Blockz inside Games; V1.8.3 base) and has a known bug (writes 0x0309FFF0, stock's
+> reset magic). It will be redone in PLAN.md's Step 2.
 
 Mods for [amuletOS](https://github.com/dharma-dingo/amuletOS) (custom firmware for the Hidizs AP30), built on
 v0.3. Files here mirror amuletOS's own layout, so they drop into an amuletOS checkout.
