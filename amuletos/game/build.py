@@ -12,7 +12,10 @@ ROOT = Path(__file__).resolve().parent
 OUT = ROOT.parent / "build" / "game_preview"
 CORE = [ROOT / "core.c", ROOT / "render.c"]
 ZIG = [sys.executable, "-m", "ziglang", "cc"]
-ARM = Path(r"C:\Users\Admin\tools\arm-gnu-toolchain\arm-gnu-toolchain-13.3.rel1-mingw-w64-i686-arm-none-eabi\bin")
+sys.path.insert(0, str(ROOT.parent / "tools"))
+from toolchain import tool            # noqa: E402  (tools/toolchain.py: ARM_TOOLCHAIN_BIN or PATH)
+# 32-bit PC target for the exFAT tests (the device is 32-bit): Windows as before, Linux/macOS via musl
+PC32 = "x86-windows-gnu" if os.name == "nt" else "x86-linux-musl"
 
 def run(cmd, **kw):
     print(" ".join(str(c) for c in cmd))
@@ -35,10 +38,10 @@ def test():
     run(ZIG + ["-O1", "-w", "-I", ROOT, "-o", lib, ROOT / "test" / "test_libscan.c"])
     run([lib])
     bw = OUT / "test_bgwalk.exe"      # Blockz music folder walk (device/bgmusic.c) on a simulated exFAT card, 32-bit
-    run(ZIG + ["-target", "x86-windows-gnu", "-O1", "-w", "-I", ROOT, "-o", bw, ROOT / "test" / "test_bgwalk.c"])
+    run(ZIG + ["-target", PC32, "-O1", "-w", "-I", ROOT, "-o", bw, ROOT / "test" / "test_bgwalk.c"])
     run([bw])
     tp = OUT / "test_playlists.exe"   # playlist resolver (device/exfat.c + pl_core.c) on a simulated card, 32-bit
-    run(ZIG + ["-target", "x86-windows-gnu", "-O1", "-w", "-I", ROOT, "-o", tp, ROOT / "test" / "test_playlists.c"])
+    run(ZIG + ["-target", PC32, "-O1", "-w", "-I", ROOT, "-o", tp, ROOT / "test" / "test_playlists.c"])
     run([tp])
 
 def preview():
@@ -94,13 +97,13 @@ def web():
 
 def device():
     OUT.mkdir(parents=True, exist_ok=True)
-    gcc = ARM / "arm-none-eabi-gcc.exe"
+    gcc = tool("gcc")
     for src in CORE:
         o = OUT / (src.stem + ".o")
         run([gcc, "-mcpu=cortex-m3", "-mthumb", "-Os", "-ffreestanding", "-fno-tree-loop-distribute-patterns",
              "-Wall", "-c", src, "-o", o])
-        run([ARM / "arm-none-eabi-size.exe", o])
-        nm = subprocess.run([str(ARM / "arm-none-eabi-nm.exe"), "-u", str(o)], capture_output=True, text=True).stdout
+        run([tool("size"), o])
+        nm = subprocess.run([tool("nm"), "-u", str(o)], capture_output=True, text=True).stdout
         if nm.strip():
             print("  undefined:", nm.split())
 

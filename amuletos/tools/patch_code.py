@@ -9,7 +9,7 @@ Each patch entry: (module, run address, original bytes hex or None, new bytes he
 import json, os, shutil, struct, subprocess, sys, tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-ARM = r"C:\Users\Admin\tools\arm-gnu-toolchain\arm-gnu-toolchain-13.3.rel1-mingw-w64-i686-arm-none-eabi\bin"
+from toolchain import tool                # noqa: E402  (tools/toolchain.py)
 BASE = 0x03050000
 NOP2 = "00bf00bf"          # two Thumb NOPs, replaces one 4-byte BL
 
@@ -89,12 +89,12 @@ def assemble(src, addr):
     """assemble hooks/<src>.S linked at addr; returns (bytes, symbols)."""
     with tempfile.TemporaryDirectory() as t:
         o, e, b = (os.path.join(t, n) for n in ("h.o", "h.elf", "h.bin"))
-        for cmd in ([os.path.join(ARM, "arm-none-eabi-as.exe"), "-mcpu=cortex-m3", "-mthumb", "-o", o,
+        for cmd in ([tool("as"), "-mcpu=cortex-m3", "-mthumb", "-o", o,
                      os.path.join(ROOT, "hooks", src + ".S")],
-                    [os.path.join(ARM, "arm-none-eabi-ld.exe"), "-Ttext=" + hex(addr), "-o", e, o],
-                    [os.path.join(ARM, "arm-none-eabi-objcopy.exe"), "-O", "binary", "-j", ".text", e, b]):
+                    [tool("ld"), "-Ttext=" + hex(addr), "-o", e, o],
+                    [tool("objcopy"), "-O", "binary", "-j", ".text", e, b]):
             subprocess.run(cmd, check=True)
-        nm = subprocess.run([os.path.join(ARM, "arm-none-eabi-nm.exe"), e], capture_output=True, text=True).stdout
+        nm = subprocess.run([tool("nm"), e], capture_output=True, text=True).stdout
         syms = {f[2]: int(f[0], 16) for f in (l.split() for l in nm.splitlines()) if len(f) == 3}
         return open(b, "rb").read(), syms
 

@@ -21,13 +21,12 @@ starting with the window descriptor, ZI after). Then pack with build_reskin.py a
 import argparse, json, os, shutil, struct, subprocess, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-ARM = r"C:\Users\Admin\tools\arm-gnu-toolchain\arm-gnu-toolchain-13.3.rel1-mingw-w64-i686-arm-none-eabi\bin"
 BASE = 0x03050000
 GAP = (0x57B8C + 0x8C, 0x5BB8C)          # usable gap (after the D1 hook)
 CODE_EXEC, CODE_END = 0x030815C4, 0x0308BF84
 DATA_EXEC, DATA_MAX = 0x03023B48, 0x708   # module 82's data + ZI footprint
 
-def tool(name): return os.path.join(ARM, f"arm-none-eabi-{name}.exe")
+from toolchain import tool                # noqa: E402  (tools/toolchain.py: ARM_TOOLCHAIN_BIN or PATH)
 
 def run(*a, **kw):
     r = subprocess.run([str(x) for x in a], capture_output=True, text=True, **kw)

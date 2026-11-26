@@ -11,12 +11,11 @@ No data or ZI is allowed (stack only).
 """
 import json, os, shutil, struct, subprocess, sys
 
-ARM = r"C:\Users\Admin\tools\arm-gnu-toolchain\arm-gnu-toolchain-13.3.rel1-mingw-w64-i686-arm-none-eabi\bin"
 BASE, SLOT = 0x03050000, 2
 RUN0, RUN_END = 0x0309F800, 0x0309FF28   # 0x0309FF28.. playlist table (pl_table.h), 0x0309FFC0.. libscan.c FP, 0x0309FFF0 stock magic
 FILE_END = 0x58800               # keep clear of the Blockz module (build_module.py --at 0x58800)
 
-def tool(n): return os.path.join(ARM, f"arm-none-eabi-{n}.exe")
+from toolchain import tool                # noqa: E402  (tools/toolchain.py: ARM_TOOLCHAIN_BIN or PATH)
 
 def run(*a):
     r = subprocess.run([str(x) for x in a], capture_output=True, text=True)

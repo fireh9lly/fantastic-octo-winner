@@ -10,11 +10,10 @@ symbol addresses for tools/patch_code.py.
 """
 import argparse, json, os, shutil, struct, subprocess, sys
 
-ARM = r"C:\Users\Admin\tools\arm-gnu-toolchain\arm-gnu-toolchain-13.3.rel1-mingw-w64-i686-arm-none-eabi\bin"
 BASE = 0x03050000
 GAP = (0x57B8C, 0x5BB8C)
 
-def tool(n): return os.path.join(ARM, f"arm-none-eabi-{n}.exe")
+from toolchain import tool                # noqa: E402  (tools/toolchain.py: ARM_TOOLCHAIN_BIN or PATH)
 
 def run(*a):
     r = subprocess.run([str(x) for x in a], capture_output=True, text=True)

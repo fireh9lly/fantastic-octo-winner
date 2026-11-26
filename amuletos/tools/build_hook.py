@@ -20,7 +20,7 @@ packed and verified.
 import argparse, os, shutil, struct, subprocess, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-TC = r"C:\Users\Admin\tools\arm-gnu-toolchain\arm-gnu-toolchain-13.3.rel1-mingw-w64-i686-arm-none-eabi\bin"
+from toolchain import tool as tool_path   # noqa: E402  (tools/toolchain.py)
 BASE = 0x03050000
 GAP_FILE, GAP_SIZE = 0x57B8C, 0x4000
 GAP_RUN = 0x030A7B8C                     # H0/H0a assumption: NOT loaded, past end of 640 KB RAM
@@ -60,7 +60,7 @@ def bl_encode(pc, target):
     return struct.pack("<HH", h, l)
 
 def tool(name, *args):
-    subprocess.run([os.path.join(TC, f"arm-none-eabi-{name}.exe"), *args], check=True)
+    subprocess.run([tool_path(name), *args], check=True)
 
 def main():
     p = argparse.ArgumentParser()
@@ -79,7 +79,7 @@ def main():
     tool("objcopy", "-O", "binary", "-j", ".text*", elf, binf)
     blob = open(binf, "rb").read()
     blob += b"\0" * (-len(blob) % 4)
-    syms = subprocess.run([os.path.join(TC, "arm-none-eabi-nm.exe"), elf], capture_output=True, text=True, check=True).stdout
+    syms = subprocess.run([tool_path("nm"), elf], capture_output=True, text=True, check=True).stdout
     entry = next(int(l.split()[0], 16) for l in syms.splitlines() if l.split()[-1] == sym)
     assert len(blob) <= (HOOK_MAX if slot is not None else GAP_SIZE), f"hook is {len(blob)} bytes, too big"
     assert run <= entry & ~1 < run + len(blob), "entry symbol outside the hook blob"
