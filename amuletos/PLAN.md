@@ -326,6 +326,34 @@ EVA-01 (purple + green; colours only, no logos/artwork), Light, Dark.
   - hold = stock power-off, unchanged.
 - Auto screen-off timer stays.
 
+**Song pet (useless and weird, on purpose):** an original creature that eats the songs you play. Not modelled on any
+existing virtual pet.
+- **It never dies, but it's dramatic.** Unfed for days, it sulks face-down and leaves passive-aggressive notes on
+  its screen. One song and it bounces back.
+- **Meals:** a track played past ~50% counts as eaten.
+  - Food quality comes from the file: FLAC = proper meal, hi-res (>48 kHz or 24-bit) = feast,
+    low-bitrate MP3 (≤160 kbps) = fast food → hiccups.
+- **Skips:** skipping mid-track = it spits the song out; a little pile of rejected-song blobs builds up.
+- **Shaped by mood** (uses the mood map's per-track data):
+  - mostly intense → spiky;
+  - calm → round and sleepy;
+  - bright → sparkly;
+  - dark → gothy.
+  It drifts over days rather than snapping.
+- **Lives only on its own screen** (a free stock slot, e.g. the e-reader's task 8), reached from Games. It plays its
+  eating / spitting / sulking animations from what happened since your last visit.
+- **Cheap on the device:**
+  - The always-loaded track-change hook (amuletOS's `pl_step_hook`) only bumps counters (meals, skips, format
+    tallies) and keeps a ring of the last 8 tracks' file addresses (~64 B RAM, a few dozen bytes of code).
+  - The pet screen looks the moods of those tracks up from `/_Mood/` when you visit.
+  - State (~32 B) is saved in the system config flash block next to the library fingerprint, so no SD writes;
+    hunger uses the date/time clock.
+- **Look (mock-up v2, `docs/design/pet_mockup_v2.png`, drawn by `art/pet.py`):** an original gumdrop creature with
+  a speaker-grille mouth and two eighth-note antennae, 32×32, colours from the theme.
+  - Poses: idle, eating ("nom"), spitting a skip, MP3 hiccups, hi-res feast, sulking puddle.
+  - Diet forms: spiky (intense), round and sleepy (calm), sparkly (bright), droopy with a bow (dark).
+  - Deliberately not a round pink inhaling blob, to stay clear of existing characters.
+
 **Smaller extras:**
 - **Wheel click = play/pause.** The click is most likely the GPIO2 pin 5 key, which combines with face buttons.
   Confirm with a key-test screen.
