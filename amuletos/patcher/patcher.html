@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>amuletOS Patcher</title>
+<style>
+:root { --bg: #fbfbf8; --card: #ffffff; --ink: #23252e; --dim: #6b7080; --line: #dfe1e8; --accent: #7353e0; --ok: #1f8a5b; --bad: #c0392b; }
+@media (prefers-color-scheme: dark) { :root { --bg: #16171d; --card: #1f2128; --ink: #eceef3; --dim: #a3a8b6; --line: #343744; --accent: #a993f0; --ok: #4cc38a; --bad: #ff7b6b; } }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+main { max-width: 640px; margin: 0 auto; padding: 32px 16px 48px; }
+h1 { font-size: 28px; margin: 0 0 4px; letter-spacing: -0.01em; }
+.sub { color: var(--dim); margin: 0 0 24px; }
+.card { background: var(--card); border: 2px solid var(--ink); border-radius: 10px; box-shadow: 4px 4px 0 var(--accent); padding: 20px; }
+ol { margin: 0 0 16px; padding-left: 22px; }
+li { margin: 6px 0; }
+a { color: var(--accent); }
+label.pick { display: block; border: 2px dashed var(--line); border-radius: 8px; padding: 22px; text-align: center; cursor: pointer; }
+label.pick:hover, label.pick.drag { border-color: var(--accent); }
+input[type=file] { display: none; }
+#status { margin-top: 16px; min-height: 24px; }
+.ok { color: var(--ok); } .bad { color: var(--bad); }
+button { margin-top: 12px; font: inherit; font-weight: 600; color: #fff; background: var(--accent); border: 0; border-radius: 8px; padding: 10px 18px; cursor: pointer; }
+button[hidden] { display: none; }
+fieldset { border: 0; padding: 0; margin: 0 0 14px; display: flex; gap: 18px; flex-wrap: wrap; }
+fieldset label { display: flex; gap: 8px; align-items: center; cursor: pointer; }
+input[type=radio] { accent-color: var(--accent); }
+.small { color: var(--dim); font-size: 14px; margin-top: 20px; }
+code { font-size: 13px; overflow-wrap: anywhere; }
+</style>
+</head>
+<body>
+<main>
+  <h1>amuletOS __VERSION__</h1>
+  <p class="sub">Custom firmware for the Hidizs AP30. Everything runs in this page; nothing is uploaded.</p>
+  <div class="card">
+    <ol>
+      <li>Download the official AP30 firmware <b>V1.7.8</b> from the <a href="https://hidizs.net/pages/download-center" target="_blank" rel="noopener">Hidizs download center</a> and unzip it to get <code>HIFIYF18.IMG</code>.</li>
+      <li>Choose that file below. The page checks it and builds amuletOS from it.</li>
+      <li>Save the result, copy it to the AP30's internal storage as <code>HIFIYF18.IMG</code>, eject and restart the player.</li>
+    </ol>
+    <fieldset>
+      <label><input type="radio" name="mode" value="install" checked> Install amuletOS __VERSION__</label>
+      <label><input type="radio" name="mode" value="stock"> Go back to the official firmware</label>
+    </fieldset>
+    <label class="pick" id="pick">Choose the official HIFIYF18.IMG<input type="file" id="file" accept=".img,.IMG"></label>
+    <div id="status"></div>
+    <button id="save" hidden>Save HIFIYF18.IMG</button>
+  </div>
+  <p class="small"><b>Going back:</b> the AP30 only installs a file stamped newer than what it runs, so the official file can't be copied over amuletOS as it is. "Go back" gives your official file a newer stamp and the matching checksum and changes nothing else. After that, install a later amuletOS release (this one is older than the re-stamped file).</p>
+  <p class="small">The patch carries only amuletOS's own code, art and font; everything from Hidizs comes from your own copy of the official file. The page refuses any other input, and only offers a file whose SHA-256 matches amuletOS __VERSION__:<br><code>__SHA_OUT__</code></p>
+</main>
+<script>
+"use strict";
+const PATCH_B64 = "__PATCH_B64__";
+const RESTORE_B64 = "__RESTORE_B64__";
+function mode() { return document.querySelector("input[name=mode]:checked").value; }
+const st = document.getElementById("status"), saveBtn = document.getElementById("save");
+let result = null;
+function say(t, cls) { st.textContent = t; st.className = cls || ""; }
+
+/* SHA-256: crypto.subtle where available (needs a secure context), else this small fallback */
+function sha256js(d) {
+  const K = new Uint32Array([0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2]);
+  const H = new Uint32Array([0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19]);
+  const n = d.length, tot = ((n + 9 + 63) >> 6) << 6, last = new Uint8Array(tot - (n & ~63));
+  last.set(d.subarray(n & ~63)); last[n & 63] = 0x80;
+  const bits = n * 8, dv = new DataView(last.buffer);
+  dv.setUint32(last.length - 4, bits >>> 0); dv.setUint32(last.length - 8, Math.floor(bits / 4294967296));
+  const W = new Uint32Array(64);
+  function block(b, o) {
+    for (let i = 0; i < 16; i++) W[i] = b[o + 4 * i] << 24 | b[o + 4 * i + 1] << 16 | b[o + 4 * i + 2] << 8 | b[o + 4 * i + 3];
+    for (let i = 16; i < 64; i++) {
+      const x = W[i - 15], y = W[i - 2];
+      const s0 = (x >>> 7 | x << 25) ^ (x >>> 18 | x << 14) ^ (x >>> 3), s1 = (y >>> 17 | y << 15) ^ (y >>> 19 | y << 13) ^ (y >>> 10);
+      W[i] = W[i - 16] + s0 + W[i - 7] + s1;
+    }
+    let a = H[0], bb = H[1], c = H[2], dd = H[3], e = H[4], f = H[5], g = H[6], h = H[7];
+    for (let i = 0; i < 64; i++) {
+      const S1 = (e >>> 6 | e << 26) ^ (e >>> 11 | e << 21) ^ (e >>> 25 | e << 7), ch = (e & f) ^ (~e & g);
+      const t1 = (h + S1 + ch + K[i] + W[i]) >>> 0;
+      const S0 = (a >>> 2 | a << 30) ^ (a >>> 13 | a << 19) ^ (a >>> 22 | a << 10), mj = (a & bb) ^ (a & c) ^ (bb & c);
+      const t2 = (S0 + mj) >>> 0;
+      h = g; g = f; f = e; e = (dd + t1) >>> 0; dd = c; c = bb; bb = a; a = (t1 + t2) >>> 0;
+    }
+    H[0] += a; H[1] += bb; H[2] += c; H[3] += dd; H[4] += e; H[5] += f; H[6] += g; H[7] += h;
+  }
+  for (let o = 0; o + 64 <= n; o += 64) block(d, o);
+  for (let o = 0; o < last.length; o += 64) block(last, o);
+  const out = new Uint8Array(32);
+  for (let i = 0; i < 8; i++) { out[4 * i] = H[i] >>> 24; out[4 * i + 1] = H[i] >>> 16; out[4 * i + 2] = H[i] >>> 8; out[4 * i + 3] = H[i]; }
+  return out;
+}
+async function sha256(d) {
+  if (window.crypto && crypto.subtle) { try { return new Uint8Array(await crypto.subtle.digest("SHA-256", d)); } catch (e) {} }
+  return sha256js(d);
+}
+function eq(a, b) { if (a.length !== b.length) return false; for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false; return true; }
+function hex(a) { return Array.from(a, x => x.toString(16).padStart(2, "0")).join(""); }
+
+async function inflate(b64) {
+  if (typeof DecompressionStream === "undefined") throw new Error("This browser is too old for the patcher. Use a current Chrome, Edge, Firefox or Safari, or the Python script.");
+  const bin = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+  const ds = new Blob([bin]).stream().pipeThrough(new DecompressionStream("deflate"));
+  return new Uint8Array(await new Response(ds).arrayBuffer());
+}
+
+/* mirrors patcher/amuletos_patch.py apply() */
+async function applyPatch(src, patch) {
+  const dv = new DataView(patch.buffer, patch.byteOffset, patch.byteLength);
+  if (String.fromCharCode(...patch.subarray(0, 4)) !== "AMUP") throw new Error("Broken patch.");
+  let p = 8;
+  const shaIn = patch.subarray(p, p + 32), shaOut = patch.subarray(p + 32, p + 64); p += 64;
+  const size = dv.getUint32(p, true), sec = dv.getUint32(p + 4, true); p += 8;
+  if (src.length !== size || !eq(await sha256(src), shaIn)) throw new Error("This is not the official Hidizs AP30 V1.7.8 HIFIYF18.IMG. Download it again from the Hidizs download center.");
+  const lut = new Uint16Array(65536);
+  for (let i = 0; i < 65536; i++) lut[i] = dv.getUint16(p + 2 * i, true);
+  p += 131072;
+  const out = new Uint8Array(src);
+  const sv = new DataView(src.buffer, src.byteOffset, src.byteLength);
+  const nImg = sv.getUint32(sec + 16, true);
+  function img(i) { const o = sec + 32 + 16 * i; return [sec + sv.getUint32(o + 12, true), sv.getUint16(o, true), sv.getUint16(o + 2, true)]; }
+  let n = dv.getUint32(p, true); p += 4;
+  for (let k = 0; k < n; k++) {
+    const idx = dv.getUint16(p, true), kind = patch[p + 2]; p += 4;
+    if (idx >= nImg) throw new Error("Broken patch.");
+    const [off, w, h] = img(idx);
+    if (kind === 1) {
+      for (let i = off; i < off + 2 * w * h; i += 2) { const v = lut[src[i] << 8 | src[i + 1]]; out[i] = v >> 8; out[i + 1] = v & 255; }
+    } else if (kind === 2) {
+      const col = patch.subarray(p, p + 3), tile = patch.subarray(p + 3, p + 6); p += 6;
+      lighten(src, off, w, h, col, tile, out);
+    } else throw new Error("Broken patch.");
+  }
+  n = dv.getUint32(p, true); p += 4;
+  for (let k = 0; k < n; k++) {
+    const off = dv.getUint32(p, true), len = dv.getUint32(p + 4, true), kind = patch[p + 8]; p += 9;
+    if (kind === 0) { out.set(patch.subarray(p, p + len), off); p += len; }
+    else { const s = dv.getUint32(p, true); p += 4; out.set(src.subarray(s, s + len), off); }
+  }
+  if (!eq(await sha256(out), shaOut)) throw new Error("The result does not match what this patcher should produce, so nothing was saved.");
+  return out;
+}
+function x8(v) { const r = v >> 11 & 31, g = v >> 5 & 63, b = v & 31; return [r << 3 | r >> 2, g << 2 | g >> 4, b << 3 | b >> 2]; }
+function lighten(src, off, w, h, col, tile, out) {
+  const N = w * h, px = new Array(N), d = new Float64Array(N);
+  for (let i = 0; i < N; i++) px[i] = x8(src[off + 2 * i] << 8 | src[off + 2 * i + 1]);
+  const bg = px[0];
+  let m = 0;
+  for (let i = 0; i < N; i++) {
+    const p = px[i];
+    d[i] = Math.sqrt(((p[0] - bg[0]) ** 2 + (p[1] - bg[1]) ** 2) + (p[2] - bg[2]) ** 2);
+    if (d[i] > m) m = d[i];
+  }
+  m = Math.max(m, 1);
+  for (let i = 0; i < N; i++) {
+    const a = Math.min(Math.max(d[i] / m, 0), 1), c = [0, 0, 0];
+    for (let k = 0; k < 3; k++) c[k] = Math.trunc(Math.min(Math.max(tile[k] * (1 - a) + col[k] * a, 0), 255));
+    const v = (c[0] >> 3) << 11 | (c[1] >> 2) << 5 | (c[2] >> 3);
+    out[off + 2 * i] = v >> 8; out[off + 2 * i + 1] = v & 255;
+  }
+}
+
+async function run(buf) {
+  saveBtn.hidden = true; result = null;
+  try {
+    say("Checking and building…");
+    const stock = mode() === "stock";
+    const patch = await inflate(stock ? RESTORE_B64 : PATCH_B64);
+    result = await applyPatch(new Uint8Array(buf), patch);
+    say(stock ? "Done: the official firmware, re-stamped, is ready. Save it, then copy it to the AP30 as HIFIYF18.IMG."
+              : "Done: amuletOS __VERSION__ is ready. Save it, then copy it to the AP30 as HIFIYF18.IMG.", "ok");
+    saveBtn.hidden = false;
+    return hex(await sha256(result));
+  } catch (e) { say(e.message, "bad"); return "error: " + e.message; }
+}
+document.getElementById("file").addEventListener("change", async e => {
+  const f = e.target.files[0]; if (f) await run(await f.arrayBuffer());
+});
+const pick = document.getElementById("pick");
+pick.addEventListener("dragover", e => { e.preventDefault(); pick.classList.add("drag"); });
+pick.addEventListener("dragleave", () => pick.classList.remove("drag"));
+pick.addEventListener("drop", async e => { e.preventDefault(); pick.classList.remove("drag"); const f = e.dataTransfer.files[0]; if (f) await run(await f.arrayBuffer()); });
+saveBtn.addEventListener("click", () => {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([result], { type: "application/octet-stream" }));
+  a.download = "HIFIYF18.IMG"; document.body.appendChild(a); a.click(); a.remove();
+});
+/* maintainer check: #test=<url of the official file on a local server> runs the patch and shows the result hash */
+document.querySelectorAll("input[name=mode]").forEach(r => r.addEventListener("change", () => { saveBtn.hidden = true; result = null; say(""); }));
+if (location.hash.startsWith("#stock")) document.querySelector("input[value=stock]").checked = true;
+if (location.hash.startsWith("#test=") || location.hash.startsWith("#stocktest=")) {
+  if (location.hash.startsWith("#stocktest=")) document.querySelector("input[value=stock]").checked = true;
+  fetch(decodeURIComponent(location.hash.slice(location.hash.indexOf("=") + 1))).then(r => r.arrayBuffer()).then(run).then(h => { document.title = "RESULT " + h; });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,363 @@
+<title>AP30 Screen Mockups</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Silkscreen&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Layout: a dark workbench; controls in one strip, then the four screens as device faces in a wrapping grid. */
+:root{
+  --bench:#17181c; --surface:#212329; --line:#353842; --ink:#ebe8e1; --muted:#9d9ca6; --accent:#f2c14e; --bezel:#2c2e36;
+  --display:"Silkscreen", ui-monospace, monospace;
+  --body:"Atkinson Hyperlegible", system-ui, sans-serif;
+  color-scheme:dark;
+}
+html,body{background:var(--bench);color:var(--ink)}
+body{font-family:var(--body);font-size:15px;line-height:1.55;padding-block:28px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+header{display:flex;flex-direction:column;gap:8px;max-width:68ch}
+h1{font-family:var(--display);font-weight:400;font-size:clamp(26px,4vw,38px);line-height:1.1;margin:0;text-wrap:balance;letter-spacing:.02em}
+h1 span{color:var(--accent)}
+header p{margin:0;color:var(--muted)}
+.meta{font-family:var(--display);font-size:11px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase}
+.controls{display:flex;flex-wrap:wrap;gap:18px 28px;padding:16px 18px;background:var(--surface);border:1px solid var(--line);border-radius:6px}
+.ctl{display:flex;flex-direction:column;gap:6px;min-width:0}
+.ctl > span{font-family:var(--display);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.seg{display:flex;flex-wrap:wrap;gap:4px}
+.seg button{font:inherit;font-size:13px;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:4px;padding:5px 10px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#1b1a16;font-weight:700}
+.seg button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr));gap:28px 24px}
+figure{margin:0;display:flex;flex-direction:column;gap:12px;min-width:0}
+.face{background:var(--bezel);border-radius:14px 14px 34px 14px;padding:18px;display:flex;justify-content:center;overflow-x:auto;box-shadow:inset 0 0 0 1px #3a3d47}
+canvas{display:block;image-rendering:pixelated;image-rendering:crisp-edges;background:#000;max-width:100%;height:auto}
+figcaption{display:flex;flex-direction:column;gap:4px}
+figcaption b{font-family:var(--display);font-weight:400;font-size:14px;letter-spacing:.04em}
+figcaption .q{color:var(--muted);font-size:14px}
+figcaption .q::before{content:"Question: ";color:var(--accent);font-weight:700}
+.decided{display:flex;flex-direction:column;gap:6px;padding:14px 18px;border:1px dashed var(--accent);border-radius:6px;max-width:72ch}
+.decided ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:2px}
+.decided b{color:var(--accent);font-weight:700}
+footer{color:var(--muted);font-size:13px;max-width:72ch;border-top:1px solid var(--line);padding-top:16px}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="meta">AP30 custom firmware · design pass 2 · 148×120 drawn, shown 2×</div>
+    <h1>Schala<span>OS</span> screens</h1>
+    <p>Game Boy Color menus on 8×8 tiles, colored from the Kingdom of Zeal: Schala's violet and gold, the sky kingdom's blues and cloud white, Kajar at dusk and the Ocean Palace. Every pixel is drawn on the real 148×120 grid, so what you see is what fits on the device. Try the switches, then tell me in chat what to keep.</p>
+  </header>
+
+  <section class="decided" aria-label="Decisions so far">
+    <span class="meta">Decided · Nov 7</span>
+    <ul>
+      <li><b>Compact 6px font</b> everywhere. 24 characters per line.</li>
+      <li><b>Big scrolling titles</b> on Now Playing.</li>
+      <li><b>No transitions.</b> Every screen cuts in on the next frame and never blocks a button press.</li>
+      <li><b>Speed first.</b> Sound within 300 ms of pressing play, and every press redrawn within one frame.</li>
+      <li><b>Boot straight to music.</b> Playable within 3 seconds, resuming the last track. Library changes are found in the background, shown by the small SCAN marker in the status bar.</li>
+      <li><b>amuletOS</b>, colored from Zeal. <b>Zeal Sky</b> is the default; Schala, Kajar and Ocean Palace are themes.</li>
+      <li><b>Lavender pops</b> from Schala: status-bar note, scan dots, cursor, playhead and the boot clouds. Zeal Sky shifts per screen: sky blue for Now Playing, palace blue-green and white for Library and tracks, near-white for the block game.</li>
+      <li><b>Diamond</b> background, <b>arrow</b> cursor, and the pendant <b>boot splash</b>, shown only while audio warms up.</li>
+    </ul>
+  </section>
+
+  <section class="controls" aria-label="Design switches">
+    <div class="ctl"><span>Palette</span><div class="seg" data-key="theme">
+      <button data-v="schala">Schala</button><button data-v="zeal">Zeal Sky</button><button data-v="kajar">Kajar</button><button data-v="ocean">Ocean Palace</button></div></div>
+    <div class="ctl"><span>Font</span><div class="seg" data-key="font">
+      <button data-v="tile">Tile 8px bold</button><button data-v="compact">Compact 6px</button></div></div>
+    <div class="ctl"><span>Cursor</span><div class="seg" data-key="cursor">
+      <button data-v="arrow">Arrow</button><button data-v="bar">Highlight bar</button></div></div>
+    <div class="ctl"><span>Background</span><div class="seg" data-key="pattern">
+      <button data-v="diamond">Diamond</button><button data-v="checker">Checker</button><button data-v="stripes">Stripes</button><button data-v="dots">Dots</button><button data-v="plain">Plain</button></div></div>
+    <div class="ctl"><span>Album art</span><div class="seg" data-key="art">
+      <button data-v="color">Full color</button><button data-v="palette">Retro palette</button></div></div>
+    <div class="ctl"><span>Zoom</span><div class="seg" data-key="zoom">
+      <button data-v="2">2× (device)</button><button data-v="3">3×</button></div></div>
+  </section>
+
+  <section class="grid">
+    <figure><div class="face"><canvas id="c-boot" width="148" height="120"></canvas></div>
+      <figcaption><b>Boot</b><span class="q">This shows for under a second, then drops you into the last track. Keep a splash at all, or go straight to Now Playing?</span></figcaption></figure>
+    <figure><div class="face"><canvas id="c-now" width="148" height="120"></canvas></div>
+      <figcaption><b>Now Playing</b><span class="q">Long titles scroll in double size. Keep scrolling, or wrap to two lines of normal text?</span></figcaption></figure>
+    <figure><div class="face"><canvas id="c-lib" width="148" height="120"></canvas></div>
+      <figcaption><b>Library</b><span class="q">Is this the right top menu, in this order? Anything missing (Recent, Audiobooks)?</span></figcaption></figure>
+    <figure><div class="face"><canvas id="c-trk" width="148" height="120"></canvas></div>
+      <figcaption><b>Album tracks</b><span class="q">Track numbers and times on every row, or titles only for more room?</span></figcaption></figure>
+    <figure><div class="face"><canvas id="c-blk" width="148" height="120"></canvas></div>
+      <figcaption><b>Block game</b><span class="q">Bevelled bright blocks on a dark well. Should the well take the palette's color instead?</span></figcaption></figure>
+  </section>
+
+  <footer>Sample library for layout only. Font, icons and art are original placeholders drawn for this mockup. Album art is generated, so the Retro palette switch shows how real covers would be reduced to the palette's four shades.</footer>
+</div>
+
+<script>
+(()=>{
+const W=148,H=120;
+const state={theme:"zeal",font:"compact",cursor:"arrow",pattern:"diamond",art:"color",zoom:"2"};
+
+// Zeal palettes. Schala: lavender hair, violet robes, gold pendant. Zeal Sky: floating kingdom over clouds.
+// Kajar: the city of magic and learning at dusk. Ocean Palace: deep water lit by the Mammon Machine's red glow.
+// lav = Schala's lavender for pops on dark ground (status bar, boot); lavInk = the same hue deep enough to read on panels (cursor, playhead).
+// screens = per-screen variants, so Zeal can move between sky blue and the palace's blue-green and white.
+const THEMES={
+  schala:{bg1:"#cbb8ea",bg2:"#b39cdb",panel:"#fbf8ff",shade:"#e4dcf2",border:"#3b2a6c",text:"#1e1438",accent:"#d49a1c",dim:"#7a6aa0",well:"#1a1430",lav:"#e2d4ff",lavInk:"#7a52c8"},
+  zeal:  {bg1:"#acd2f4",bg2:"#8fbaec",panel:"#fffdf6",shade:"#e4eaf2",border:"#283c88",text:"#121a40",accent:"#d9a02a",dim:"#6a7cb0",well:"#121838",lav:"#c6b2f4",lavInk:"#7d5bc9",
+    screens:{
+      lib:{bg1:"#c2e8de",bg2:"#a4d8cc",border:"#1d4f74",dim:"#5a8a94",shade:"#dcefe9"},
+      trk:{bg1:"#c2e8de",bg2:"#a4d8cc",border:"#1d4f74",dim:"#5a8a94",shade:"#dcefe9"},
+      blk:{bg1:"#eef6f8",bg2:"#d4e8ee",border:"#22507a",dim:"#6a8aa4"}
+    }},
+  kajar: {bg1:"#6c5ca2",bg2:"#5a4b8e",panel:"#f4ecdc",shade:"#dfd0b5",border:"#271a46",text:"#24183a",accent:"#2fa898",dim:"#8a7a9a",well:"#160f26",lav:"#cdb4f6",lavInk:"#7348b8"},
+  ocean: {bg1:"#307090",bg2:"#255b7a",panel:"#eaf6f8",shade:"#c6e0e7",border:"#0d283e",text:"#0a1c2a",accent:"#d6463f",dim:"#4a7a8e",well:"#08141e",lav:"#b9a4ee",lavInk:"#6a4cb4"}
+};
+
+// Original 5x7 glyphs, rows top to bottom, bit 4 = left column.
+const F={A:[14,17,17,31,17,17,17],B:[30,17,17,30,17,17,30],C:[14,17,16,16,16,17,14],D:[30,17,17,17,17,17,30],E:[31,16,16,30,16,16,31],F:[31,16,16,30,16,16,16],G:[14,17,16,23,17,17,15],H:[17,17,17,31,17,17,17],I:[14,4,4,4,4,4,14],J:[7,2,2,2,2,18,12],K:[17,18,20,24,20,18,17],L:[16,16,16,16,16,16,31],M:[17,27,21,21,17,17,17],N:[17,17,25,21,19,17,17],O:[14,17,17,17,17,17,14],P:[30,17,17,30,16,16,16],Q:[14,17,17,17,21,18,13],R:[30,17,17,30,20,18,17],S:[15,16,16,14,1,1,30],T:[31,4,4,4,4,4,4],U:[17,17,17,17,17,17,14],V:[17,17,17,17,17,10,4],W:[17,17,17,21,21,21,10],X:[17,17,10,4,10,17,17],Y:[17,17,10,4,4,4,4],Z:[31,1,2,4,8,16,31],
+"0":[14,17,19,21,25,17,14],"1":[4,12,4,4,4,4,14],"2":[14,17,1,2,4,8,31],"3":[31,2,4,2,1,17,14],"4":[2,6,10,18,31,2,2],"5":[31,16,30,1,1,17,14],"6":[6,8,16,30,17,17,14],"7":[31,1,2,4,8,8,8],"8":[14,17,17,14,17,17,14],"9":[14,17,17,15,1,2,12],
+" ":[0,0,0,0,0,0,0],".":[0,0,0,0,0,12,12],":":[0,12,12,0,12,12,0],"/":[1,1,2,4,8,16,16],"-":[0,0,0,14,0,0,0],"%":[24,25,2,4,8,19,3],"'":[4,4,8,0,0,0,0],"!":[4,4,4,4,4,0,4],"?":[14,17,1,2,4,0,4],"&":[12,18,20,8,21,18,13],"(":[2,4,8,8,8,4,2],")":[8,4,2,2,2,4,8],"+":[0,4,4,31,4,4,0],",":[0,0,0,0,12,4,8]};
+const ICON={arrow:[16,24,28,30,28,24,16],note:[6,5,4,4,28,28,0],pause:[27,27,27,27,27,27,27]};
+
+const adv=s=>(state.font==="tile"?8:6)*s;
+function glyph(ctx,g,x,y,col,s=1,bold=false){
+  ctx.fillStyle=col;
+  for(let r=0;r<7;r++)for(let c=0;c<5;c++) if(g[r]&(16>>c)) ctx.fillRect(x+c*s,y+r*s,(bold?2:1)*s,s);
+}
+function text(ctx,str,x,y,col,s=1){
+  const bold=state.font==="tile";
+  for(const ch of str.toUpperCase()){ glyph(ctx,F[ch]||F["?"],x,y,col,s,bold); x+=adv(s); }
+  return x;
+}
+const tw=(str,s=1)=>str.length*adv(s)-(state.font==="tile"?2:1)*s;
+function clipText(ctx,str,x,y,maxW,col,s=1,scroll=0){
+  ctx.save(); ctx.beginPath(); ctx.rect(x,y-1,maxW,7*s+2); ctx.clip();
+  const w=tw(str,s);
+  if(w<=maxW) text(ctx,str,x,y,col,s);
+  else { const gap=adv(s)*3, loop=w+gap, off=Math.floor(scroll%loop); text(ctx,str,x-off,y,col,s); text(ctx,str,x-off+loop,y,col,s); }
+  ctx.restore();
+}
+function textR(ctx,str,xr,y,col){ text(ctx,str,xr-tw(str),y,col); }
+
+// Background tiles, cached per theme+pattern.
+const bgCache={};
+function background(t){
+  const key=t.bg1+t.bg2+state.pattern;
+  if(bgCache[key]) return bgCache[key];
+  const c=document.createElement("canvas"); c.width=W; c.height=H; const g=c.getContext("2d");
+  g.fillStyle=t.bg1; g.fillRect(0,0,W,H); g.fillStyle=t.bg2;
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+    const tx=x&7, ty=y&7; let on=false;
+    if(state.pattern==="diamond"){ const m=Math.abs(tx-3.5)+Math.abs(ty-3.5); on=m<=1.5||(m>=3&&m<=3.5&&((x>>3)+(y>>3)&1)); }
+    else if(state.pattern==="checker") on=(((x>>3)+(y>>3))&1)===1 && !((tx===3||tx===4)&&(ty===3||ty===4));
+    else if(state.pattern==="stripes") on=((x+y)>>2&1)===1;
+    else if(state.pattern==="dots") on=(tx===2&&ty===2)||(tx===6&&ty===6)||(tx===3&&ty===2)||(tx===2&&ty===3)||(tx===6&&ty===5)||(tx===5&&ty===6);
+    if(on) g.fillRect(x,y,1,1);
+  }
+  return bgCache[key]=c;
+}
+function panel(ctx,x,y,w,h,t){
+  ctx.fillStyle=t.border; ctx.fillRect(x+1,y,w-2,h); ctx.fillRect(x,y+1,w,h-2);
+  ctx.fillStyle=t.panel; ctx.fillRect(x+2,y+2,w-4,h-4);
+  ctx.fillStyle=t.shade; ctx.fillRect(x+2,y+h-4,w-4,2); ctx.fillRect(x+w-4,y+2,2,h-4);
+  ctx.fillStyle=t.panel; ctx.fillRect(x+2,y+2,w-6,h-6);
+}
+function statusBar(ctx,t,label,f){
+  ctx.fillStyle=t.border; ctx.fillRect(0,0,W,10);
+  glyph(ctx,ICON.note,3,2,t.lav);
+  text(ctx,label,11,2,t.panel);
+  if(f!==undefined){ // background library scan marker: three chasing dots + SCAN
+    for(let i=0;i<3;i++){ ctx.fillStyle=((f>>2)%3)===i?t.lav:t.dim; ctx.fillRect(74+i*3,5,2,2); }
+    text(ctx,"Scan",85,2,t.dim);
+  }
+  // battery
+  ctx.fillStyle=t.panel; ctx.fillRect(134,2,11,7); ctx.fillRect(145,4,1,3);
+  ctx.fillStyle=t.border; ctx.fillRect(135,3,9,5);
+  ctx.fillStyle=t.panel; ctx.fillRect(136,4,6,3);
+  textR(ctx,"87%",131,2,t.panel);
+}
+
+// Generated album art: dusk over water, 50x50.
+function artPixel(x,y){
+  if(y<30){ const k=y/30; let r=60+k*190, g=30+k*110, b=110-k*40;
+    const dx=x-33, dy=y-21, d=Math.sqrt(dx*dx+dy*dy);
+    if(d<8) return [255,214-d*6,90]; if(d<11) return [255,170,90];
+    if(y>22 && ((x<16 && y>26-x/4)||(x>40 && y>24))) return [44,26,58];
+    return [r,g,b]; }
+  const k=(y-30)/20; let r=40+20*(1-k), g=50+30*(1-k), b=120+40*(1-k);
+  if(Math.abs(x-33)<(5-k*3) && (y%3)!==0) return [250,190,110];
+  if((y+x*3)%11===0) return [r+40,g+40,b+50];
+  return [r,g,b];
+}
+const BAYER=[[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]];
+const hex=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
+const artCache={};
+function art(t){
+  const key=state.art+state.theme; if(artCache[key]) return artCache[key];
+  const c=document.createElement("canvas"); c.width=50; c.height=50; const g=c.getContext("2d");
+  const img=g.createImageData(50,50); const shades=[t.text,t.border,t.bg2,t.panel].map(hex);
+  for(let y=0;y<50;y++)for(let x=0;x<50;x++){
+    let p=artPixel(x,y).map(v=>Math.max(0,Math.min(255,v)));
+    if(state.art==="palette"){ const l=(0.3*p[0]+0.59*p[1]+0.11*p[2])/255; const v=l*3+(BAYER[y&3][x&3]/16-0.5)*0.9; p=shades[Math.max(0,Math.min(3,Math.round(v)))]; }
+    const i=(y*50+x)*4; img.data[i]=p[0]; img.data[i+1]=p[1]; img.data[i+2]=p[2]; img.data[i+3]=255;
+  }
+  g.putImageData(img,0,0); return artCache[key]=c;
+}
+
+function drawNow(ctx,t,f){
+  ctx.drawImage(background(t),0,0); statusBar(ctx,t,"03/22",f);
+  panel(ctx,4,13,58,58,t); ctx.drawImage(art(t),8,17);
+  panel(ctx,64,13,80,58,t);
+  clipText(ctx,"Chrono Cross",69,18,72,t.text,1,f*0.5);
+  clipText(ctx,"Yasunori Mitsuda",69,28,72,t.accent,1,f*0.5);
+  text(ctx,"Disc 1",69,44,t.dim); text(ctx,"FLAC 16/44",69,54,t.dim);
+  panel(ctx,4,74,140,24,t);
+  clipText(ctx,"Scars of Time",9,79,130,t.text,2,f*0.8);
+  const total=245, el=(102+Math.floor(f/15))%total, pw=Math.round(128*el/total);
+  ctx.fillStyle=t.border; ctx.fillRect(9,102,130,5);
+  ctx.fillStyle=t.shade; ctx.fillRect(10,103,128,3);
+  ctx.fillStyle=t.accent; ctx.fillRect(10,103,pw,3);
+  ctx.fillStyle=t.lavInk; ctx.fillRect(8+pw,100,3,9); ctx.fillStyle=t.lav; ctx.fillRect(9+pw,101,1,7);
+  const mm=s=>Math.floor(s/60)+":"+String(s%60).padStart(2,"0");
+  text(ctx,mm(el),9,110,t.text); textR(ctx,"-"+mm(total-el),139,110,t.text);
+  glyph(ctx,ICON.arrow,72,110,t.border);
+}
+
+const MENU=[["Artists","212"],["Albums","486"],["Folders",""],["Playlists","9"],["Favorites","64"],["Recently added",""],["Block game",""],["Settings",""]];
+function listRow(ctx,t,y,label,right,sel,f,maxW){
+  const bar=state.cursor==="bar";
+  if(sel&&bar){ ctx.fillStyle=t.accent; ctx.fillRect(8,y-2,132,11); }
+  const col=sel&&bar?t.panel:t.text, dimc=sel&&bar?t.panel:t.dim;
+  if(sel&&!bar) glyph(ctx,ICON.arrow,9+((f>>3)&1),y,t.lavInk);
+  const x=bar?11:17; const rw=right?tw(right)+4:0;
+  clipText(ctx,label,x,y,(maxW||136-x)-rw,col,1,sel?f*0.6:0);
+  if(right) textR(ctx,right,137,y,dimc);
+}
+function drawLib(ctx,t,f){
+  ctx.drawImage(background(t),0,0); statusBar(ctx,t,"Library",f);
+  panel(ctx,4,13,140,104,t);
+  const sel=Math.floor(f/24)%MENU.length;
+  MENU.forEach(([l,r],i)=>listRow(ctx,t,19+i*12,l,r,i===sel,f));
+}
+const TRACKS=[["01","Scars of Time","4:05"],["02","Arni Village","3:46"],["03","Opassa Beach","2:52"],["04","Limit of Dual","3:12"],["05","Termina","4:38"],["06","Another World","3:09"],["07","Radical Dreamers","5:14"]];
+function drawTrk(ctx,t,f){
+  ctx.drawImage(background(t),0,0); statusBar(ctx,t,"Albums");
+  panel(ctx,4,13,140,16,t);
+  clipText(ctx,"Chrono Cross · Disc 1".replace("·","-"),9,18,130,t.text,1,f*0.5);
+  panel(ctx,4,31,134,86,t);
+  const sel=1+Math.floor(f/30)%5;
+  TRACKS.forEach(([n,ti,d],i)=>{
+    const y=36+i*11, bar=state.cursor==="bar", s=i===sel;
+    if(s&&bar){ ctx.fillStyle=t.accent; ctx.fillRect(7,y-2,128,10); }
+    const col=s&&bar?t.panel:t.text, dimc=s&&bar?t.panel:t.dim;
+    if(i===0) glyph(ctx,ICON.note,8,y,s&&bar?t.panel:t.accent);
+    else if(s&&!bar) glyph(ctx,ICON.arrow,8+((f>>3)&1),y,t.lavInk);
+    const xn=15; text(ctx,n,xn,y,dimc);
+    const xt=xn+adv(1)*3, rw=tw(d)+4;
+    clipText(ctx,ti,xt,y,132-xt-rw,col,1,s?f*0.6:0);
+    textR(ctx,d,133,y,dimc);
+  });
+  // scrollbar
+  ctx.fillStyle=t.border; ctx.fillRect(140,31,4,86); ctx.fillStyle=t.shade; ctx.fillRect(141,32,2,84);
+  ctx.fillStyle=t.accent; ctx.fillRect(141,32,2,30);
+}
+
+const PC={I:"#48ccf0",O:"#f8d038",T:"#b060e0",S:"#58c858",Z:"#e85048",J:"#4878e8",L:"#f09030"};
+const mix=(h,m,k)=>{const a=hex(h),b=hex(m);return "rgb("+a.map((v,i)=>Math.round(v+(b[i]-v)*k)).join(",")+")";};
+function block(ctx,x,y,col){
+  ctx.fillStyle=mix(col,"#000000",0.45); ctx.fillRect(x,y,6,6);
+  ctx.fillStyle=mix(col,"#ffffff",0.55); ctx.fillRect(x,y,5,5);
+  ctx.fillStyle=col; ctx.fillRect(x+1,y+1,4,4);
+  ctx.fillStyle=mix(col,"#ffffff",0.8); ctx.fillRect(x+1,y+1,1,1);
+}
+const STACK=["          ","          ","          ","          ","          ","          ","          ","          ","          ","          ","          ","          ","      O O ","L     OO  ","LL  SSJJZ ","ILTTTSSJZZ","IL TIJJJZO","ILOOIZZLLO"];
+const SHAPE={T:[[0,0],[1,0],[2,0],[1,1]],L:[[0,0],[0,1],[0,2],[1,2]],I:[[0,0],[1,0],[2,0],[3,0]],S:[[1,0],[2,0],[0,1],[1,1]]};
+function drawBlk(ctx,t,f){
+  ctx.drawImage(background(t),0,0);
+  const fx=34,fy=6;
+  ctx.fillStyle=t.border; ctx.fillRect(fx-3,fy-3,66,114); ctx.fillStyle=t.text; ctx.fillRect(fx-1,fy-1,62,110);
+  ctx.fillStyle=t.well; ctx.fillRect(fx,fy,60,108);
+  for(let r=0;r<18;r++)for(let c=0;c<10;c++){ if(((r+c)&1)===0){ctx.fillStyle=mix(t.well,"#ffffff",0.04);ctx.fillRect(fx+c*6+2,fy+r*6+2,2,2);} const k=STACK[r][c]; if(k!==" ") block(ctx,fx+c*6,fy+r*6,PC[k]); }
+  const row=Math.floor(f/6)%12;
+  SHAPE.T.forEach(([dx,dy])=>block(ctx,fx+(4+dx)*6,fy+(row+dy)*6,PC.T));
+  // ghost
+  ctx.strokeStyle=mix(PC.T,t.well,0.5); SHAPE.T.forEach(([dx,dy])=>ctx.strokeRect(fx+(4+dx)*6+0.5,fy+(11+dy)*6+0.5,5,5));
+  panel(ctx,100,3,46,114,t);
+  text(ctx,"Next",105,8,t.dim);
+  ctx.fillStyle=t.well; ctx.fillRect(105,18,36,18);
+  SHAPE.L.forEach(([dx,dy])=>block(ctx,116+dy*6,21+dx*6,PC.L));
+  [["Score","12840",42],["Level","07",66],["Lines","063",90]].forEach(([l,v,y])=>{ text(ctx,l,105,y,t.dim); clipText(ctx,v,105,y+10,38,t.text); });
+  // left rail: music on indicator
+  panel(ctx,2,3,28,24,t); glyph(ctx,ICON.note,13,7,t.accent); text(ctx,"BGM",state.font==="tile"?5:7,17,t.text);
+}
+
+// Original pendant mark: a faceted gem in a gold setting, 15x14.
+const GEM=["......ggg......",".....gHHhg.....","....gHHhhhg....","...gHhhhhhdg...","..gHhhhhhhddg..",".gHhhhhhhhdddg.","gHhhhhhhhhddddg","ghhhhhhhhdddddg",".ghhhhhhhddddg.","..ghhhhhhdddg..","...ghhhhhddg...","....ghhhhdg....",".....ghhdg.....","......ggg......"];
+// A floating island: grassy cap, rock tapering to a jagged point, optional palace spire and waterfall.
+function island(ctx,t,is,f){
+  const haze=is.w<15?0.6:0.4;
+  const rock=mix(t.border,t.lav,haze), rockLit=mix(t.border,t.lav,haze+0.2);
+  const grass=mix("#4fa860",t.lav,haze*0.35), grassLit=mix("#9ee08a",t.lav,haze*0.25), vine=mix("#3c8a52",t.border,0.25);
+  const cy=is.y+Math.round(1.2*Math.sin(f/22+is.p)), x0=is.x-(is.w>>1);
+  const jag=(c,r)=>((c*7+r*13+is.w)%5===0?1:0);
+  for(let r=0;r<is.h;r++){
+    const half=Math.max(0,Math.round((is.w/2)*Math.pow(1-r/is.h,0.85)))-jag(r,1);
+    for(let c=-half;c<half;c++){ ctx.fillStyle=c<-half/3?rockLit:rock; ctx.fillRect(is.x+c,cy+2+r,1,1); }
+  }
+  ctx.fillStyle=grass; ctx.fillRect(x0,cy,is.w,3); ctx.fillRect(x0+1,cy-1,is.w-2,1);
+  ctx.fillStyle=grassLit; ctx.fillRect(x0+2,cy-1,Math.max(2,is.w>>2),1); ctx.fillRect(x0+(is.w>>1)+1,cy-1,Math.max(1,is.w>>3),1);
+  // tufts on top and vines hanging from the rim
+  for(let c=1;c<is.w-1;c+=4){ ctx.fillStyle=grassLit; ctx.fillRect(x0+c,cy-2,1,1); }
+  ctx.fillStyle=vine; for(let c=2;c<is.w-2;c+=3){ const len=1+((c*5+is.w)%3); ctx.fillRect(x0+c,cy+3,1,len); }
+  if(is.spire){ // a mountain rising off-center from the island
+    const mx=is.x-3, mh=8, mtn=mix(t.border,t.lav,0.5), mtnLit=mix(t.border,t.lav,0.72), slope=mix("#4fa860",t.lav,0.2);
+    for(let r=0;r<mh;r++){ // r=0 is the summit row
+      const half=Math.round(r*0.6)+(r>0?1:0), y=cy-mh+r;
+      for(let c=-half;c<=half;c++){ ctx.fillStyle=r>mh-3?slope:(c<0?mtnLit:mtn); ctx.fillRect(mx+c,y,1,1); }
+      if(r>2&&r<mh-2){ ctx.fillStyle=mix(mtn,"#000000",0.25); ctx.fillRect(mx+half,y,1,1); } // shadowed right edge
+    }
+    ctx.fillStyle=mtnLit; ctx.fillRect(mx,cy-mh,1,1); ctx.fillRect(mx-1,cy-mh+1,1,1); // sunlit tip
+  }
+  if(is.fall){ // waterfall off the near edge, fading into the air
+    const wx=x0+is.w-3;
+    for(let i=0;i<14;i++){ if(((i+(f>>1))%4)===0) continue; ctx.fillStyle=mix(t.panel,t.border,i/16); ctx.fillRect(wx,cy+2+i,1,1); }
+  }
+}
+function drawBoot(ctx,t,f){
+  ctx.fillStyle=t.border; ctx.fillRect(0,0,W,H);
+  // starfield of the sky kingdom
+  for(let i=0;i<40;i++){ const x=(i*53+7)%W, y=(i*29+11)%70; ctx.fillStyle=((i+(f>>2))%9===0)?t.panel:t.dim; ctx.fillRect(x,y,1,1); }
+  // cloud bank
+  // distant floating islands: hazy toward the sky, bobbing slowly, back to front
+  [{x:128,y:34,w:13,h:7,p:1.7},{x:21,y:24,w:19,h:10,p:0,spire:1,fall:1},{x:40,y:80,w:11,h:6,p:3.1},{x:113,y:76,w:23,h:11,p:4.4,fall:1}]
+    .forEach(is=>island(ctx,t,is,f));
+  ctx.fillStyle=t.lav; for(let x=0;x<W;x+=2){ const h=14+Math.round(4*Math.sin((x-f*0.5)/13)); ctx.fillRect(x,H-h-20,2,h+20); }
+  ctx.fillStyle=t.bg2; for(let x=0;x<W;x+=2){ const h=8+Math.round(4*Math.sin((x+f)/9)+3*Math.sin(x/5)); ctx.fillRect(x,H-h-14,2,h+14); }
+  ctx.fillStyle=t.bg1; for(let x=0;x<W;x+=2){ const h=4+Math.round(3*Math.sin((x-f)/7)); ctx.fillRect(x,H-h-6,2,h+6); }
+  const gx=67, gy=18, glint=(f%40)<4;
+  const gc={g:t.accent,H:glint?"#ffffff":mix(t.bg1,"#ffffff",0.6),h:t.bg1,d:mix(t.bg2,t.border,0.45)};
+  GEM.forEach((row,r)=>{ for(let c=0;c<15;c++){ const k=row[c]; if(k===".") continue; ctx.fillStyle=gc[k]; ctx.fillRect(gx+c,gy+r,1,1);} });
+  const title="amuletOS", s=2, w=tw(title,s); text(ctx,title,Math.round((W-w)/2),44,t.panel,s);
+  const sub="Resuming Scars of Time"; clipText(ctx,sub,Math.max(4,Math.round((W-tw(sub))/2)),64,140,t.accent);
+  text(ctx,"v0.1",W-tw("v0.1")-3,H-9,t.border);
+}
+
+const screens=[["c-boot",drawBoot,"boot"],["c-now",drawNow,"now"],["c-lib",drawLib,"lib"],["c-trk",drawTrk,"trk"],["c-blk",drawBlk,"blk"]].map(([id,fn,key])=>{const c=document.getElementById(id);return {c,ctx:c.getContext("2d"),fn,key};});
+let frame=0;
+function render(){ const base=THEMES[state.theme]; screens.forEach(s=>s.fn(s.ctx,Object.assign({},base,(base.screens||{})[s.key]),frame)); }
+function sizeCanvases(){ const z=+state.zoom; screens.forEach(s=>{s.c.style.width=(W*z)+"px";}); }
+
+document.querySelectorAll(".seg").forEach(seg=>{
+  const key=seg.dataset.key;
+  const sync=()=>seg.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.v===state[key])));
+  seg.addEventListener("click",e=>{const b=e.target.closest("button"); if(!b) return; state[key]=b.dataset.v; sync(); try{localStorage.setItem("ap30-mock",JSON.stringify(state));}catch(_){} if(key==="zoom") sizeCanvases(); render();});
+  seg._sync=sync;
+});
+try{ Object.assign(state, JSON.parse(localStorage.getItem("ap30-mock")||"{}")); }catch(_){}
+if(!THEMES[state.theme]) state.theme="zeal";
+document.querySelectorAll(".seg").forEach(s=>s._sync());
+sizeCanvases(); render();
+
+const still=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+if(!still){ let last=0; const tick=ts=>{ if(ts-last>66){ last=ts; frame++; render(); } requestAnimationFrame(tick); }; requestAnimationFrame(tick); }
+})();
+</script>

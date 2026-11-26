@@ -1,0 +1,6 @@
+firmware/*.IMG
+firmware/*.img
+build/
+backup/
+tools/zadig/
+__pycache__/

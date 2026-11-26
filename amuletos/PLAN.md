@@ -94,7 +94,7 @@ A direction highlights its tile instantly; **A opens it**; Start is free.
 - It is relabelled by rewriting English text record 0x110 (fixed 0x112-byte UTF-16 slot; English block at
   0x48EC + 2 × 0x14896) to "Bluetooth" (stock id 0xAA has the same word).
 
-**Early draft in this folder is superseded:**
+**Early draft (`drafts/dpad_menu/`) is superseded:**
 - `art/dpad_menu.py`, `game/dpad.*` and `game/device/m21_dpad.c` predate these decisions: Left = Blockz,
   double-tap, Start = Settings.
 - `m21_dpad.c` also writes a tag at **0x0309FFF0, which holds stock's reset magic**. Free words above the

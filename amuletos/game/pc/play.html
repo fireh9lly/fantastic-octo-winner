@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Blockz Preview</title>
+<style>
+  :root { --bg: #1b2140; --fg: #e8ecf8; --dim: #9aa6cc; --line: #34406e; --accent: #d9a02a; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 14px/1.45 system-ui, sans-serif;
+         display: flex; flex-direction: column; align-items: center; padding: 20px 16px; gap: 16px; }
+  .screen { width: 592px; max-width: 100%; aspect-ratio: 296 / 240; border-radius: 22px; overflow: hidden;
+            outline: 6px solid #0d1124; }
+  canvas { width: 100%; height: 100%; image-rendering: pixelated; display: block; }
+  .row { display: flex; flex-wrap: wrap; gap: 12px 20px; justify-content: center; max-width: 640px; }
+  label { color: var(--dim); }
+  select { background: #0d1124; color: var(--fg); border: 1px solid var(--line); border-radius: 4px; padding: 2px 4px; }
+  table { border-collapse: collapse; }
+  td { padding: 2px 10px; border-bottom: 1px solid var(--line); }
+  td:first-child { color: var(--accent); font-family: ui-monospace, monospace; text-align: right; }
+  #msg { min-height: 1.4em; color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="screen"><canvas id="c" width="296" height="240" tabindex="0"></canvas></div>
+<div id="msg"></div>
+<div class="row">
+  <label>DAS <select id="das"><option value="32">Slow 16f</option><option value="22">Mid 11f</option><option value="18" selected>Fast 9f</option><option value="16">Very fast 8f</option></select></label>
+  <label>ARR <select id="arr"><option value="6">Slow 3f</option><option value="4">Mid 2f</option><option value="2" selected>Fast 1f</option><option value="1">Very fast 0.5f</option><option value="0">Instant</option></select></label>
+  <label>Soft drop <select id="sdf"><option value="6">Slow</option><option value="4">Mid</option><option value="2">Fast</option><option value="1">Very fast</option><option value="0" selected>Instant</option></select></label>
+  <label><input type="checkbox" id="ladder" checked> One face button at a time (AP30)</label>
+</div>
+<table>
+  <tr><td>← →</td><td>Move (Left / Right)</td></tr>
+  <tr><td>↓</td><td>Soft drop (Down)</td></tr>
+  <tr><td>↑</td><td>Hard drop (Up)</td></tr>
+  <tr><td>X</td><td>Rotate clockwise (A)</td></tr>
+  <tr><td>Z</td><td>Rotate counter-clockwise (B)</td></tr>
+  <tr><td>C / mouse wheel up</td><td>Hold (wheel up)</td></tr>
+  <tr><td>Enter</td><td>Pause (Start)</td></tr>
+  <tr><td>Esc</td><td>Quit (Select)</td></tr>
+</table>
+<script>
+const WASM = "__WASM_B64__";
+const IN = { LEFT: 1, RIGHT: 2, DOWN: 4, UP: 8, CW: 16, CCW: 32, HOLD: 64, START: 128 };
+const EV_QUIT = 16;
+/* AP30 ladder priority: Right > Up > Left > Down > Select > Start > B > A (lowest reading wins) */
+const LADDER = ["RIGHT", "UP", "LEFT", "DOWN", "SELECT", "START", "CCW", "CW"];
+const KEYMAP = { ArrowLeft: "LEFT", ArrowRight: "RIGHT", ArrowDown: "DOWN", ArrowUp: "UP",
+                 KeyX: "CW", KeyZ: "CCW", Enter: "START", Escape: "SELECT", Backspace: "SELECT" };
+const held = new Set(), tapped = new Set();   /* tapped: pressed since the last frame, so a short tap still counts */
+let holdPulse = 0, seed = 1, ex, img, ctx;
+const $ = id => document.getElementById(id);
+
+function cfg() { return [+$("das").value, +$("arr").value, +$("sdf").value]; }
+function restart() { ex.init(seed++, ...cfg()); $("msg").textContent = ""; }
+
+function inputMask() {
+  let m = 0;
+  const down = new Set([...held, ...tapped]); tapped.clear();
+  if ($("ladder").checked) {
+    const k = LADDER.find(n => down.has(n));
+    if (k && k !== "SELECT") m |= IN[k];
+  } else for (const n of down) if (IN[n]) m |= IN[n];
+  if (holdPulse) { m |= IN.HOLD; holdPulse--; }
+  return m;
+}
+
+function quit() { $("msg").textContent = "Quit to menu (Select). Starting a new run."; ex.init(seed++, ...cfg()); }
+
+function frame() {
+  if (held.has("SELECT") && (!$("ladder").checked || LADDER.find(n => held.has(n)) === "SELECT")) {
+    held.delete("SELECT"); quit(); return;
+  }
+  const ev = ex.step(inputMask());
+  if (ev & EV_QUIT) quit();
+}
+
+function draw() {
+  if (!ex.render()) return;
+  const fb = new Uint16Array(ex.memory.buffer, ex.fb(), 296 * 240);
+  const d = img.data;
+  for (let i = 0, j = 0; i < fb.length; i++, j += 4) {
+    const v = fb[i];
+    d[j] = ((v >> 11) & 31) * 255 / 31; d[j + 1] = ((v >> 5) & 63) * 255 / 63; d[j + 2] = (v & 31) * 255 / 31; d[j + 3] = 255;
+  }
+  ctx.putImageData(img, 0, 0);
+}
+
+async function main() {
+  const bytes = Uint8Array.from(atob(WASM), c => c.charCodeAt(0));
+  const { instance } = await WebAssembly.instantiate(bytes, {});
+  ex = instance.exports;
+  const cv = $("c");
+  ctx = cv.getContext("2d");
+  img = ctx.createImageData(296, 240);
+  restart();
+  addEventListener("keydown", e => {
+    if (e.code === "KeyC") { if (!e.repeat) holdPulse = 1; e.preventDefault(); return; }
+    const k = KEYMAP[e.code]; if (!k) return;
+    if (!e.repeat) tapped.add(k);
+    held.add(k); e.preventDefault();
+  });
+  addEventListener("keyup", e => { const k = KEYMAP[e.code]; if (k) held.delete(k); });
+  addEventListener("blur", () => held.clear());
+  cv.addEventListener("wheel", e => { if (e.deltaY < 0) holdPulse = 1; e.preventDefault(); }, { passive: false });
+  for (const id of ["das", "arr", "sdf"]) $(id).addEventListener("change", () => { restart(); cv.focus(); });
+  cv.focus();
+  let last = performance.now(), acc = 0;
+  const STEP = 1000 / 60;
+  (function loop(now) {
+    acc += Math.min(now - last, 250); last = now;
+    while (acc >= STEP) { frame(); acc -= STEP; }
+    draw();
+    requestAnimationFrame(loop);
+  })(last);
+}
+main();
+</script>
+</body>
+</html>

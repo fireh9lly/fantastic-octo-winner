@@ -15,7 +15,7 @@ import os, sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-AMU = Path(os.environ.get("AMULETOS", HERE.parent))          # amuletOS checkout (holds art/pocket.py)
+AMU = Path(os.environ.get("AMULETOS", HERE.parents[2]))      # amuletOS tree (holds art/pocket.py): amuletos/
 sys.path.insert(0, str(AMU / "art"))
 import pocket as P                                           # noqa: E402
 from pocket import W, H, INK, WHITE, GRAPE, SKY, GOLD, TEAL, BERRY   # noqa: E402
