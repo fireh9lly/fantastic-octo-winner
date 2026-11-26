@@ -348,11 +348,19 @@ existing virtual pet.
   - The pet screen looks the moods of those tracks up from `/_Mood/` when you visit.
   - State (~32 B) is saved in the system config flash block next to the library fingerprint, so no SD writes;
     hunger uses the date/time clock.
-- **Look (mock-up v2, `docs/design/pet_mockup_v2.png`, drawn by `art/pet.py`):** an original gumdrop creature with
-  a speaker-grille mouth and two eighth-note antennae, 32×32, colours from the theme.
-  - Poses: idle, eating ("nom"), spitting a skip, MP3 hiccups, hi-res feast, sulking puddle.
-  - Diet forms: spiky (intense), round and sleepy (calm), sparkly (bright), droopy with a bow (dark).
-  - Deliberately not a round pink inhaling blob, to stay clear of existing characters.
+- **Look (mock-up v3, `docs/design/pet_mockup_v3.png`, drawn by `art/pet.py`):**
+  - Body: a soft chubby teardrop whose tip curls over into a hook like a music note's flag (its signature), with
+    two stubby feet.
+  - Face: big glossy eyes, rosy cheeks.
+  - Shading: banded cel shading lit from the top left, outlined in a deeper shade of the body colour (no black
+    lines). 40×40.
+  - Inspired by the softness of Japanese virtual pets. Deliberately has no arms and no floating head ornament, so
+    it's its own character (not a Chao).
+  - Poses: idle, eating ("nom"), spitting a skip, MP3 hiccups, hi-res feast, melted sulking puddle.
+  - Diet forms: intense = pink with soft bumps, determined brows and a tiny fang; calm = round blue, dozing;
+    bright = gold with star eyes and sparkles; dark = purple with a lank fringe over one eye, the other
+    half-lidded.
+  - Mock-up v2 (`pet_mockup_v2.png`: grille mouth, note antennae) was rejected as too hard.
 
 **Smaller extras:**
 - **Wheel click = play/pause.** The click is most likely the GPIO2 pin 5 key, which combines with face buttons.
