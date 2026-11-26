@@ -90,6 +90,16 @@ rest into extensions of the overlay modules that call them.
 - Estimated resident total ≈ 700 B: it fits, with little spare.
 - Longer term, find dead stock code in module 0 to free more resident room for later features (M3U v2 state,
   sleep timer, etc.).
+- **Dead-code scan (2026-11-26):** ~11.9 KB in 106 module-0 functions on V1.8.3 (11.1 KB on V1.7.8) have no
+  reference anywhere in the firmware image:
+  - checked: branches from every module, stored pointers anywhere in the whole image at 2-byte alignment
+    (incl. flash tables outside code.bin), pc-relative address computations, fall-through;
+  - known indirect functions (audio refill and DMA-completion callbacks, SysTick ISR, screen flush) come out live;
+  - stock's old blit routines come out dead, matching amuletOS's own manual finding.
+
+  Not used in Step 1. Before reclaiming any of it: a **canary build** puts a tiny "I was called" logger at each
+  candidate's entry, viewable on the device. Use the player normally for a few days; only never-called functions
+  get reused.
 
 ## Step 2: Four-way home menu
 
@@ -263,6 +273,18 @@ EVA-01 (purple + green; colours only, no logos/artwork), Light, Dark.
   - a theme is ~2–2.5 MB;
   - 124 of the 478 images are full-screen, many belonging to stock screens no longer shown.
   Audit and reclaim them. Settings swaps image ids (stock paint reads ids from RAM).
+- **Image audit (V1.8.3, 2026-11-26):**
+
+  | Images | Count | Flash |
+  |---|---|---|
+  | **Volume pop-up, one full screen per step 0–100 (ids 336–436)** | 101 | **14.0 MB of 18.4 MB** |
+  | Leftover recording art: mic animation 310–323, MIC REC / LINE IN 116/117, record screen 107, mic icons 223/233/243 | 20 | 413 KB |
+  | Leftover FM radio art: 7-segment digits + MHZ 294–305, dial 306–308, Manual/Preset 175/177 | 17 | 127 KB |
+
+  - **Drawing the volume pop-up in code** (one small ring + number, themed colours) frees ~14 MB: room for all six
+    themes several times over.
+  - The recording/radio screens themselves are empty modules (tasks 4, 5, 7 → modules 13, 28, 29 have no code), but
+    check that no live code draws these ids before reusing their space.
 - Later: SD theme packs (`/_Themes/<name>/`) via a hook in stock's image loader.
 - PC previews of all six themes first.
 
