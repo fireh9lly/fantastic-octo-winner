@@ -55,6 +55,42 @@ corner + A + B while plugging in USB (BootROM loader mode), then restore with `t
   on V1.7.8.
 - All V1.7.8 addresses below must be re-found the same way.
 
+**Progress (2026-11-26):**
+- Done: amuletOS v0.3 imported, builds on Linux (`build.sh`, `BUILDING.md`).
+- Done: **reproduces the v0.3 release byte for byte** from the official V1.7.8 with the pinned GCC 13.3.1
+  (`tools/get_toolchain.sh`).
+- Now: mapping ~250 addresses to V1.8.3.
+
+**Obstacle found: resident RAM.** amuletOS keeps always-loaded code in "slot 2" above the highest overlay.
+- That overlay is **module 39, the music-library builder** (122 KB). It ends at 0x0309F7CC on V1.7.8 but at
+  **0x0309FC9C on V1.8.3** (the +0x4D0 shift).
+- The free top of RAM shrinks from ~2,030 B to **~850 B** (0x0309FCA0–0x0309FFEF; 0x0309FFF0 is stock's reset magic).
+- The only other unclaimed RAM is 11 KB between module 0's code and the overlay window, which stock uses as a
+  working area (e.g. volume info at 0x0307E710 on V1.7.8).
+- v0.3 needs ~1,640 B there:
+
+  | Part | Size |
+  |---|---|
+  | USB-name hook | 56 B |
+  | Now Playing loader | 28 B |
+  | Playlist step | ~270 B |
+  | Library-scan skip | ~1,100 B |
+  | Tables | ~190 B |
+
+**Fix (amuletOS's own pattern from build 37, when carousel helpers moved out of slot 2 into module 21's
+extension):** keep resident only what can be called from anywhere or must survive a library build; move the
+rest into extensions of the overlay modules that call them.
+- `lib_force` → module 31 extension.
+- `cfg_boot_write` → module 1 extension.
+- Fingerprint computing (`fp_compute`/`fp_ensure`, the bulk) → module 5 extension, run *before* the build.
+  Module 5 (the build window) sits directly below module 39 and stays intact during a build. Anything appended
+  after it doesn't, so the post-build "mark fingerprint valid + save config" step becomes a small resident stub.
+- `cfg_write` (hooks SaveSysConfig in module 0, callable anytime) stays resident but only copies the stored
+  fingerprint.
+- Estimated resident total ≈ 700 B: it fits, with little spare.
+- Longer term, find dead stock code in module 0 to free more resident room for later features (M3U v2 state,
+  sleep timer, etc.).
+
 ## Step 2: Four-way home menu
 
 | Direction | Item |
