@@ -94,7 +94,9 @@ corner + A + B while plugging in USB (BootROM loader mode), then restore with `t
   black (art/orange.py, game/device/theme.h, dark_text patches), stock font. Checklist: `docs/TEST_V183.md`.
   Owner: the icons and the stock pixel font are stand-ins; better icons, themes and fonts get designed together
   later.
-- Next: the owner's on-device test.
+- **Works on the owner's player (2026-11-27, build 14, stamp 2620271114):** installed and running. Owner: "it
+  works", though some of the design decisions are off; to revisit together (icons, fonts, theme, layout) before
+  the next feature steps. Next image needs build 15 or higher.
 
 **Obstacle found: resident RAM.** amuletOS keeps always-loaded code in "slot 2" above the highest overlay.
 - That overlay is **module 39, the music-library builder** (122 KB). It ends at 0x0309F7CC on V1.7.8 but at
