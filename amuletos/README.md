@@ -1,7 +1,7 @@
-> **This folder is a fork.** It started as [amuletOS](https://github.com/dharma-dingo/amuletOS) v0.3 by dharma-dingo
-> (commit `02f33f9`, MIT licence, see [LICENSE](LICENSE)) and is being developed separately: rebased onto Hidizs's
-> V1.8.3 firmware and extended as described in [PLAN.md](PLAN.md). It is not affiliated with amuletOS or Hidizs.
-> The text below is amuletOS's own README, kept for reference.
+> **This folder is MoonletOS, a fork.** It started as [amuletOS](https://github.com/dharma-dingo/amuletOS) v0.3 by
+> dharma-dingo (commit `02f33f9`, MIT licence, see [LICENSE](LICENSE)) and is being developed separately: rebased
+> onto Hidizs's V1.8.3 firmware and extended as described in [PLAN.md](PLAN.md). It is not affiliated with amuletOS
+> or Hidizs. The text below is amuletOS's own README, kept for reference.
 
 # amuletOS
 

@@ -41,7 +41,7 @@ if [ "$SHA_IN" != 79d186f5f2fe60e46a3ff3a54f91221675fdfe2802654f7fab8d046f12aaba
 fi
 "$PY" tools/ap30fw.py unpack "$STOCK_IMG" "$B/stock" >> "$LOG"
 
-step "identity hook (USB name AMULETOS, module slot 2)"
+step "identity hook (USB name MOONLET OS AP30, module slot 2)"
 "$PY" tools/build_hook.py amu 2620071136000000 --src "$B/stock" --out "$B/amu" >> "$LOG"
 
 step "art: stock images, orange theme on black (art/orange.py), recolour; stock font"

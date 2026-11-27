@@ -1,6 +1,6 @@
 # Third-party notices
 
-amuletOS bundles the following code. Both are compiled into the Games screen (`game/device/gbprobe.c`).
+MoonletOS (like amuletOS before it) bundles the following code. Both are compiled into the Games screen (`game/device/gbprobe.c`).
 
 ## Peanut-GB
 

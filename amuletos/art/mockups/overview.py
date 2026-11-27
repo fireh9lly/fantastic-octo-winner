@@ -38,6 +38,8 @@ SCREENS = [
     ('16_colourway_aqua', cw.colourway('aqua', 'lines'), 'Colourway: aqua'),
     ('17_colourway_candy', cw.colourway('candy', 'dots'), 'Colourway: candy'),
     ('18_kit', black(bo.kit), 'Kit: black & orange colours, highlight textures, type'),
+    ('19_list_scroll', cw.list_scroll, 'Scrolling: the highlight stops at row 4, two entries stay visible below'),
+    ('20_fast_scroll', cw.fast_scroll, 'Start + wheel: fast scroll, a letter at a time'),
 ]
 
 if __name__ == '__main__':

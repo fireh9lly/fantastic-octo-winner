@@ -255,7 +255,8 @@ def mark(d, k, x, y, c):
     elif k == 'pill': d.rounded_rectangle([X - r * 1.2, Y - r * 0.6, X + r * 1.2, Y + r * 0.6], radius=r * 0.6, fill=c)
     else: m.glyph(d, 'heart', x, y, 10, c)
 
-def menu(title, rows, sel, tex, crumb=None, values=None, y0=80, pitch=26, show_pet=True, look=(-0.8, 0.6)):
+def menu(title, rows, sel, tex, crumb=None, values=None, y0=80, pitch=26, show_pet=True, look=(-0.8, 0.6),
+         thumb=None, count='12', marks=True):
     cv = canvas()
     d = ImageDraw.Draw(cv, 'RGBA')
     status(cv)
@@ -268,16 +269,18 @@ def menu(title, rows, sel, tex, crumb=None, values=None, y0=80, pitch=26, show_p
         if on: d = bar(cv, 10, y - 11, 278, y + 11, tex, k=i)
         fg = T['bartext'] if on else T['text']
         if values is None:
-            mk = T['marks'][i % len(T['marks'])]
-            mark(d, MARKS[i % 6], 22, y, T['bartext'] if on else mk)
-            txt(d, 36, y, label, 15, fg, BOLD)
-            if on: txt(d, 270, y, '12', 8.5, fg, MONO, h='r')
+            if marks:
+                mk = T['marks'][i % len(T['marks'])]
+                mark(d, MARKS[i % 6], 22, y, T['bartext'] if on else mk)
+            txt(d, 36 if marks else 20, y, label, 15, fg, BOLD)
+            if on and count: txt(d, 270, y, count, 8.5, fg, MONO, h='r')
         else:
             txt(d, 18, y, label, 14, fg, BOLD)
             v = values[i]
             txt(d, 270, y, f'‹  {v}  ›' if on else v, 11.5, fg if on else T['dim'], MED, h='r')
     d.line([(P(287), P(y0 - 10)), (P(287), P(y0 + pitch * (len(rows) - 1) + 10))], fill=T['panel'], width=P(1.2))
-    t0 = y0 - 10 + (sel / max(1, len(rows))) * pitch * len(rows)
+    t0 = y0 - 10 + (sel / max(1, len(rows))) * pitch * len(rows) if thumb is None else \
+         y0 - 10 + thumb * (pitch * (len(rows) - 1) + 20 - 22)
     d.rectangle([P(285.5), P(t0), P(288.5), P(t0 + 22)], fill=T['bars'][0])
     return cv
 
@@ -388,6 +391,24 @@ def whale_adults():
         d = ImageDraw.Draw(cv, 'RGBA')
         txt(d, x + (34 if form == 'neutral' else 0), y + (0 if form == 'neutral' else 37), name, 9.5, T['text'], SEMI,
             h='l' if form == 'neutral' else 'm')
+    return cv
+
+# ---------------------------------------------------------------- scrolling: highlight kept off the bottom edge, fast scroll
+ARTISTS = ['Moth Radio', 'Nightjar Choir', 'Oyster Bloom', 'Pale Fauna', 'Paper Lanterns', 'Quiet Engines']
+def list_scroll():
+    """scrolling down a long list: the highlight stops at row 4 of 6, so two entries stay visible below it"""
+    use('black')
+    cv = menu('artists', ARTISTS, 3, 'waves', crumb='MUSIC', thumb=0.55, count='3 ALBUMS', marks=False,
+              y0=80, look=(-0.8, 0.9))
+    return cv
+
+def fast_scroll():
+    """Start + wheel: jumps a letter at a time, with the letter shown big while it moves"""
+    cv = list_scroll()
+    cv.alpha_composite(Image.new('RGBA', cv.size, T['bg'][:3] + (170,)))
+    d = bar(cv, 108, 72, 188, 152, 'dots')
+    txt(d, 148, 106, 'P', 62, T['bartext'], h='m')
+    txt(d, 148, 143, 'START + WHEEL', 6.3, T['bartext'], MONO, h='m', track=0.6)
     return cv
 
 # ---------------------------------------------------------------- home and Now Playing with the pet's real forms

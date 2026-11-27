@@ -1,7 +1,8 @@
-# Custom AP30 firmware: plan
+# MoonletOS: plan
 
-A custom firmware for the Hidizs AP30 "Music Boy", forked from [amuletOS](https://github.com/dharma-dingo/amuletOS)
-v0.3 and rebased onto Hidizs's official **V1.8.3**. It is its own project now: no compatibility with amuletOS updates
+**MoonletOS** is a custom firmware for the Hidizs AP30 "Music Boy", forked from
+[amuletOS](https://github.com/dharma-dingo/amuletOS) v0.3 (MIT; its licence and credit stay) and rebased onto
+Hidizs's official **V1.8.3**. It is its own project now: no compatibility with amuletOS updates
 is kept.
 
 Status: **Step 1 builds and runs on the owner's player** (build 14, 2026-11-27). Everything after it is still a
@@ -15,6 +16,7 @@ Never commit Hidizs firmware images (`HIFIYF18.IMG`, `HIFIYF23.IMG`) or anything
 
 | Topic | Decision |
 |---|---|
+| Name | **MoonletOS** (2026-11-27), a play on amuletOS. On USB the internal disk shows as "MOONLET OS AP30" (the SCSI vendor field holds 8 characters) |
 | Base firmware | **V1.8.3** (`HIFIYF23.IMG`): Hidizs's gapless FLAC and other fixes come with it. Every amuletOS patch address is re-found (Step 1). |
 | Controls everywhere | **A direction moves the highlight; A selects; B goes back. No double-tap anywhere.** |
 | Home menu | Up Now Playing · Right Music · Down Games (Blockz inside) · Left Settings (Bluetooth inside) |
@@ -72,6 +74,10 @@ candy bowl, patchwork vinyl cubes, a neon resin table and sun-face cosmetics.
     while it stays visible and gets a new one after scrolling off and back;
   - dots, lines or waves: always that one;
   - plain: no texture.
+- **Scrolling lists keep the highlight off the bottom edge.** Moving down, the list starts scrolling once the
+  highlight reaches the lower middle (row 4 of 6), so the next two entries stay visible below it. Moving up, one
+  entry stays visible above it. At the very top and bottom of a list the highlight goes to the edge. Mock-up
+  `19_list_scroll.png`.
 - **Volume: no pop-up.** Turning the wheel only updates the volume bar in the status bar (a bar plus the number).
   The battery gets its own small icon; in the first mock-ups the bar next to the number was the battery.
 - **The creature** ([the pet](#the-pet)) appears on most screens:
@@ -463,26 +469,34 @@ pink, Black & orange, EVA-01, Light, Dark).
   - hold = stock power-off, unchanged.
 - Auto screen-off timer stays.
 
-**Hold Select to change what the wheel does** (owner's request, 2026-11-27):
-- The wheel alone sets the volume, everywhere. **Select held + wheel = fast scroll** in lists. Also worth having:
-  Select + wheel seeks on Now Playing (to confirm).
-- Fast scroll, proposed: a letter at a time in alphabetical lists, with a big letter on screen while scrolling (as
-  on 00s players); a page at a time in other lists (to confirm).
+**Hold a button to change what the wheel does** (owner's decision, 2026-11-27):
+
+| Held | Wheel does |
+|---|---|
+| nothing | volume, everywhere (the status bar's volume bar moves; no pop-up) |
+| **Select** | **scroll one entry per notch** in lists; seek through the track on Now Playing |
+| **Start** | **fast scroll**: a letter at a time in alphabetical lists, with a big letter on screen while it moves (as on 00s players, mock-up `20_fast_scroll.png`); a page at a time in other lists |
+
 - **The hardware allows it:** the face buttons share one resistor ladder (one at a time), but the wheel is a separate
-  quadrature encoder, so Select and the wheel can be read together ([HARDWARE.md](docs/HARDWARE.md)).
+  quadrature encoder, so Select or Start and the wheel can be read together ([HARDWARE.md](docs/HARDWARE.md)).
 - **Stock code blocks it** (V1.8.3, traced 2026-11-27):
   - `GetKey` (0x03063282) only polls the wheel (0x03062D54: step counters 0x03024724 / 0x03024725, total
     0x03024728) when no face-button event is in progress (flag word 0x03024840, bits 0–2 clear). Turns made while a
     button is down wait in the counters.
   - A wheel event also clears the button state (0x0302481C + 8, + 0x0C, + 0x20). Wheel events are always exactly
     0x40000200 / 0x40000400, never combined with a button's code.
-- **Patch:** in `GetKey`, when the wheel has moved and the current ladder key (decoder 0x03062FA8) is Select,
-  return new events 0x40000202 / 0x40000402 (the wheel's code plus Select's bit) and keep Select's state. Screens
-  that don't know these events ignore them, so nothing changes the volume by accident.
-- **Select's own action moves to release.** Today it fires on press (e.g. playback options on Now Playing). With
-  the modifier, a tap (press and release with no wheel turn) runs it, and a hold with wheel turns doesn't. That
-  needs the key event types confirmed with a key-test screen: 0x40 is press and 0x30 repeat; release is not
-  confirmed yet.
+- **Patch:** in `GetKey`, when the wheel has moved and the current ladder key (decoder 0x03062FA8) is Select or
+  Start, return new events that add that key's bit to the wheel's code and keep the key's state:
+  - Select + wheel: 0x40000202 / 0x40000402;
+  - Start + wheel: 0x40000300 / 0x40000500.
+
+  Screens that don't know these events ignore them, so nothing changes the volume by accident.
+- **Select's and Start's own actions move to release.** Today they fire on press (e.g. Select opens playback
+  options on Now Playing). With the modifiers, a tap (press and release with no wheel turn) runs the action, and a
+  hold with wheel turns doesn't. That needs the key event types confirmed with a key-test screen: 0x40 is press and
+  0x30 repeat; release is not confirmed yet.
+- Stock's own lists (library browser, Settings) scroll in stock code: the scroll margin and the wheel modifiers
+  need either a patch to their list logic or our own list screens.
 
 **Smaller extras:**
 - **Wheel click = play/pause.** The click is most likely the GPIO2 pin 5 key, which combines with face buttons.

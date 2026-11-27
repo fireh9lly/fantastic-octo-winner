@@ -1,5 +1,8 @@
 # amuletOS handoff (named SchalaOS until build 36)
 
+> amuletOS's own handoff, kept for reference, with a few fork notes added. This fork is now **MoonletOS**: see
+> [PLAN.md](../PLAN.md) for its state and plans.
+
 State of the project at the end of 2026-11-07. Read this first, then `README.md` (status
 checklist, release plan, decisions), `docs/HARDWARE.md` (every technical finding),
 `docs/BLOCKZ.md` (v0.2 game spec) and the Notion product spec.

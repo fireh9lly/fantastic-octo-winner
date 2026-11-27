@@ -58,7 +58,7 @@ stamp 27 Nov build 14: the build number must beat the installed one's (13), it c
 
 ## USB
 
-- [ ] File transfer on the laptop: the disk is called AMULETOS; copying works.
+- [ ] File transfer on the laptop: the disk is called AMULETOS (builds after 14: MOONLET OS AP30); copying works.
 - [ ] **DAC on the phone**: pick DAC, the phone finds the DAC within a second or so, and sound plays.
 - [ ] Pull the cable out in DAC mode, plug in again, DAC again: still works. Then File transfer still works.
 - [ ] DAC on the laptop.

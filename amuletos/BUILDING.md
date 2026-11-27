@@ -1,4 +1,4 @@
-# Building on Linux
+# Building MoonletOS on Linux
 
 Tested on Linux x86_64. macOS or Git Bash on Windows should work too.
 
