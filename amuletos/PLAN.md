@@ -404,7 +404,7 @@ existing virtual pet.
 
 ---
 
-## USB DAC: phones can't see it (found 2026-11-27, second fix ready to test)
+## USB DAC: phones can't see it (found 2026-11-27, third fix built, phone capture first)
 
 - **DAC mode is a separate chip.** In USB DAC mode the AP30 enumerates as **0bda:4a35 "Realtek AP30"** (high
   speed, owner's Linux laptop), not as the RKNano. The RKNano's own USB-audio driver (module 11, 071b:3205,
@@ -414,26 +414,28 @@ existing virtual pet.
   - file transfer works with the same cable (cable end B on the player);
   - the laptop logs `device descriptor read/64, error -110` / `-71`, `not accepting address`, then `attempt
     power cycle`, then success. Phones don't power-cycle the port.
-- Pins as read from the code: GPIO0.14 = USB switch (1 RKNano, set at boot; 0 Realtek); GPIO1.0 = Realtek on (0) /
-  off (1); GPIO1.4 = audio power; GPIO2.1 = headphone amp (low = on). GPIO1.0 is never set at boot.
-- **First guess (wrong):** the chip boots after the switch while the host is already talking to it. Fix 1 (Realtek
-  on, 600 ms, then the switch; build 11) changed nothing on the laptop.
-- **Cause, as the code and a 15-second wait test show:** the Realtek chip is often *already on* when DAC is chosen.
-  - DAC exit (module 9, 0x03084F32) switches it off only if the cable is still plugged in; module 0's end-of-USB
-    code (0x03065F5C, also called by modules 10 and 12) skips it while the DAC flag (0x03024886) is set. Pulling the
-    cable out of DAC mode therefore leaves it on.
-  - Wait test (laptop, fix 1): a high-speed device appears at plug-in, long before DAC is chosen, and never answers
-    (`-110`, `-62`, `unable to enumerate`); the Realtek appears only right after the laptop's port power cycle
-    (VBUS off about 380 ms).
-  - DAC entry's last step "Realtek on" then changes nothing, so the chip never gets a clean start. Only cutting
-    USB power resets it, and a phone never does that.
-- **Fix 2, `tools/dac_handover.py`:** same module, same size, any V1.8.3-based image (stock or a theme). The two
-  redundant blocks become "Realtek off" (GPIO1.0 = 1) and 3 × (200 ms + watchdog kick). The order is now: audio
-  power on → lines to the Realtek → amp on → **Realtek off → 600 ms → Realtek on**, which copies the laptop's power
-  cut with the lines already connected. 37 bytes changed. Refuses fix-1 images.
-  **Status: built and verified on the PC (disassembly checked); the owner tests it on the phone (build 12, from the
-  orange theme).** If it still fails, also turn the Realtek off on every DAC exit, and test whether GPIO1.0 is
-  really the chip's power or reset (e.g. the laptop sees the device leave during the 600 ms).
+- Pins as read from the code: GPIO0.14 = USB switch (1 RKNano, set at boot; 0 Realtek); GPIO1.4 = audio power;
+  GPIO2.1 = headphone amp (low = on); GPIO1.0 = set 0 on DAC entry, 1 on DAC exit (only if still plugged in) and at
+  the end of other USB sessions. It is **not** the Realtek's power or reset (fix 2 below).
+- **The RKNano is on the bus during the question.** Module 10 runs every USB session and calls UsbDevInit
+  (0x03068D90: soft-disconnect, core reset, connect). The question (module 9, 0x03084A60) then blocks for up to
+  ~60 s, so the host's requests time out (`-110`). Picking File transfer lets the stack answer, and the host's
+  next retry finds 071b:3203.
+- **Picking DAC swaps devices with no gap:** the switch moves the lines from the connected RKNano to the Realtek, so
+  the host sees no unplug. The laptop finds the Realtek on its next retry: stock firmware, 12:52, two `-71` and then
+  the Realtek on the next attempt, no power cut. Later runs only looked like they needed the power cut, because the
+  `-71` from the switch ended attempt 2 and the kernel power-cycles before attempt 3.
+- **Wrong fixes, built and tested:**
+  - fix 1 (build 11): Realtek "on" (GPIO1.0 = 0), 600 ms, then the switch. Theory: the chip boots too late.
+  - fix 2 (build 12): after the switch, GPIO1.0 = 1 for 600 ms, then 0. Theory: the chip needs a reset. The laptop
+    enumerated the Realtek inside those 600 ms, so GPIO1.0 doesn't turn it off.
+- **Fix 3, `tools/dac_handover.py` (built and checked on the PC, not yet on the device):**
+  - The RKNano soft-disconnects first, with the same write module 10 uses on eject: DCTL 0x60080804 |= 2.
+  - Then 800 ms with nothing on the bus, then the stock switch to the Realtek. The host sees an unplug and then a
+    new DAC.
+  - The next plug-in reconnects the RKNano as usual. 61 bytes in blocks 2 and 4. Refuses fix-1/2 images.
+  - Before flashing it: a capture of the phone's side (logcat + `dumpsys usb` port state every second, over
+    Wireless debugging) for a DAC attempt and a File transfer attempt on build 12.
 - **Consequences for other plans:**
   - the visualiser in USB DAC mode can't use the RKNano audio buffers: the audio goes PC → Realtek, probably
     straight to the DAC. It needs the board's I2S wiring; otherwise drop the idea;
