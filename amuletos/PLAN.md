@@ -404,6 +404,31 @@ existing virtual pet.
 
 ---
 
+## USB DAC: phones can't see it (found 2026-11-27, fix ready to test)
+
+- **DAC mode is a separate chip.** In USB DAC mode the AP30 enumerates as **0bda:4a35 "Realtek AP30"** (high
+  speed, owner's Linux laptop), not as the RKNano. The RKNano's own USB-audio driver (module 11, 071b:3205,
+  UAC1 16-bit/48 kHz) is SDK leftover and unused on this hardware. File transfer is the RKNano (071b:3203).
+- **Symptom on the owner's Xiaomi 14 Ultra (Android 16):**
+  - the phone enters host mode (root hubs created, Type-C partner seen, 1.5 A) but no device ever enumerates;
+  - file transfer works with the same cable (cable end B on the player);
+  - the laptop logs `device descriptor read/64, error -110` / `-71`, `not accepting address`, then `attempt
+    power cycle`, then success. Phones don't power-cycle the port.
+- **Cause, module 9 (FunUSB.c):** when DAC is chosen, the USB lines are switched to the Realtek chip
+  (GPIO0 pin 14 = 0) *before* the chip is powered (GPIO1 pin 0 = 0, last, no delay), so it boots while the host is
+  already talking to it.
+  - Pins as read from the code: GPIO0.14 = USB switch (1 RKNano, 0 Realtek); GPIO1.0 = Realtek on (0) / off (1);
+    GPIO1.4 = audio power; GPIO2.1 = headphone amp (low = on).
+- **Fix, `tools/dac_handover.py`:** same module, same size, any V1.8.3-based image (stock or a theme).
+  Realtek on first, then 3 × (200 ms + watchdog kick), then the switch. 37 bytes changed, stamp +1 build.
+  **Status: built and verified on the PC; needs the owner's on-device test.** Tune the wait if 600 ms isn't
+  enough.
+- **Consequences for other plans:**
+  - the visualiser in USB DAC mode can't use the RKNano audio buffers: the audio goes PC → Realtek, probably
+    straight to the DAC. It needs the board's I2S wiring; otherwise drop the idea;
+  - the USB mode question (File transfer / DAC) becomes a D-pad chooser: Left = File transfer, Right = DAC, A to
+    confirm.
+
 ## Hardware reference
 
 | Part | Notes |
