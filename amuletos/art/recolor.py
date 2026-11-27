@@ -54,6 +54,21 @@ def recolor(a):
 
 ORANGE = np.array([255, 130, 0.])
 SEL = np.array([148, 62, 0.])                                                # art/orange.py "sel"
+BAND = np.array([214, 96, 0.])                                               # art/orange.py "band"
+# small icons stock draws on the status band (their dark theme's list, tools/dark.py, plus the EQ and speaker chips):
+# light ground -> band colour, dark strokes -> black, coloured details (battery fill, low-battery red) kept
+BAND_ICONS = {*range(31, 48), 56, 61, *range(66, 69), *range(73, 77), *range(207, 212), *range(247, 252),
+              *range(265, 274), *range(286, 291), 447, 448, 449}
+
+def band_icon(a):
+    f = a.astype(float)
+    mx, mn = f.max(2), f.min(2)
+    sat = np.where(mx > 0, (mx - mn) / np.maximum(mx, 1), 0)[..., None]
+    l = (0.3 * f[..., 0] + 0.59 * f[..., 1] + 0.11 * f[..., 2])[..., None]
+    t = np.clip((l - 60) / 140, 0, 1)                      # dark stroke 0 .. light ground 1
+    neutral = BAND * t
+    keep = np.clip((sat - 0.25) / 0.2, 0, 1)                # saturated details stay as they are
+    return np.clip(neutral * (1 - keep) + f * keep, 0, 255).astype(np.uint8)
 
 def recolor_orange(a):
     f = a.astype(float)
@@ -85,6 +100,8 @@ def main():
         if not (f.endswith(".png") and f[:3].isdigit()) or f in done:
             continue
         a = np.asarray(Image.open(os.path.join(src, f)).convert("RGB"))
+        if recolor is recolor_orange and int(f[:3]) in BAND_ICONS:
+            Image.fromarray(band_icon(a)).save(os.path.join(out, f)); n += 1; continue
         Image.fromarray(recolor(a)).save(os.path.join(out, f)); n += 1
     print(f"recoloured {n} images into {out}")
 
