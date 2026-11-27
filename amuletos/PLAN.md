@@ -404,7 +404,7 @@ existing virtual pet.
 
 ---
 
-## USB DAC: phones can't see it (found 2026-11-27, third fix built, phone capture first)
+## USB DAC: phones can't see it (found and fixed 2026-11-27: fix 3 works on the phone)
 
 - **DAC mode is a separate chip.** In USB DAC mode the AP30 enumerates as **0bda:4a35 "Realtek AP30"** (high
   speed, owner's Linux laptop), not as the RKNano. The RKNano's own USB-audio driver (module 11, 071b:3205,
@@ -429,13 +429,20 @@ existing virtual pet.
   - fix 1 (build 11): Realtek "on" (GPIO1.0 = 0), 600 ms, then the switch. Theory: the chip boots too late.
   - fix 2 (build 12): after the switch, GPIO1.0 = 1 for 600 ms, then 0. Theory: the chip needs a reset. The laptop
     enumerated the Realtek inside those 600 ms, so GPIO1.0 doesn't turn it off.
-- **Fix 3, `tools/dac_handover.py` (built and checked on the PC, not yet on the device):**
+- **Phone capture (build 12, logcat + `dumpsys usb` every second over Wireless debugging):**
+  - DAC: host mode for 53 s, no device ever attached.
+  - File transfer: 071b:3203 attached about 3 s after plug-in, as address 3, so one failed try came first.
+  - So the phone retries during the question, but it never notices the swap to the Realtek.
+- **Fix 3, `tools/dac_handover.py`: WORKS.** The owner's Xiaomi 14 Ultra sees the DAC (build 13, orange theme,
+  2026-11-27).
   - The RKNano soft-disconnects first, with the same write module 10 uses on eject: DCTL 0x60080804 |= 2.
   - Then 800 ms with nothing on the bus, then the stock switch to the Realtek. The host sees an unplug and then a
     new DAC.
   - The next plug-in reconnects the RKNano as usual. 61 bytes in blocks 2 and 4. Refuses fix-1/2 images.
-  - Before flashing it: a capture of the phone's side (logcat + `dumpsys usb` port state every second, over
-    Wireless debugging) for a DAC attempt and a File transfer attempt on build 12.
+  - Still to check:
+    - file transfer still works after a DAC session (it should: UsbDevInit clears SftDiscon at every plug-in);
+    - the laptop now finds the DAC without errors;
+    - fold the patch into the main amuletOS build (`build.sh`) when that builds again.
 - **Consequences for other plans:**
   - the visualiser in USB DAC mode can't use the RKNano audio buffers: the audio goes PC → Realtek, probably
     straight to the DAC. It needs the board's I2S wiring; otherwise drop the idea;
