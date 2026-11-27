@@ -17,7 +17,7 @@
 
 #define TL         ((volatile uint32_t *)0x0309F7CCu)
 #define TL_N       11u
-#define SYS_TICKS  (*(volatile uint32_t *)0x0302288Cu)
+#define SYS_TICKS  (*(volatile uint32_t *)0x030248CCu)
 #define FROZEN     0x40000000u
 #define ARMED      0x80000000u
 #define BOOT       0x3FFFFFFFu

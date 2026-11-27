@@ -68,6 +68,12 @@ corner + A + B while plugging in USB (BootROM loader mode), then restore with `t
   25 are equivalent after relocation (calls and literals retargeted), 0 differ.
 - Done: **trial build on V1.8.3 runs end to end** and the image passes the container checks.
 - Done: **source converted to V1.8.3** (`tools/port_convert.py`).
+  - **Fixed 2026-11-27:** the first pass's address pattern needed a word break right after the hex digits, so it
+    skipped every C literal with a `u` suffix (`0x03057CC8u`): 105 uses in 12 device files, including every
+    function call in `libscan.c`, `np_helpers.c` and `m21_ext.c`, never made it into the inventory. Comments on the same lines were converted, which hid it.
+    With the pattern fixed, the inventory finds 321 address rows (was 262); the 262 old rows translate exactly as
+    before, and 100 literals were converted (the new CHECK rows agree with literal evidence). Still unconverted on
+    purpose: amuletOS's own top-of-RAM addresses (the resident-RAM rework) and the dev-only timing log.
   - Output named `HIFIYF23.IMG`; both versions' updaters look for `HIFIYF??.IMG`.
   - Default stamp 2620261101 (newer than V1.8.3's 2620231103).
   - `tools/resident.py` stops the build while the always-loaded code overlaps module 39.

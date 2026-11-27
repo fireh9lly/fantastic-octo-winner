@@ -32,7 +32,7 @@ void *memcpy(void *d, const void *s, size_t n) { uint8_t *a = d; const uint8_t *
 void *memset(void *d, int v, size_t n) { uint8_t *a = d; while (n--) *a++ = (uint8_t)v; return d; }
 void abort(void) { for (;;) {} }
 
-#define SYSC       0x03022894u
+#define SYSC       0x030248d4u
 #define S8(o)      (*(volatile uint8_t *)(SYSC + (o)))
 #define DiskSwitch(n)       STOCK_FN(0x03058802, void, uint32_t)(n)
 #define SetFont(n)          STOCK_FN(0x0306467E, uint32_t, uint32_t)(n)
@@ -42,16 +42,16 @@ void abort(void) { for (;;) {} }
 #define Pixel(c)            STOCK_FN(0x030650A0, void, uint32_t)(c)
 #define Flush()             STOCK_FN(0x03065866, void, void)()
 #define ThreadRunning(h, d) STOCK_FN(0x03057F58, uint32_t, uint32_t, uint32_t)(h, d)
-#define FONTBASE   (*(volatile uint32_t *)0x03022868u)
-#define SPACING    (*(volatile int16_t *)0x03022E04u)
-#define SYS_TICKS  (*(volatile uint32_t *)0x0302288Cu)
+#define FONTBASE   (*(volatile uint32_t *)0x030248a8u)
+#define SPACING    (*(volatile int16_t *)0x03024E44u)
+#define SYS_TICKS  (*(volatile uint32_t *)0x030248CCu)
 #define ST_LOAD    (*(volatile uint32_t *)0xE000E014u)
 #define ST_VAL     (*(volatile uint32_t *)0xE000E018u)
-#define ADC_CH1    (*(volatile uint16_t *)(0x03005A8Cu + 2))
+#define ADC_CH1    (*(volatile uint16_t *)(0x03005ACCu + 2))
 #define GPIO2      (*(volatile uint32_t *)0x50030000u)
 
-#define U_BASE     0x03090800u
-#define U_END      0x0309F7C0u
+#define U_BASE     0x03090cd0u
+#define U_END      0x0309FC90u
 #define WIN_END    0x0308BF84u
 extern char _text_end[];             /* module.ld: end of this module's code */
 
@@ -195,7 +195,7 @@ void gbx_read_page(gbx_t *x, uint32_t page, uint8_t *dst)
  * 0x030066c8 + page * 0x1B760, rows 190..239 at 0x03070220 + page * 0x73A0, 592 bytes a row; the panel is mounted
  * mirrored (column = 295 - x while the rotation flag is set) and pixels are swapped in pairs (index ^ 1). After a
  * frame, Window() over the Game Boy area marks the rows dirty for the flush, as Pixel would. */
-#define FBS        0x03022E48u
+#define FBS        0x03024E88u
 #define FB_PAGE    (*(volatile uint16_t *)(FBS + 0x00))
 #define FB_DIRTY   (*(volatile uint32_t *)(FBS + 0x0C))
 #define FB_ROT     (*(volatile uint32_t *)(FBS + 0x14))
@@ -203,8 +203,8 @@ void gbx_read_page(gbx_t *x, uint32_t page, uint8_t *dst)
 static void push_service(void);
 static uint16_t *fb_any(int y)                           /* any row: 0..189 in the page, 190..239 in the second area */
 {
-    return y < 190 ? (uint16_t *)(0x03006688u + FB_PAGE * 0x1B760u + (uint32_t)y * 592u)
-                   : (uint16_t *)(0x0306FD50u + FB_PAGE * 0x73A0u + (uint32_t)(y - 190) * 592u);
+    return y < 190 ? (uint16_t *)(0x030066c8u + FB_PAGE * 0x1B760u + (uint32_t)y * 592u)
+                   : (uint16_t *)(0x03070220u + FB_PAGE * 0x73A0u + (uint32_t)(y - 190) * 592u);
 }
 
 /* Build 53: the core hands over shades 0..3 (B->g.pal = 0..3); each Game Boy line becomes 1 or 2 screen rows,
@@ -224,7 +224,7 @@ void gbx_line(const uint16_t *sh, int line)
  * of waiting per frame. We do the same steps and return at once; the next push (or any stock flush) first waits
  * for the flag. The DMA reads rows top to bottom at ~22 us a row, ahead of the next frame's line writes (~86 us
  * a line), so it never shows a half-new frame. Full-width rows: the transfer is one contiguous block. */
-#define LCD_DONE   (*(volatile uint16_t *)0x03023B44u)
+#define LCD_DONE   (*(volatile uint16_t *)0x03025B84u)
 #define LcdWindow(a, b, c, d)  STOCK_FN(0x030813F8, void, int, int, int, int)(a, b, c, d)
 #define VopCmd(a, b)           STOCK_FN(0x0306E334, void, uint32_t, uint32_t)(a, b)
 #define DmaGet()               STOCK_FN(0x030617D4, uint32_t, void)()
@@ -241,7 +241,7 @@ static void push_part(int y0, int y1, uint32_t src)
     LcdWindow(0, y0, 0x127, y1);
     VopCmd(0, 6);
     uint32_t ch = DmaGet() & 0xFF;
-    DmaStart(ch, src, 0x6007002Cu, 0x128u * (uint32_t)(y1 - y0 + 1) / 2u, push_cfg, 0x03080EADu);
+    DmaStart(ch, src, 0x6007002Cu, 0x128u * (uint32_t)(y1 - y0 + 1) / 2u, push_cfg, 0x0308137Du);
 }
 
 static void push_service(void)
@@ -268,7 +268,7 @@ static void push_wait(void)
 static void push_async(void)
 {
     push_wait();
-    const volatile uint32_t *c = (const volatile uint32_t *)0x0306E96Cu;   /* the driver's DMA settings */
+    const volatile uint32_t *c = (const volatile uint32_t *)0x0306EE3Cu;   /* the driver's DMA settings */
     for (int i = 0; i < 4; i++) push_cfg[i] = c[i];
     push_part(0, 189, (uint32_t)fb_any(0));
     S.push_ph = 1;
@@ -289,9 +289,9 @@ static void push_async(void)
  * a frame whenever fewer than SND_MARGIN frames are queued past the playing chunk, so the sound clock paces the game
  * (48000 / 803 = 59.78 frames a second); each frame first renders its 803 samples (minigb_apu, from the sound
  * registers the last frame left) so they are queued before the 13 ms of emulation. */
-#define DAC_ON      (*(volatile uint8_t *)0x030227DAu)   /* stock: DAC powered (MusicInit / USB audio / music exit) */
-#define PHAND       0x030232BCu                          /* player thread handle, descriptor (bgmusic.c) */
-#define PDESC       0x030361A4u
+#define DAC_ON      (*(volatile uint8_t *)0x0302481Au)   /* stock: DAC powered (MusicInit / USB audio / music exit) */
+#define PHAND       0x030252FCu                          /* player thread handle, descriptor (bgmusic.c) */
+#define PDESC       0x03038230u
 #define ThreadDelete(hp)      STOCK_FN(0x03057F14, void, uint32_t)(hp)
 #define DelayMs(n)            STOCK_FN(0x03065E34, void, uint32_t)(n)
 #define IoMux(p, n, f)        STOCK_FN(0x03052BFC, void, uint32_t, uint32_t, uint32_t)(p, n, f)
@@ -308,7 +308,7 @@ static void push_async(void)
 #define DmaBusy(ch)           STOCK_FN(0x03056a50, uint32_t, uint32_t)(ch)
 #define ModuleOverlay(n, t)   STOCK_FN(0x030686FA, uint32_t, uint32_t, uint32_t)(n, t)
 #define I2S_TXDR    0x40030024u
-#define AUDIO_DMA   0x03005764u
+#define AUDIO_DMA   0x03005784u
 #define SND_RATE    48000u
 #define CHF         256u                                  /* frames per DMA chunk: 5.3 ms */
 #define NCH         8u

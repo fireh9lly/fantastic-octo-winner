@@ -10,8 +10,8 @@
  * so the layout A drawing code (game/device/npui.c, module slot 28 at 0x030843DC) is loaded first. */
 uint32_t np_load(void)
 {
-    ((uint32_t (*)(uint32_t, uint32_t))(0x030684E4u | 1))(28, 7);
-    return ((uint32_t (*)(uint32_t, uint32_t))(0x030684E4u | 1))(18, 7);
+    ((uint32_t (*)(uint32_t, uint32_t))(0x03068800u | 1))(28, 7);
+    return ((uint32_t (*)(uint32_t, uint32_t))(0x03068800u | 1))(18, 7);
 }
 
 /* v0.3 M3U playlists: one step of the music source record (0x0305EC0C's entry, via np_stub.S pl_step_hook).
@@ -19,8 +19,8 @@ uint32_t np_load(void)
  * current entry (source 0x63 "files", cluster and number as in the table), move along the table and fill the
  * record the way stock's lookups do; anything else (another playback started since) runs stock's step. */
 #include "pl_table.h"
-#define REC     0x03022F14u
-#define TICK10  (*(volatile uint32_t *)0x0302288Cu)
+#define REC     0x03024F54u
+#define TICK10  (*(volatile uint32_t *)0x030248CCu)
 
 /* 1 while the music source record is on the playlist table's current entry (source 0x63, cluster and file number
  * as in the table): the hook below and the player-init hooks (np_stub.S pl_init_count / pl_init_seek) act only

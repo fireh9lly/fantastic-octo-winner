@@ -80,8 +80,8 @@ static uint32_t play_ms(void)
 {
     /* 0x0304A460 is in the music engine's (module 33) RAM: only valid while the player runs (build 31 crashed
      * on open after a boot with nothing played: it followed whatever was there) */
-    if (STOCK_FN(0x03057F58, uint32_t, uint32_t, uint32_t)(*(volatile uint32_t *)0x030232BCu, 0x03038230) != 1) return 0;
-    uint32_t p = *(volatile uint32_t *)0x030483D0u;
+    if (STOCK_FN(0x03057F58, uint32_t, uint32_t, uint32_t)(*(volatile uint32_t *)0x030252FCu, 0x03038230) != 1) return 0;
+    uint32_t p = *(volatile uint32_t *)0x0304A460u;
     if (p < 0x03000000u || p >= 0x030A0000u - 8 || (p & 3)) return 0;
     return ((volatile uint32_t *)p)[1];
 }
@@ -266,8 +266,8 @@ static void info_line(int row, const char *label, const uint32_t *v, const uint8
     text(14, 10 + row * 16, b, C_TEXT);
 }
 
-#define SYSC 0x03022894u   /* system config */
-#define PREC 0x03022F14u   /* music source record */
+#define SYSC 0x030248d4u   /* system config */
+#define PREC 0x03024F54u   /* music source record */
 
 static void info_page(void)
 {
@@ -287,7 +287,7 @@ static void info_page(void)
     v[0] = (now_us() - S.t0_us) / 1000u; v[1] = play_ms() - S.a0_ms;
     v[2] = v[0] ? v[1] * 1000u / v[0] : 0;               /* 1000 = SysTick right */
     { static const uint8_t dtm[3] = {6, 6, 4}; info_line(9, "TM", v, dtm, 3); }
-    v[0] = ST_LOAD; v[1] = rd32(0x030065C0u + 0x18); v[2] = *(volatile uint32_t *)0xE000E010u;
+    v[0] = ST_LOAD; v[1] = rd32(0x03006600u + 0x18); v[2] = *(volatile uint32_t *)0xE000E010u;
     { static const uint8_t dck[3] = {6, 8, 2}; info_line(6, "CK", v, dck, 3); }
     v[0] = rd8(SYSC + 0x0E); v[1] = rd8(SYSC + 0x1F); v[2] = running; info_line(10, "DK", v, ddk, 3);
     char b[24]; int k = 0;                      /* first letters of the current path */

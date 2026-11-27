@@ -17,7 +17,7 @@ SOURCES = ["tools/patch_code.py", "tools/build_hook.py", "tools/build_helpers.py
            "tools/extend_module.py", "tools/build_module.py", "build.sh", "game/stock.h"]
 SOURCES += sorted("hooks/" + f for f in os.listdir(os.path.join(ROOT, "hooks")))
 SOURCES += sorted("game/device/" + f for f in os.listdir(os.path.join(ROOT, "game/device")))
-ADDR = re.compile(r"0[xX](0?[0-9A-Fa-f]{7,8})\b")
+ADDR = re.compile(r"0[xX](0?[0-9A-Fa-f]{7,8})(?=[uUlL]*\b)")       # C literals may carry a u / UL suffix
 MOD_HINT = re.compile(r"(?:\bmodule\s+|\bm)(\d{1,3})\b|^\s*\((\d{1,3}),\s*0x", re.I)
 
 # V1.7.8 memory map (docs/HARDWARE.md; module table)

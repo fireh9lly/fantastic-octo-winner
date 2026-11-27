@@ -21,20 +21,20 @@
 #define NONE      0x454E4F4Eu                          /* "NONE": no valid fingerprint (build next time) */
 
 #ifndef LIBSCAN_HOST                                   /* game/test/test_libscan.c supplies these on the PC */
-#define SYS8(o)   (*(volatile uint8_t *)(0x03022894u + (o)))
-#define SYS16(o)  (*(volatile uint16_t *)(0x03022894u + (o)))
-#define VOL       ((volatile uint8_t *)0x0307E710u)   /* +0 FS type (3 = exFAT), +2 u16 sectors/cluster shift,
+#define SYS8(o)   (*(volatile uint8_t *)(0x030248d4u + (o)))
+#define SYS16(o)  (*(volatile uint16_t *)(0x030248d4u + (o)))
+#define VOL       ((volatile uint8_t *)0x0307EBE0u)   /* +0 FS type (3 = exFAT), +2 u16 sectors/cluster shift,
                                                            +4 u16 bytes/sector shift; +0x0C.. volume info */
 #define VI        (VOL + 0x0C)                         /* +0x0D root clus, +0x1B clusters, +0x1F heap, +0x23 part */
 #define FP        ((volatile uint32_t *)0x0309FFC0u)  /* [0] state, [1..4] fingerprint, [5] ~state */
 
-#define ReadSec(l, b)     ((uint32_t (*)(uint32_t, void *))(0x03057CC8u | 1))(l, b)
-#define BlkRead(n, b, l)  ((void (*)(uint32_t, void *, uint32_t))(0x0306D48Eu | 1))(n, b, l)
-#define BlkWrite          ((uint32_t (*)(uint32_t, void *, uint32_t))(0x0306D500u | 1))
-#define SaveConfig(f)     ((void (*)(uint32_t))(0x0306D564u | 1))(f)
-#define Build()           ((void (*)(void))(0x03081628u | 1))()      /* module 5: the stock library build */
-#define Post(m)           ((void (*)(uint32_t))(0x03067ED4u | 1))(m)
-#define FlashRead(o, n, b) ((uint32_t (*)(uint32_t, uint32_t, uint32_t, void *))(0x03068194u | 1))(0x30001, o, n, b)
+#define ReadSec(l, b)     ((uint32_t (*)(uint32_t, void *))(0x03057FA4u | 1))(l, b)
+#define BlkRead(n, b, l)  ((void (*)(uint32_t, void *, uint32_t))(0x0306D926u | 1))(n, b, l)
+#define BlkWrite          ((uint32_t (*)(uint32_t, void *, uint32_t))(0x0306D998u | 1))
+#define SaveConfig(f)     ((void (*)(uint32_t))(0x0306D9FCu | 1))(f)
+#define Build()           ((void (*)(void))(0x03081af8u | 1))()      /* module 5: the stock library build */
+#define Post(m)           ((void (*)(uint32_t))(0x030681F0u | 1))(m)
+#define FlashRead(o, n, b) ((uint32_t (*)(uint32_t, uint32_t, uint32_t, void *))(0x030684b0u | 1))(0x30001, o, n, b)
 #endif
 
 static uint32_t rd32(const volatile uint8_t *p) { return p[0] | p[1] << 8 | p[2] << 16 | (uint32_t)p[3] << 24; }

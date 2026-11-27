@@ -8,9 +8,9 @@
  * 0x03025BA4 and paint reads the image from it, so we set the image ids (art/pocket.py STATES / GREY_STATES).
  * Build 54: five cards, Now Playing 16 (greyed 8), Music 14, Blockz 18, Games 20, Library 22 (greyed 24: its right
  * side icon is Now Playing). */
-#define PLAYER_ON() (((uint32_t (*)(uint32_t, uint32_t))(0x03057C7Cu | 1))(*(volatile uint32_t *)0x030232BCu, \
-                                                                          0x030361A4u) == 1)
-#define MENU_IMG(k) (*(volatile uint16_t *)(0x03023B64u + 8u * (k) + 4u))
+#define PLAYER_ON() (((uint32_t (*)(uint32_t, uint32_t))(0x03057F58u | 1))(*(volatile uint32_t *)0x030252FCu, \
+                                                                          0x03038230u) == 1)
+#define MENU_IMG(k) (*(volatile uint16_t *)(0x03025BA4u + 8u * (k) + 4u))
 
 void menu_art(void)
 {
@@ -37,7 +37,7 @@ void tlog_install(void)                 /* dev builds only (-DAMU_TIMING=1); emp
 /* Games tile action (build 54, patch_code.py menu_carousel): the Game Boy list, task 20 (game/device/gbprobe.c) */
 void menu_games(void)
 {
-    ((void (*)(uint32_t, void *))(0x030680D4u | 1))(20, 0);
+    ((void (*)(uint32_t, void *))(0x030683F0u | 1))(20, 0);
 }
 
 /* Now Playing tile action (patch_code.py menu_carousel): open it while the player runs, else refresh the art
@@ -45,10 +45,10 @@ void menu_games(void)
 void menu_np(void)
 {
     if (PLAYER_ON()) {
-        ((void (*)(uint32_t, void *))(0x030680D4u | 1))(3, 0);
+        ((void (*)(uint32_t, void *))(0x030683F0u | 1))(3, 0);
         return;
     }
     menu_art();
-    ((void (*)(uint32_t))(0x03067ED4u | 1))(0x2D);   /* repaint the card */
+    ((void (*)(uint32_t))(0x030681F0u | 1))(0x2D);   /* repaint the card */
 }
 

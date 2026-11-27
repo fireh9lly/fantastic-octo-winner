@@ -39,24 +39,24 @@ typedef struct { uint16_t x0, y0, x1, y1; } rect_t;
 #define MAXC 64
 
 #ifndef NPUI_HOST          /* game/pc/np_preview.c supplies these on the PC */
-#define COLOR      (*(volatile uint16_t *)0x03022DECu)
-#define SPACING    (*(volatile int16_t *)0x03022E04u)      /* 0x03024E2C + 0x18: letter spacing stock adds */
-#define FONTBASE   (*(volatile uint32_t *)0x03022868u)
-#define TICK       (*(volatile uint32_t *)0x0302288Cu)     /* 10 ms */
-#define PLAY       (*(volatile uint32_t **)0x030483D0u)    /* [0] total ms, [1] position ms */
-#define TITLE      ((const uint16_t *)0x030485E0u)          /* tag record +0x60 */
-#define FNAME      ((const uint16_t *)0x03048450u)          /* file name */
+#define COLOR      (*(volatile uint16_t *)0x03024E2Cu)
+#define SPACING    (*(volatile int16_t *)0x03024E44u)      /* 0x03024E2C + 0x18: letter spacing stock adds */
+#define FONTBASE   (*(volatile uint32_t *)0x030248a8u)
+#define TICK       (*(volatile uint32_t *)0x030248CCu)     /* 10 ms */
+#define PLAY       (*(volatile uint32_t **)0x0304A460u)    /* [0] total ms, [1] position ms */
+#define TITLE      ((const uint16_t *)0x0304A670u)          /* tag record +0x60 */
+#define FNAME      ((const uint16_t *)0x0304a4e0u)          /* file name */
 #define SCROLL     ((volatile uint32_t *)0x0309FFD8u)      /* [0] start tick, [1] width (single px), [2] magic */
-#define SetFont(n)     ((void (*)(uint32_t))(0x030643A2u | 1))(n)
-#define Fill(a, b, c, d) ((void (*)(int, int, int, int))(0x03064688u | 1))(a, b, c, d)
-#define Window(a, b, c, d) ((void (*)(int, int, int, int))(0x03064EA8u | 1))(a, b, c, d)
-#define Pixel(c)       ((void (*)(uint32_t))(0x03064DC4u | 1))(c)
-#define Text(x, y, s)  ((void (*)(int, int, const uint16_t *))(0x03063E38u | 1))(x, y, s)
-#define Draw(r, s, m)  ((void (*)(rect_t *, rect_t *, const uint16_t *, uint32_t))(0x03063F76u | 1))(r, r, s, m)
-#define CharW(ch)      ((uint32_t (*)(uint32_t))(0x03063BC6u | 1))(ch)
-#define FontRead(o, b, n) ((void (*)(uint32_t, void *, uint32_t))(0x0306535Cu | 1))(o, b, n)
-#define Post(m)        ((void (*)(uint32_t))(0x03067ED4u | 1))(m)
-#define Clear(m)       ((void (*)(uint32_t))(0x03067F16u | 1))(m)
+#define SetFont(n)     ((void (*)(uint32_t))(0x0306467Eu | 1))(n)
+#define Fill(a, b, c, d) ((void (*)(int, int, int, int))(0x03064964u | 1))(a, b, c, d)
+#define Window(a, b, c, d) ((void (*)(int, int, int, int))(0x03065184u | 1))(a, b, c, d)
+#define Pixel(c)       ((void (*)(uint32_t))(0x030650A0u | 1))(c)
+#define Text(x, y, s)  ((void (*)(int, int, const uint16_t *))(0x03064114u | 1))(x, y, s)
+#define Draw(r, s, m)  ((void (*)(rect_t *, rect_t *, const uint16_t *, uint32_t))(0x03064252u | 1))(r, r, s, m)
+#define CharW(ch)      ((uint32_t (*)(uint32_t))(0x03063EA2u | 1))(ch)
+#define FontRead(o, b, n) ((void (*)(uint32_t, void *, uint32_t))(0x03065638u | 1))(o, b, n)
+#define Post(m)        ((void (*)(uint32_t))(0x030681F0u | 1))(m)
+#define Clear(m)       ((void (*)(uint32_t))(0x03068232u | 1))(m)
 #endif
 #define MSG_SCROLL 0x44
 

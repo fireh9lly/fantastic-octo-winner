@@ -7,9 +7,9 @@
  * then the text 26 px further right. */
 #include <stdint.h>
 
-#define TextBox(x, y, w, h, z, id) ((void (*)(int, int, int, int, int, int))(0x030644A0u | 1))(x, y, w, h, z, id)
-#define DrawImage(i, x, y)         ((void (*)(uint32_t, int, int))(0x03064D20u | 1))(i, x, y)
-#define SEL_ROW  (*(volatile uint8_t *)0x03023B92u)       /* m22 ZI: selected visible row */
+#define TextBox(x, y, w, h, z, id) ((void (*)(int, int, int, int, int, int))(0x0306477Cu | 1))(x, y, w, h, z, id)
+#define DrawImage(i, x, y)         ((void (*)(uint32_t, int, int))(0x03064FFCu | 1))(i, x, y)
+#define SEL_ROW  (*(volatile uint8_t *)0x03025BD2u)       /* m22 ZI: selected visible row */
 #define TEXT_DY  0x42                                     /* stock: text y = 0x42 + 23 * row; row top = 0x3D + 23 * row */
 #define SHIFT    26
 
@@ -40,9 +40,9 @@ static void hook_bw(uint32_t at, uint32_t to, uint32_t stock)
 
 static void tlog_install(void)
 {
-    hook_bw(0x030680D4u, (uint32_t)H_t_task, 0x18702E4Bu);     /* TaskSwitch: ldr r3, [pc, #0xb8]; strb r0, [r3] */
-    hook_bw(0x030683DEu, (uint32_t)H_t_ovl, 0x4FF0E92Du);      /* ModuleOverlay: push.w {r4-r11, lr} */
-    hook_bw(0x030661A4u, (uint32_t)H_t_irq, 0x43F0E92Du);      /* audio refill: push.w {r4-r9, lr} */
+    hook_bw(0x030683F0u, (uint32_t)H_t_task, 0x18702E4Bu);     /* TaskSwitch: ldr r3, [pc, #0xb8]; strb r0, [r3] */
+    hook_bw(0x030686FAu, (uint32_t)H_t_ovl, 0x4FF0E92Du);      /* ModuleOverlay: push.w {r4-r11, lr} */
+    hook_bw(0x03066480u, (uint32_t)H_t_irq, 0x43F0E92Du);      /* audio refill: push.w {r4-r9, lr} */
 }
 #endif
 

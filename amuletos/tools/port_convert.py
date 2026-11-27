@@ -14,7 +14,7 @@ Addresses in docs/ (amuletOS's notes) stay V1.7.8; docs/port/v183_addresses.tsv 
 """
 import collections, json, os, re, sys
 
-ADDR = re.compile(r"0[xX](0?[0-9A-Fa-f]{7,8})\b")
+ADDR = re.compile(r"0[xX](0?[0-9A-Fa-f]{7,8})(?=[uUlL]*\b)")       # C literals may carry a u / UL suffix
 
 
 def fmt(tok, v):

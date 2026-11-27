@@ -7,12 +7,12 @@
  * "Starting music"). First attempt from static analysis: every step reports a status so a wrong guess shows
  * up as a plain label on screen (MUSIC panel) and as numbers on the INFO page, never as a silent failure. */
 
-#define SYSC   0x03022894u      /* system config */
-#define PREC   0x03022F14u      /* music source record */
-#define PHAND  0x030232BCu      /* player thread handle */
-#define PDESC  0x030361A4u      /* player thread descriptor (module 33) */
+#define SYSC   0x030248d4u      /* system config */
+#define PREC   0x03024F54u      /* music source record */
+#define PHAND  0x030252FCu      /* player thread handle */
+#define PDESC  0x03038230u      /* player thread descriptor (module 33) */
 #ifndef BGWALK_HOST
-#define FILTER ((const void *)0x030056EBu)   /* "MP1MP2MP3WMA..." audio extension list */
+#define FILTER ((const void *)0x0300570Bu)   /* "MP1MP2MP3WMA..." audio extension list */
 #endif
 #define FTYPE  6u               /* entry type the library scanner uses */
 
@@ -73,7 +73,7 @@ static uint32_t m_random(uint32_t n)
  * Owner's card: /_blockgame/ = cluster 0x000A0C32 (Windows LCN 0xA0C30), one file. */
 #ifndef BGWALK_HOST             /* game/test/test_bgwalk.c supplies these */
 #define ReadSec(l, b) STOCK_FN(0x03057FA4, uint32_t, uint32_t, void *)(l, b)
-#define VOLI      0x0307E710u   /* +0 FS type (3 = exFAT), +2 sectors/cluster shift, +4 bytes/sector shift;
+#define VOLI      0x0307EBE0u   /* +0 FS type (3 = exFAT), +2 sectors/cluster shift, +4 bytes/sector shift;
                                    +0x0C volume info: +0x0D root cluster, +0x1F heap LBA, +0x23 partition LBA */
 #endif
 #define WALK_STEP 4             /* sectors per service call */
@@ -256,7 +256,7 @@ static void bgm_play(void)
     RecPrepare();                                          /* the browser's play-request prep */
     *(volatile uint16_t *)0x03024BEC = 0x63;
     *(volatile uint16_t *)(PREC + 0xF2) = 0x63;            /* source as when playing from Folders */
-    *(volatile uint32_t *)(PREC + 0x10) = 0x030056C0u;
+    *(volatile uint32_t *)(PREC + 0x10) = 0x030056E0u;
     *(volatile uint32_t *)(PREC + 0x34) = M.clus;
     *(volatile uint32_t *)(PREC + 0x38) = order[0];
     *(volatile uint16_t *)(PREC + 0) = (uint16_t)n;
@@ -268,11 +268,11 @@ static void bgm_play(void)
     *(volatile uint8_t *)(SYSC + 0x64) = 0;                /* no resume point */
     static uint16_t arg[14];
     arg[0] = 1; arg[1] = 0x46;
-    *(volatile uint16_t *)0x0302283Cu = arg[1];           /* as Now Playing's init */
+    *(volatile uint16_t *)0x0302487Cu = arg[1];           /* as Now Playing's init */
     ThreadDelete(PHAND);
     ModuleLoad(33);
     ThreadCreate(PHAND, PDESC, arg);
-    *(volatile uint8_t *)0x030483C8u = 1;                  /* 0x0308D488(1) in Now Playing's init */
+    *(volatile uint8_t *)0x0304A458u = 1;                  /* 0x0308D488(1) in Now Playing's init */
     M.cur = order[0];
     if (ThreadRunning(m_rd32(PHAND), PDESC) != 1) { M.status = BGM_ERRSTART; return; }
     M.status = BGM_PLAY;

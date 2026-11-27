@@ -9,7 +9,7 @@
 
 #ifndef EXFAT_HOST
 #define ReadSec(l, b) STOCK_FN(0x03057FA4, uint32_t, uint32_t, void *)(l, b)
-#define EX_VOL        ((const volatile uint8_t *)0x0307E710u)
+#define EX_VOL        ((const volatile uint8_t *)0x0307EBE0u)
 #endif
 
 #define EX_MAXSEC 8192          /* sectors per directory before giving up (4 MB) */
