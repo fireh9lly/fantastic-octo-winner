@@ -4,8 +4,8 @@ The first image of this fork to run on a player. Everything below has only been 
 verifies, the code was reviewed against both firmware versions and the PC tests pass. Work through it in order and
 note anything odd, with a photo where it helps. Stop at the first crash or freeze and say what you did just before.
 
-**Build:** `./build.sh ~/Downloads/HIFIYF23.IMG` (official V1.8.3, SHA-256 `79d186f5…`), stamp `2620261101000000`
-(newer than anything flashed so far, so the player installs it).
+**Build:** `./build.sh ~/Downloads/HIFIYF23.IMG BUILD_DIR 2620271114000000` (official V1.8.3, SHA-256 `79d186f5…`),
+stamp 27 Nov build 14: the build number must beat the installed one's (13), it counts before the date.
 
 ## Before flashing
 

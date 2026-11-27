@@ -29,6 +29,10 @@ This writes `build-dir/out/HIFIYF23.IMG`, the same file name as Hidizs's update.
 **Status (2026-11-27): the build runs end to end and passes the image checks; the first test build is ready for
 the on-device checklist (`docs/TEST_V183.md`).**
 
+Stamp: the player keeps two firmware copies and boots the one with the "newer" stamp, where the **build number
+counts before the date** (seen 2026-11-27: 26 Nov build 01 lost to 23 Nov build 13 and the update seemed to do
+nothing). Pass `./build.sh STOCK_IMG BUILD_DIR STAMP16` with a build number above the installed one.
+
 Reproducibility: with the pinned compiler, the code, fonts and text sections come out byte-identical on different
 machines. The menu labels are drawn with FreeType (art/orange.py, Inter), so different Pillow / FreeType versions can
 change a few anti-aliased pixels in the menu cards (seen 2026-11-27: Pillow 10.2 / FreeType 2.13 vs 13.0 / 2.14,

@@ -41,6 +41,9 @@ the next boot (the screen can stay black for a minute or two) and deletes the fi
 stamp must be newer than the installed one.**
 
 - Stamp format: `YY YY DD MM BB 00 00 00`, BCD, year little-endian, then day, month, build.
+  - Fork note (2026-11-27, V1.8.3): the update (module 8, FwUpdate.c) only checks the header and the backup header
+    and writes the file to the second firmware copy; at the next start the loader boots the copy with the newer
+    stamp, and the **build byte counts first** (26 Nov build 01 lost to 23 Nov build 13). Always raise the build.
   Today's builds use `26 20 07 11 BB`. Next free build number: **27** (`2620071127000000`).
 - **Low battery makes the updater silently eat the file without flashing.** Charge first.
 - Pressing **B on the USB-transfer screen drops USB** (goes back to the main menu).

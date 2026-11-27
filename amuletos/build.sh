@@ -5,8 +5,11 @@
 #
 #   STOCK_IMG  official firmware V1.8.3 HIFIYF23.IMG (SHA-256 79d186f5...), from the Hidizs download center
 #   BUILD_DIR  work folder (default: build/); the image ends up in BUILD_DIR/out/HIFIYF23.IMG
-#   STAMP16    firmware stamp, YY YY DD MM BB 00 00 00 in BCD (default 2620261101000000 = 26 Nov 2026, build 01;
-#              it must be newer than the firmware installed on the player, V1.8.3 is 2620231103000000)
+#   STAMP16    firmware stamp, YY YY DD MM BB 00 00 00 in BCD (default 2620271114000000 = 27 Nov 2026, build 14).
+#              The player keeps two firmware copies and boots the one whose stamp is "newer", and the BUILD byte
+#              counts first (2026-11-27: 26 Nov build 01 lost to 23 Nov build 13). So raise the build number on every
+#              image: it must be higher than the installed one's (stock V1.8.3 is build 03; the owner's player has had
+#              builds up to 13). BCD, so at most 99.
 #
 # The steps follow amuletOS v0.3's release build (build/b60.sh plus the art steps in docs/HANDOFF.md, section 2).
 # The source was converted from V1.7.8 to V1.8.3 addresses by tools/port_convert.py; commit 21f8ac1 is the last
@@ -17,7 +20,7 @@ set -euo pipefail
 
 STOCK_IMG=${1:?usage: ./build.sh STOCK_IMG [BUILD_DIR] [STAMP16]}
 B=${2:-build}
-STAMP=${3:-2620261101000000}
+STAMP=${3:-2620271114000000}
 PY=${PYTHON:-python3}
 cd "$(dirname "$0")"
 mkdir -p "$B"
