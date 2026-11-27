@@ -43,14 +43,17 @@
 
 /* Pocket list look (art/pocket.py list_bg / selection_bar), drawn with FillRect only: build 35 drew stock images
  * and text, which showed black with white text in this game-task window (Blockz also draws only with fills). */
-#define C_INK    RGB565(0x23, 0x25, 0x2e)
-#define C_DIM    RGB565(0x7d, 0x82, 0x91)
-#define C_WHITE  RGB565(0xff, 0xff, 0xff)
-#define C_HEAD   RGB565(0xf2, 0xf3, 0xf6)
-#define C_TRACK  RGB565(0xdf, 0xe1, 0xe8)
-#define C_SCREEN RGB565(0xfb, 0xfb, 0xf8)
-#define C_TINT   RGB565(0xe9, 0xe3, 0xfb)
-#define C_GRAPE  RGB565(0x73, 0x53, 0xe0)
+#include "theme.h"                     /* colours (art/orange.py draws the stock lists to match) */
+#define C_INK    TH565(TH_TEXT)            /* text */
+#define C_DIM    TH565(TH_DIM)
+#define C_WHITE  TH565(TH_BG)              /* row background (was white) */
+#define C_BAND   TH565(TH_BAND)            /* status band */
+#define C_RULE   TH565(TH_RULE)            /* rules, footer */
+#define C_HEAD   TH565(TH_HEAD)
+#define C_TRACK  TH565(TH_ROWLINE)         /* row separators */
+#define C_SCREEN TH565(TH_BG)
+#define C_TINT   TH565(TH_SEL)             /* selected row */
+#define C_GRAPE  TH565(TH_ACCENT)          /* selection edge, icons */
 #define ROW_Y   61
 #define ROW_H   23
 #define ROWS    7
@@ -192,12 +195,12 @@ static void paint(void)
     S.dirty = 0;
     uint16_t old = COLOR;
     static uint16_t b[40];
-    fill(0, 0, 295, 32, C_WHITE);                          /* status band */
-    fill(0, 33, 295, 34, C_INK);
+    fill(0, 0, 295, 32, C_BAND);                           /* status band */
+    fill(0, 33, 295, 34, C_RULE);
     fill(0, 35, 295, 58, C_HEAD);                          /* header */
-    fill(0, 59, 295, 60, C_INK);
-    fill(0, 221, 295, 222, C_INK);
-    fill(0, 223, 295, 239, C_SCREEN);
+    fill(0, 59, 295, 60, C_RULE);
+    fill(0, 221, 295, 222, C_RULE);
+    fill(0, 223, 295, 239, C_RULE);                        /* footer band */
     a16(b, "Playlists");
     text(12, 39, b, C_INK, 200);
     const char *msg = 0;

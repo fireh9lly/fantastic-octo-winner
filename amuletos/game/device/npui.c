@@ -11,11 +11,13 @@
 typedef struct { uint16_t x0, y0, x1, y1; } rect_t;
 
 #define RGB(h) ((uint16_t)((((h) >> 19) & 0x1F) << 11 | (((h) >> 10) & 0x3F) << 5 | (((h) >> 3) & 0x1F)))
-/* Pocket look (owner, 2026-11-11; art/pocket.py now_playing() draws the frames these sit in) */
-#define C_PANEL  RGB(0xffffff)     /* frame fill and status band */
-#define C_TEXT   RGB(0x23252e)     /* ink */
-#define C_ACCENT RGB(0x7353e0)     /* grape: artist, bar fill */
-#define C_TRACK  RGB(0xdfe1e8)
+/* colours: theme.h (art/orange.py now_playing() draws the frames these sit in) */
+#include "theme.h"
+#define C_PANEL  RGB(TH_PANEL)     /* frame fill */
+#define C_BAND   RGB(TH_BAND)      /* status band (track counter) */
+#define C_TEXT   RGB(TH_TEXT)
+#define C_ACCENT RGB(TH_ACCENT)    /* artist, bar fill */
+#define C_TRACK  RGB(TH_TRACK)
 
 /* layout (screen pixels): right frame fill x 148..281 / y 44..163, bottom frame fill x 23..272 / y 174..227;
  * frames have 8 px rounded corners (art/pocket.py R_NP), so fills stay 6 px clear of the frame corners */
@@ -130,7 +132,7 @@ void np_count(uint32_t n, uint32_t total)
 {
     uint16_t s[24], *p = put_num(s, n, 1);
     *p++ = '/'; p = put_num(p, total, 1); *p = 0;
-    fill(COUNT_X, COUNT_Y, 102, COUNT_Y + 16, C_PANEL);
+    fill(COUNT_X, COUNT_Y, 102, COUNT_Y + 16, C_BAND);
     SetFont(2);
     COLOR = C_TEXT;
     Text(COUNT_X, COUNT_Y, s);

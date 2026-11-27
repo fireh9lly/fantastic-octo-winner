@@ -5,7 +5,12 @@ Neutral greys map onto a navy-tinted ramp (black -> deep navy, light grey -> cre
 warm beige/tan (the Hidizs accent) maps onto gold, and its pale tints (selection
 highlights) onto a lavender tint. Other hues (coloured SDK icons) are kept.
 
-  python art/recolor.py STOCK_PNG_DIR HANDMADE_DIR OUTDIR [pocket]
+  python art/recolor.py STOCK_PNG_DIR HANDMADE_DIR OUTDIR [pocket|orange]
+
+orange (owner's orange theme on black, art/orange.py): the mapping of their dark theme (its tools/dark.py): images
+with a light background get their neutrals inverted (white -> near black, dark greys -> light), stock's blue
+highlights turn into the brown selection colour and the Hidizs tan into orange; dark images and small icons (status
+band, list rows: up to 48 px) keep their look and only the tan turns orange.
 """
 import os, sys
 import numpy as np
@@ -47,11 +52,32 @@ def recolor(a):
     out[key] = a[key]
     return np.clip(out, 0, 255).astype(np.uint8)
 
+ORANGE = np.array([255, 130, 0.])
+SEL = np.array([148, 62, 0.])                                                # art/orange.py "sel"
+
+def recolor_orange(a):
+    f = a.astype(float)
+    tan = np.clip((f[..., 0] - f[..., 2] - 20) / 50, 0, 1)[..., None]       # dark.py: how warm (Hidizs tan)
+    l = f.mean(2, keepdims=True)
+    h, w = a.shape[:2]
+    light = (0.3 * f[..., 0] + 0.59 * f[..., 1] + 0.11 * f[..., 2]).mean() > 140
+    if light and max(w, h) > 48:                    # panels and backgrounds: invert the neutrals
+        v = np.where(l >= 234, np.clip((l - 240) * 2.4, 0, 36), np.clip((234 - l) * 1.1, 0, 255))
+        neutral = np.repeat(v, 3, 2)
+        blue = np.clip((f[..., 2] - f[..., 0] - 40) / 60, 0, 1)[..., None]  # stock's blue highlights -> selection
+        neutral = neutral * (1 - blue) + SEL * (l / 200).clip(0.6, 1.2) * blue
+    else:                                           # dark images, and small icons (status band, list rows) as stock
+        neutral = f
+    out = neutral * (1 - tan) + ORANGE * (l / 255 * 1.4).clip(0.35, 1) * tan
+    return np.clip(out, 0, 255).astype(np.uint8)
+
 def main():
-    global GREY, WARM
+    global GREY, WARM, recolor
     src, hand, out = sys.argv[1:4]
     if sys.argv[4:5] == ["pocket"]:
         GREY, WARM = POCKET_GREY, POCKET_WARM
+    elif sys.argv[4:5] == ["orange"]:
+        recolor = recolor_orange
     os.makedirs(out, exist_ok=True)
     done = {f for f in os.listdir(hand) if f.endswith(".png")}
     n = 0

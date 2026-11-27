@@ -29,8 +29,8 @@ GCC=$("$PY" -c 'import sys; sys.path.insert(0, "tools"); from toolchain import t
 step "toolchain: $GCC ($("$GCC" -dumpversion)); amuletOS v0.3 used 13.3.1"
 
 step "unpack stock image"
-rm -rf "$B/stock" "$B/amu" "$B/img_stock" "$B/font_tall" "$B/art_pocket" "$B/art_pocket_auto" "$B/art_pocket_all" \
-       "$B/art_boot" "$B/d1h" "$B/d1h_o" "$B/d1h_e" "$B/d1h_np" "$B/d1h_np_bz" "$B/d1h_np_bz_pl" "$B/d1h_np_bz_pl_gb" "$B/v060"
+rm -rf "$B/stock" "$B/amu" "$B/img_stock" "$B/art_orange" "$B/art_orange_auto" "$B/art_pocket_all" \
+       "$B/d1h" "$B/d1h_o" "$B/d1h_e" "$B/d1h_np" "$B/d1h_np_bz" "$B/d1h_np_bz_pl" "$B/d1h_np_bz_pl_gb" "$B/v060"
 "$PY" tools/ap30fw.py verify "$STOCK_IMG" >> "$LOG"
 SHA_IN=$( (sha256sum "$STOCK_IMG" 2>/dev/null || shasum -a 256 "$STOCK_IMG") | cut -d' ' -f1)
 if [ "$SHA_IN" != 79d186f5f2fe60e46a3ff3a54f91221675fdfe2802654f7fab8d046f12aaba55 ]; then
@@ -41,26 +41,13 @@ fi
 step "identity hook (USB name AMULETOS, module slot 2)"
 "$PY" tools/build_hook.py amu 2620071136000000 --src "$B/stock" --out "$B/amu" >> "$LOG"
 
-step "art: stock images, tall font, Pocket screens, recolour, boot splash"
+step "art: stock images, orange theme on black (art/orange.py), recolour; stock font"
 "$PY" tools/imgres.py export "$B/stock/images.bin" "$B/img_stock" >> "$LOG"
-mkdir -p "$B/font_tall"
-"$PY" - "$B/stock" "$B/font_tall" <<'EOF' >> "$LOG"
-import os, sys
-sys.path.insert(0, "art")
-import font
-src, out = sys.argv[1:3]
-f0, f1 = (open(os.path.join(src, n), "rb").read() for n in ("font0.bin", "font1.bin"))
-n0, n1 = font.patch_fonts(f0, f1, "tall")
-open(os.path.join(out, "font0.bin"), "wb").write(n0)
-open(os.path.join(out, "font1.bin"), "wb").write(n1)
-print("tall font written to", out)
-EOF
-"$PY" art/pocket.py "$B/art_pocket" "$B/font_tall" "$B/img_stock" >> "$LOG"
-"$PY" art/recolor.py "$B/img_stock" "$B/art_pocket" "$B/art_pocket_auto" pocket >> "$LOG"
+# owner's orange theme on black (2026-11-27; amuletOS's Pocket look and tall font: git history, art/pocket.py)
+"$PY" art/orange.py "$B/art_orange" >> "$LOG"
+"$PY" art/recolor.py "$B/img_stock" "$B/art_orange" "$B/art_orange_auto" orange >> "$LOG"
 mkdir -p "$B/art_pocket_all"
-cp "$B"/art_pocket_auto/*.png "$B"/art_pocket/*.png "$B/art_pocket_all/"
-"$PY" art/boot_splash.py "$B/art_boot" v0.3 >> "$LOG"
-cp "$B/art_boot/000.png" "$B/art_boot/002.png" "$B/art_pocket_all/"
+cp "$B"/art_orange_auto/*.png "$B"/art_orange/*.png "$B/art_pocket_all/"
 
 step "code: slot-2 helpers, Now Playing overlay, menu extensions, patches, modules"
 "$PY" tools/build_helpers.py "$B/amu" "$B/d1h" game/device/np_helpers.c game/device/np_stub.S game/device/libscan.c >> "$LOG"
@@ -69,13 +56,13 @@ step "code: slot-2 helpers, Now Playing overlay, menu extensions, patches, modul
 "$PY" tools/build_overlay.py "$B/d1h" "$B/d1h_o" game/device/npui.c --slot 28 --run 0x030843DC --max 0x758 --at 0x5B8D0 --json npui.json >> "$LOG"
 "$PY" tools/extend_module.py "$B/d1h_o" "$B/d1h_e" game/device/m21_ext.S game/device/m21_ext.c --module 21 --json e21.json >> "$LOG"
 "$PY" tools/extend_module.py "$B/d1h_e" "$B/d1h_e" game/device/m22_ext.S game/device/m22_ext.c --module 22 --json e22.json >> "$LOG"
-"$PY" tools/patch_code.py "$B/d1h_e" "$B/d1h_np" np_v4,np_hide_format,menu_games_to_blockz,lib_skip,menu_carousel,music_update,playlists,keep_settings,english,np_back_home,games_back,settings_game,usb_dac_handover >> "$LOG"
+"$PY" tools/patch_code.py "$B/d1h_e" "$B/d1h_np" np_v4,np_hide_format,menu_games_to_blockz,lib_skip,menu_carousel,music_update,playlists,keep_settings,english,np_back_home,games_back,settings_game,usb_dac_handover,dark_text >> "$LOG"
 "$PY" tools/build_module.py "$B/d1h_np" "$B/d1h_np_bz" game/device/blockz.c --at 0x58CD0 >> "$LOG" 2>&1
 "$PY" tools/build_module.py "$B/d1h_np_bz" "$B/d1h_np_bz_pl" game/device/playlists.c --module 86 --in-place --desc pl_desc --data-max 0xD00 >> "$LOG" 2>&1
 "$PY" tools/build_module.py "$B/d1h_np_bz_pl" "$B/d1h_np_bz_pl_gb" game/device/gbprobe.c --module 87 --span 0x968bc:0xa68c0 --desc gb_desc --opt O2 --data-max 0xD00 >> "$LOG" 2>&1
 
-step "pack: art + tall font, stamp $STAMP"
-"$PY" tools/build_reskin.py "$B/d1h_np_bz_pl_gb" "$B/art_pocket_all" "$STAMP" --out "$B/v060" --font tall >> "$LOG"
+step "pack: art, stamp $STAMP"
+"$PY" tools/build_reskin.py "$B/d1h_np_bz_pl_gb" "$B/art_pocket_all" "$STAMP" --out "$B/v060" >> "$LOG"
 
 step "done"
 mkdir -p "$B/out"

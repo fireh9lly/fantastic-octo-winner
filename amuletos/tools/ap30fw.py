@@ -14,7 +14,7 @@ Layout (from HIFIYF18.IMG, V1.7.8):
          'RKnano SDK 1.0' @0x30, section groups from 0x50, backup header
          offset (u32) @0x1F4, 'RKnanoFW' @0x1F8
   ...    sections, packed back to back from 0x200
-  align  backup copy of the header at the next 64 KiB boundary
+  align  backup copy of the header at the next 32 KiB boundary (as both official images)
   pad    zeros up to the next 1 MiB boundary
   last 4 bytes: Rockchip CRC32 (poly 0x04C10DB7, MSB first, init 0) of all
          preceding bytes, little endian
@@ -24,7 +24,7 @@ import argparse, json, os, struct, sys
 HDR = 0x200
 MAGIC_OFF, MAGIC = 0x1F8, b"RKnanoFW"
 BACKUP_PTR = 0x1F4
-BACKUP_ALIGN = 0x10000
+BACKUP_ALIGN = 0x8000           # Hidizs: V1.8.3 sections end 0x1B95B08 -> backup 0x1B98000 (32 KiB); V1.7.8 0x1B90000 either way
 TOTAL_ALIGN = 0x100000
 
 # Section groups: (table offset, group name, names of the entries in order).

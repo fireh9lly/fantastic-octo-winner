@@ -63,14 +63,17 @@ extern char _text_end[];             /* module.ld: end of this module's code */
 #define K_A        0x080
 #define K_LEFT     0x008
 
-#define C_INK    RGB565(0x23, 0x25, 0x2e)
-#define C_DIM    RGB565(0x7d, 0x82, 0x91)
-#define C_WHITE  RGB565(0xff, 0xff, 0xff)
-#define C_HEAD   RGB565(0xf2, 0xf3, 0xf6)
-#define C_TRACK  RGB565(0xdf, 0xe1, 0xe8)
-#define C_SCREEN RGB565(0xfb, 0xfb, 0xf8)
-#define C_TINT   RGB565(0xe9, 0xe3, 0xfb)
-#define C_GRAPE  RGB565(0x73, 0x53, 0xe0)
+#include "theme.h"                     /* colours (art/orange.py draws the stock lists to match) */
+#define C_INK    TH565(TH_TEXT)            /* text */
+#define C_DIM    TH565(TH_DIM)
+#define C_WHITE  TH565(TH_BG)              /* row background (was white) */
+#define C_BAND   TH565(TH_BAND)            /* status band */
+#define C_RULE   TH565(TH_RULE)            /* rules, footer */
+#define C_HEAD   TH565(TH_HEAD)
+#define C_TRACK  TH565(TH_ROWLINE)         /* row separators */
+#define C_SCREEN TH565(TH_BG)
+#define C_TINT   TH565(TH_SEL)             /* selected row */
+#define C_GRAPE  TH565(TH_ACCENT)          /* selection edge, icons */
 
 #define FRAME_US 16743u              /* 70224 cycles at 4.194304 MHz */
 #define ROWS     7
@@ -751,12 +754,12 @@ static void paint(void)
     S.dirty = 0;
     if (S.state == ST_RUN || S.state == ST_QUIT) return;
     uint16_t old = COLOR;
-    fill(0, 0, 295, 32, C_WHITE);
-    fill(0, 33, 295, 34, C_INK);
+    fill(0, 0, 295, 32, C_BAND);
+    fill(0, 33, 295, 34, C_RULE);
     fill(0, 35, 295, 58, C_HEAD);
-    fill(0, 59, 295, 60, C_INK);
-    fill(0, 221, 295, 222, C_INK);
-    fill(0, 223, 295, 239, C_SCREEN);
+    fill(0, 59, 295, 60, C_RULE);
+    fill(0, 221, 295, 222, C_RULE);
+    fill(0, 223, 295, 239, C_RULE);
     say(12, 39, C_INK, S.state == ST_TIMING ? "Timing" : "Games", 0, 0, 0, 0, 0);
     for (int r = 0; r < ROWS; r++) fill(0, 61 + r * 23, 295, 61 + r * 23 + 22, C_WHITE);
     if (S.state == ST_TIMING) { timing_paint(); COLOR = old; return; }
