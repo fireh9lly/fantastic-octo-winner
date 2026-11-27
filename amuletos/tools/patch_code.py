@@ -40,6 +40,18 @@ PATCHES = {
         (27, 0x03082F96, "e1f75cf9", NOP2),   # line 3 genre text
         (27, 0x03082FD4, "e1f7d2fb", NOP2),   # line 3 empty fallback
     ],
+    # USB DAC (module 9, FunUSB.c; 2026-11-27): phones never saw the DAC (Realtek chip, 0bda:4a35). While the File
+    # transfer / USB audio question is up, the RKNano is connected to USB but answers nothing; picking DAC moved the
+    # USB switch (GPIO0 pin 14) straight to the Realtek, so the host saw no unplug and a phone that had given up never
+    # looked again. Soft-disconnect the RKNano first (DCTL 0x60080804 |= 2, as module 10 does on eject), wait 800 ms,
+    # then the stock switch (block 5). Blocks 2 and 4 repeated other steps. Tested on the owner's Xiaomi 14 Ultra
+    # (tools/dac_handover.py, which applies the same bytes to a stock or themed image).
+    "usb_dac_handover": [
+        (9, 0x03084CEE, "00220e211046cdf782ff01220e210020d2f703f900220e211046d2f71bf9",
+                        "40f60000c6f208004168022211434160c820e1f798f8ddf716ff00bf00bf"),
+        (9, 0x03084D2A, "002204210120cdf764ff012204211046d2f7e5f8012204211046d2f7fdf8",
+                        "c820e1f782f8ddf700ffc820e1f77df8ddf7fbfec820e1f778f8ddf7f6fe"),
+    ],
     # Build 18 tried this; 0x03048450 turned out to be the file name, not the title. Superseded by np_title_tag.
     "np_title_not_filename": [
         (27, 0x03083a20, "fc480203", "50840403"),   # literal pool word 0x030248FC -> 0x03048450

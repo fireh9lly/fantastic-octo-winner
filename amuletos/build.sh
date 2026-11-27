@@ -69,7 +69,7 @@ step "code: slot-2 helpers, Now Playing overlay, menu extensions, patches, modul
 "$PY" tools/build_overlay.py "$B/d1h" "$B/d1h_o" game/device/npui.c --slot 28 --run 0x030843DC --max 0x758 --at 0x5B8D0 --json npui.json >> "$LOG"
 "$PY" tools/extend_module.py "$B/d1h_o" "$B/d1h_e" game/device/m21_ext.S game/device/m21_ext.c --module 21 --json e21.json >> "$LOG"
 "$PY" tools/extend_module.py "$B/d1h_e" "$B/d1h_e" game/device/m22_ext.S game/device/m22_ext.c --module 22 --json e22.json >> "$LOG"
-"$PY" tools/patch_code.py "$B/d1h_e" "$B/d1h_np" np_v4,np_hide_format,menu_games_to_blockz,lib_skip,menu_carousel,music_update,playlists,keep_settings,english,np_back_home,games_back,settings_game >> "$LOG"
+"$PY" tools/patch_code.py "$B/d1h_e" "$B/d1h_np" np_v4,np_hide_format,menu_games_to_blockz,lib_skip,menu_carousel,music_update,playlists,keep_settings,english,np_back_home,games_back,settings_game,usb_dac_handover >> "$LOG"
 "$PY" tools/build_module.py "$B/d1h_np" "$B/d1h_np_bz" game/device/blockz.c --at 0x58CD0 >> "$LOG" 2>&1
 "$PY" tools/build_module.py "$B/d1h_np_bz" "$B/d1h_np_bz_pl" game/device/playlists.c --module 86 --in-place --desc pl_desc --data-max 0xD00 >> "$LOG" 2>&1
 "$PY" tools/build_module.py "$B/d1h_np_bz_pl" "$B/d1h_np_bz_pl_gb" game/device/gbprobe.c --module 87 --span 0x968bc:0xa68c0 --desc gb_desc --opt O2 --data-max 0xD00 >> "$LOG" 2>&1

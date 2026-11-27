@@ -24,7 +24,7 @@ import xlate  # noqa: E402
 NOT_BUILT = ("hooks/h0_inquiry.S", "hooks/h0a_pass.S", "hooks/d1_diag.S", "game/device/timing.S",
              "game/device/timing.c")
 PATCH_NAMES = ("np_v4,np_hide_format,menu_games_to_blockz,lib_skip,menu_carousel,music_update,playlists,"
-               "keep_settings,english,np_back_home,games_back,settings_game").split(",")   # build.sh
+               "keep_settings,english,np_back_home,games_back,settings_game,usb_dac_handover").split(",")   # build.sh
 W = 6
 
 
