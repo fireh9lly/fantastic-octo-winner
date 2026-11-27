@@ -26,8 +26,13 @@ built from it.**
 This writes `build-dir/out/HIFIYF23.IMG`, the same file name as Hidizs's update. The default `build-dir` is
 `build/`, which git ignores, and the log is in `build-dir/build.log`.
 
-**Status (2026-11-27): the build runs end to end and passes the image checks, but the image has not been tested
-on a player yet.** Don't flash it until the remaining address review (PLAN.md, Step 1) is done.
+**Status (2026-11-27): the build runs end to end and passes the image checks; the first test build is ready for
+the on-device checklist (`docs/TEST_V183.md`).**
+
+Reproducibility: with the pinned compiler, the code, fonts and text sections come out byte-identical on different
+machines. The menu labels are drawn with FreeType (art/orange.py, Inter), so different Pillow / FreeType versions can
+change a few anti-aliased pixels in the menu cards (seen 2026-11-27: Pillow 10.2 / FreeType 2.13 vs 13.0 / 2.14,
+five images: 014, 018, 020, 022, 024) and so the image hash.
 `tools/resident.py` still guards the always-loaded code: it must stay above module 39 (the music-library builder,
 which reaches 0x0309FC9C on V1.8.3), in 0x0309FC9C..0x0309FF28.
 
