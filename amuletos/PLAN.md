@@ -4,8 +4,8 @@ A custom firmware for the Hidizs AP30 "Music Boy", forked from [amuletOS](https:
 v0.3 and rebased onto Hidizs's official **V1.8.3**. It is its own project now: no compatibility with amuletOS updates
 is kept.
 
-Status: **planning only.** Nothing in this document has been built or run on a device yet, except the early
-draft noted under [Step 2](#step-2-four-way-home-menu). Firmware addresses come from disassembling the official
+Status: **Step 1 builds and runs on the owner's player** (build 14, 2026-11-27). Everything after it is still a
+plan, apart from the early draft noted under [Step 2](#step-2-four-way-home-menu). Firmware addresses come from disassembling the official
 images with amuletOS's tools (`tools/ap30fw.py`, `tools/fwdis.py`) and Capstone. They are facts about the code,
 but none has been tested on hardware.
 
@@ -23,7 +23,9 @@ Never commit Hidizs firmware images (`HIFIYF18.IMG`, `HIFIYF23.IMG`) or anything
 | Mood playlists | 2D mood map (calm↔intense × dark↔bright), A plays a cell, tracks play from the start |
 | Mood analysis | PC script on Linux x86_64 using Essentia's arousal/valence and voice/instrumental models |
 | E-reader | Repurposed as **D-pad adventures** only |
-| Themes | Six built in (Game Boy, Cute pink, Black & orange, EVA-01, Light, Dark), SD-card theme packs later |
+| Look | Flat colour and cut-out blobs, no gloss; textured highlight bars; black & orange by default ([Look and feel](#look-and-feel-decided-2026-11-27)) |
+| Colourways | Five, after the AP30's colourways: black & orange, paper & orange, EVA, aqua, candy. SD-card theme packs later |
+| Pet | A one-eyed creature that eats your music: adult at 20 h of listening, five forms from the mood map, re-decided every 10 h, lockable from a gallery. Never hungry, never dies ([The pet](#the-pet)) |
 | Music videos | Not planned (no video code in the firmware; would need a fully custom player) |
 
 ## Build order
@@ -32,11 +34,65 @@ Never commit Hidizs firmware images (`HIFIYF18.IMG`, `HIFIYF23.IMG`) or anything
 2. [Four-way home menu](#step-2-four-way-home-menu)
 3. [M3U engine v2](#step-3-m3u-engine-v2) + [mood map and Instrumentals](#step-4-mood-map-and-instrumentals)
 4. [Visualiser](#step-5-visualiser): classic styles → USB DAC mode → Plasma → SD presets
-5. [Themes, sleep timer, D-pad adventures, small extras](#step-6-themes-sleep-timer-adventures-extras)
+5. [Colourways, the pet, sleep timer, D-pad adventures, small extras](#step-6-themes-sleep-timer-adventures-extras)
 6. [Playback screen, gapless FLAC, MP3 gapless research](#step-7-playback-options-and-gapless)
 
 Each step ends with a flashable image and an on-device check. Recovery if a flash goes wrong: hold a D-pad
 corner + A + B while plugging in USB (BootROM loader mode), then restore with `tools/rkwrite.py`.
+
+---
+
+## Look and feel (decided 2026-11-27)
+
+Mock-ups: [`docs/design/ui/overview.png`](docs/design/ui/overview.png), plus one PNG per screen at the real
+296×240 in the same folder, drawn by [`art/mockups/overview.py`](art/mockups/README.md). They are PC renders only.
+They came out of a mood board: patterned wooden face blocks, Masayoshi Hanawa's monster figures, a Memphis-pattern
+candy bowl, patchwork vinyl cubes, a neon resin table and sun-face cosmetics.
+
+- **Style:**
+  - flat colour: no gloss, outlines or drop shadows;
+  - organic cut-out blobs and plain rectangles;
+  - big lowercase headings;
+  - small monospace text for times, track numbers and formats.
+  The mock-ups use Inter Display and JetBrains Mono as stand-ins until we design our own fonts.
+- **Colourways** (Settings › Look › colours), modelled on the AP30's colourways. Hex values are in `THEMES` in
+  `art/mockups/colourways.py`.
+
+  | Colourway | Background | Highlight and details |
+  |---|---|---|
+  | **black & orange** (default) | near-black | orange, cream text |
+  | paper & orange | off-white | orange highlight, black details |
+  | EVA | deep purple | slime green highlight, orange accents |
+  | aqua | pale blue | aqua highlight, soft blue, navy text; low contrast, easy on the eyes |
+  | candy | the candy bowl's purple | pink, yellow, mint and orange taking turns |
+
+- **Highlight on scrolling menus:** a plain rectangle in the highlight colour, printed in a darker shade with dots,
+  diagonal lines or waves, after the candy bowl. Settings › Look › highlight:
+  - **mix** (default): each list gets one of the three at random;
+  - dots, lines or waves: always that one;
+  - plain: no texture.
+
+  Still open: whether mix picks again every time a screen opens, or keeps one per screen.
+- **The creature** ([the pet](#the-pet)) appears on most screens:
+  - in the middle of the home screen;
+  - in the corner of lists, looking at the highlighted row;
+  - at the end of Now Playing's progress line, watching the playhead.
+
+  Its eye looks where you point. Settings › Look can turn that off ("eye follows you") or hide the creature
+  ("show creature").
+- **Creatures take the colourway's colours.** It is the same creature through a different lens; the gallery does not
+  record colours.
+- **Settings › Look rows:** colours, highlight, creature (opens the gallery), show creature, eye follows you,
+  album art (square or blob).
+- **On the device:**
+  - Blobs, bars, textures and fixed labels are pre-drawn images.
+  - Text that changes (titles, artists, list rows) needs our own smooth text drawing, since the stock font is 1-bit.
+    That is part of the font work.
+  - The creature is drawn from small parts at paint time: body, belly pattern, feelers or crest, one eye per look
+    direction. There is no image per combination.
+  - Colourways are palette tables used when drawing, plus pre-drawn images per colourway. Flash room comes from
+    the [image audit](#step-6-themes-sleep-timer-adventures-extras): drawing the volume pop-up in code frees about
+    14 MB.
 
 ---
 
@@ -201,8 +257,11 @@ A direction highlights its tile instantly; **A opens it**; Start is free.
 - A keeps stock's path.
 - Settings tile: the Library case (0x03081976) becomes `bl menu_settings` + the routine's epilogue, with
   `menu_settings` = TaskSwitch(10, &4).
-- Pictures: one full-screen image per highlighted item, reusing the carousel's image ids (16, 14, 18, 20; 8 =
-  Now Playing greyed). Stock's paint code is unchanged.
+- Pictures, first version: one full-screen image per highlighted item, reusing the carousel's image ids (16, 14,
+  18, 20; 8 = Now Playing greyed). Stock's paint code is unchanged.
+- Target look ([Look and feel](#look-and-feel-decided-2026-11-27), mock-up `01_home.png`): the pet in the middle
+  looks toward the highlighted label, which sits on the highlight bar. That needs our own paint code drawing the
+  creature from parts.
 
 **Bluetooth in Settings:**
 - The Bluetooth chip runs its own firmware; the main firmware only has the stock Bluetooth page (task 10,
@@ -263,6 +322,7 @@ Inspired by Sony's SensMe Channels, but a 2D map instead of named channels.
    instrumental.
 8. Write `mood_map.html`, an interactive scatter of the library (instrumentals outlined), for checking before
    copying.
+9. Write the compact quadrant lookup that [the pet](#the-pet) reads at each track change.
 
 Fallback without Essentia: key (major/minor) + brightness + tempo scoring.
 
@@ -336,8 +396,9 @@ Fallback without Essentia: key (major/minor) + brightness + tempo scoring.
 
 ## Step 6: Themes, sleep timer, adventures, extras
 
-**Themes:** Classic Game Boy (faded LCD greens, faint pixel grid), Cute pink (flowers + grids), Black & orange,
-EVA-01 (purple + green; colours only, no logos/artwork), Light, Dark.
+**Themes:** the five colourways in [Look and feel](#look-and-feel-decided-2026-11-27): black & orange, paper &
+orange, EVA (colours only, no logos or artwork), aqua, candy. They replace the earlier list (Classic Game Boy, Cute
+pink, Black & orange, EVA-01, Light, Dark).
 - Pre-rendered images (menu, Now Playing frame, lists, volume overlays, icons) are rendered by the art pipeline per
   theme. Code-drawn colours read a theme table in RAM.
 - Flash is tight:
@@ -358,7 +419,7 @@ EVA-01 (purple + green; colours only, no logos/artwork), Light, Dark.
   - The recording/radio screens themselves are empty modules (tasks 4, 5, 7 → modules 13, 28, 29 have no code), but
     check that no live code draws these ids before reusing their space.
 - Later: SD theme packs (`/_Themes/<name>/`) via a hook in stock's image loader.
-- PC previews of all six themes first.
+- PC previews: done for all five colourways (`docs/design/ui/13_colourway_*.png` to `17_*`).
 
 **Sleep timer:**
 - Stock has one (10–120 min, auto-off) on the system tick.
@@ -398,43 +459,6 @@ EVA-01 (purple + green; colours only, no logos/artwork), Light, Dark.
   - hold = stock power-off, unchanged.
 - Auto screen-off timer stays.
 
-**Peak, the song pet (useless and weird, on purpose):** an original creature that eats the songs you play. Not modelled on any
-existing virtual pet.
-- **It never dies, but it's dramatic.** Unfed for days, it sulks face-down and leaves passive-aggressive notes on
-  its screen. One song and it bounces back.
-- **Meals:** a track played past ~50% counts as eaten.
-  - Food quality comes from the file: FLAC = proper meal, hi-res (>48 kHz or 24-bit) = feast,
-    low-bitrate MP3 (≤160 kbps) = fast food → hiccups.
-- **Skips:** skipping mid-track = it spits the song out; a little pile of rejected-song blobs builds up.
-- **Shaped by mood** (uses the mood map's per-track data):
-  - mostly intense → spiky;
-  - calm → round and sleepy;
-  - bright → sparkly;
-  - dark → gothy.
-  It drifts over days rather than snapping.
-- **Lives only on its own screen** (a free stock slot, e.g. the e-reader's task 8), reached from Games. It plays its
-  eating / spitting / sulking animations from what happened since your last visit.
-- **Cheap on the device:**
-  - The always-loaded track-change hook (amuletOS's `pl_step_hook`) only bumps counters (meals, skips, format
-    tallies) and keeps a ring of the last 8 tracks' file addresses (~64 B RAM, a few dozen bytes of code).
-  - The pet screen looks the moods of those tracks up from `/_Mood/` when you visit.
-  - State (~32 B) is saved in the system config flash block next to the library fingerprint, so no SD writes;
-    hunger uses the date/time clock.
-- **Look (mock-up v4, `docs/design/peak_mockup_v4.png`, drawn by `art/pet.py`):**
-  - Body: a soft-serve creature, a wide bottom scoop plus two smaller swirl tiers, ending in a **peak that curls
-    over like a music note's flag** (hence the name), with two stubby feet.
-  - Face: big glossy eyes and rosy cheeks on the bottom scoop.
-  - Shading: banded cel shading per tier, lit from the top left, with a crisp line and shadow under each overhang;
-    outlines in a deeper shade of the body colour.
-  - No arms, no floating head ornament (own character, not a Chao). Sulking = melted into a puddle.
-  - **Dark diet:** thick round-ended locks spill from the peak like melting drips, arch over and hang down at
-    staggered lengths, some behind the body and two over its sides (a mop of locks, inspired by the shape of
-    LocoRoco's Ojaja from the owner's reference, drawn as Peak's own); half-lidded eyes with **eyebags**,
-    flat mouth.
-  - Watch-out: a three-tier swirl shares the poop emoji's silhouette; avoid brown themes for Peak.
-  - Earlier mock-ups: v2 (grille mouth + note antennae) rejected as too hard; v3 (plain teardrop, tail not
-    connected, hair curtain) superseded.
-
 **Smaller extras:**
 - **Wheel click = play/pause.** The click is most likely the GPIO2 pin 5 key, which combines with face buttons.
   Confirm with a key-test screen.
@@ -443,6 +467,68 @@ existing virtual pet.
   per jack plus a safe start volume.
 - **Full-screen album art:** stock decodes cover JPEGs (module 18, 116×116 today).
 - Finer brightness steps (PWM0), a screen-off "pocket mode", accurate battery % and time remaining, a clock face.
+
+### The pet
+
+This replaces the earlier "Peak" idea, which sulked when unfed, and its mock-ups (`docs/design/pet_mockup_v2.png`,
+`pet_mockup_v3.png`, `peak_mockup_v4.png`, `art/pet.py`). Mock-ups: `docs/design/ui/05_gallery.png` to `12_*`.
+
+A flat, symmetrical, one-eyed creature that eats the music you play and changes with it.
+- **It never gets hungry, upset or dies.** It only responds to what you listen to.
+- **Species** (pick one when starting a new pet; the mock-ups show six):
+  - **moon**: a disc split in two colours, thin legs, two feelers;
+  - **whaleian**: a front-on whale standing on its tail with its fluke for feet, flippers, throat grooves on its
+    belly and a spout. The player's mascot is a whale;
+  - **sapling**: roots for feet and one trunk forking into two heads, one eye each. When you point, both heads look;
+    on the forms screen they look at each other;
+  - **arch, dome, star**: drawn as adults only so far. Their young stages and five forms still need designing.
+- **Growing up:** three young stages, then adult at **20 hours of listening**.
+
+  | Species | Young stages |
+  |---|---|
+  | moon | egg → hatchling → young |
+  | sapling | seed → sprout → young |
+  | whaleian | drop → calf → young |
+
+- **Five adult forms from the mood map** ([Step 4](#step-4-mood-map-and-instrumentals): calm ↔ intense,
+  dark ↔ bright):
+  - Each track's listening time is added to that track's quadrant, using its mood scores in `/_Mood/`. Tracks
+    with no score count as neutral.
+  - A quadrant with a clear lead decides the form; if none leads, the form is neutral. The threshold is still to be
+    tuned (for example 40 %).
+  - Every species uses the same visual language, so the forms read alike across species:
+
+  | Form | Look | Moon | Sapling | Whaleian |
+  |---|---|---|---|---|
+  | bright & intense | yellow, spikes and stars, eye wide open | spiky crest, zigzag belly | yellow blossoms, narrow leaves | big spout with star tips |
+  | bright & calm | pink, flowers, drooping lines, long lashes, relaxed lid | flower feelers, pink spotted belly | pink flowers, round leaves | falling spout with flowers, pink belly |
+  | dark & intense | horns or thorns, slit pupil, dark stripes | horns, striped belly, spurs | thorns, a horn on each head | narwhal tusk, no spout |
+  | dark & calm | blue and lilac, drops, drooping, heavy lids | drooping feelers with drops, blue belly | weeping lilac strands | drooping spout with drops, blue belly |
+  | neutral | plain | cream belly, plain stripes | cream leaves | plain spout |
+
+- **Drifting:** an adult's form is decided again after **every 10 hours of listening**, from that block's quadrant
+  shares. It changes in steps, not gradually, until you lock it in the gallery.
+- **Gallery** (Settings › Look › creature):
+  - One page per species; Left and Right switch species. Each page shows the species' eight forms (three young,
+    five adult).
+  - Forms you have met show the date you first met them. The others are silhouettes marked ???.
+  - It keeps every form from every pet.
+  - A on a met form offers: **keep this form**, **start a new pet**, or back.
+    - Keep this form: the pet takes that form and stops drifting until you pick again.
+    - Start a new pet: opens the species picker; the new pet starts at its first stage.
+- **Pet page:** its name, stage or form, hours eaten, and what it ate as dots on a small mood map with each
+  quadrant's share. Where it sits in the menus is still open: Games, as planned for Peak, or Settings › Look.
+- **On the device:**
+  - Counting needs each track's quadrant when the track changes. Plan:
+    - the PC mood tool also writes a compact lookup from a file's first cluster to its quadrant;
+    - the always-loaded track-change hook (amuletOS's `pl_step_hook`) reads it and adds the seconds listened to
+      one of five counters.
+
+    Peak's ring of recent tracks is not enough for 10-hour blocks.
+  - Pet state is about 32 B (species, stage, form, lock, hours, the five counters for the current block). It is
+    saved in the system config flash block next to the library fingerprint.
+  - The gallery (forms met and their dates) lives on the SD card and is written only when a new form appears.
+  - Dates come from the player's date/time clock.
 
 ## Step 7: Playback options and gapless
 
