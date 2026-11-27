@@ -23,11 +23,12 @@ The fix (same module, same size, no other changes)
                     bl GpioDir(0x03056F08); movs r2,#0; mov r1,r2; movs r0,#1; bl GpioSet(0x03056F42)
     b4 @ 0x3084D2A: 3 x (movs r0,#200; bl DelayMs(0x03065E34); bl WatchdogKick(0x03062B34))
 
-The original bytes are checked first, so it refuses anything that isn't V1.8.3's module 9. The output gets the
-input's stamp with the build number + 1, so the player installs it over the input. Never share the image: it
+The original bytes are checked first, so it refuses anything that isn't V1.8.3's module 9. The image is patched
+in place (code bytes, stamp in both header copies, CRC; layout untouched). The output gets the input's stamp with
+the build number + 1 (or --stamp), so the player installs it over the input. Never share the image: it
 contains Hidizs firmware.
 """
-import argparse, json, os, shutil, subprocess, sys, tempfile
+import argparse, os, struct, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 BASE = 0x03050000
@@ -49,34 +50,37 @@ def bump(stamp):
     return b.hex()
 
 
-def run(*a):
-    subprocess.run([sys.executable, os.path.join(HERE, "ap30fw.py"), *a], check=True, stdout=subprocess.DEVNULL)
-
-
 def main():
+    """patch the image in place: the 37 code bytes, the stamp in both header copies and the CRC; nothing else moves
+    (repacking would also move the backup header to a 64 KB boundary, where Hidizs uses 32 KB)"""
+    sys.path.insert(0, HERE)
+    import ap30fw as F
     p = argparse.ArgumentParser()
     p.add_argument("inp"); p.add_argument("out"); p.add_argument("--stamp")
     a = p.parse_args()
-    with tempfile.TemporaryDirectory() as t:
-        run("verify", a.inp)
-        run("unpack", a.inp, t)
-        code = bytearray(open(os.path.join(t, "code.bin"), "rb").read())
-        cl, ce, cs = __import__("struct").unpack_from("<3I", code, 8 + 32 * MODULE)
-        for addr, old, new in PATCHES:
-            assert ce <= addr < ce + cs, f"{addr:#x} is outside module {MODULE}: not V1.8.3?"
-            o = cl - BASE + (addr - ce)
-            have = code[o:o + len(old) // 2].hex()
-            if have == new:
-                sys.exit(f"{a.inp}: already has the DAC hand-over fix")
-            assert have == old, f"{addr:#x}: expected V1.8.3 bytes {old}, found {have}: refusing"
-            code[o:o + len(new) // 2] = bytes.fromhex(new)
-        open(os.path.join(t, "code.bin"), "wb").write(code)
-        stamp = a.stamp or bump(json.load(open(os.path.join(t, "manifest.json")))["stamp"])
-        tmp_img = os.path.join(t, "out.IMG")
-        run("pack", t, tmp_img, "--stamp", stamp)
-        run("verify", tmp_img)
-        os.makedirs(os.path.dirname(os.path.abspath(a.out)), exist_ok=True)
-        shutil.copy(tmp_img, a.out)
+    img = bytearray(open(a.inp, "rb").read())
+    bad = [n for n, ok in F.checks(img) if not ok]
+    assert not bad, f"{a.inp} fails its integrity checks: {bad}"
+    hdr = img[:F.HDR]
+    code_off = next(s["offset"] for s in F.read_sections(hdr) if s["name"] == "code")
+    cl, ce, cs = struct.unpack_from("<3I", img, code_off + 8 + 32 * MODULE)
+    for addr, old, new in PATCHES:
+        assert ce <= addr < ce + cs, f"{addr:#x} is outside module {MODULE}: not V1.8.3?"
+        o = code_off + cl - BASE + (addr - ce)
+        have = img[o:o + len(old) // 2].hex()
+        if have == new:
+            sys.exit(f"{a.inp}: already has the DAC hand-over fix")
+        assert have == old, f"{addr:#x}: expected V1.8.3 bytes {old}, found {have}: refusing"
+        img[o:o + len(new) // 2] = bytes.fromhex(new)
+    stamp = a.stamp or bump(hdr[:8].hex())
+    backup = F.u32(hdr, F.BACKUP_PTR)
+    img[0:8] = bytes.fromhex(stamp)
+    img[backup:backup + 8] = bytes.fromhex(stamp)
+    struct.pack_into("<I", img, len(img) - 4, F.rkcrc(memoryview(img)[:len(img) - 4]))
+    bad = [n for n, ok in F.checks(img) if not ok]
+    assert not bad, f"result fails its integrity checks: {bad}"
+    os.makedirs(os.path.dirname(os.path.abspath(a.out)) or ".", exist_ok=True)
+    open(a.out, "wb").write(img)
     print(f"wrote {a.out} (stamp {stamp}): Realtek chip on, 600 ms, then USB lines switched over")
 
 
