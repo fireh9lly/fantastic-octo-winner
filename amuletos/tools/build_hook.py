@@ -12,7 +12,7 @@ So a hook gets a module-table slot: stock already calls ModuleOverlay(2, 7) on
 an empty slot 2 in ~21 places, including module 10's USB start right after
 ModuleOverlay(12, 7). Slot 2 is pointed at the hook (source GAP_FILE, run
 address HOOK_RUN), so stock itself copies the hook into free RAM above every
-module (0x0309F7CC is the highest module end; 0x0309FFF0 holds reset magic).
+module (V1.8.3: module 39, the library builder, ends at 0x0309FC9C; 0x0309FFF0 holds reset magic).
 
 Then the hooked BL is redirected to the hook's entry symbol, and the image is
 packed and verified.
@@ -25,7 +25,7 @@ import resident                           # noqa: E402  (tools/resident.py: no o
 BASE = 0x03050000
 GAP_FILE, GAP_SIZE = 0x5805C, 0x4000
 GAP_RUN = 0x030A7B8C                     # H0/H0a assumption: NOT loaded, past end of 640 KB RAM
-HOOK_RUN, HOOK_MAX = 0x0309F800, 0x7F0   # free RAM 0x0309F800..0x0309FFF0
+HOOK_RUN, HOOK_MAX = 0x0309FC9C, 0x354   # free RAM 0x0309FC9C..0x0309FFF0 (V1.8.3; was 0x0309F800 on V1.7.8)
 TABLE = 8                                # module table starts at code.bin 8, 32 bytes per entry
 
 # name -> (source, entry symbol, run address, module slot or None, BL site run, BL site code.bin, original target)

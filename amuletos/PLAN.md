@@ -77,11 +77,11 @@ corner + A + B while plugging in USB (BootROM loader mode), then restore with `t
   - Output named `HIFIYF23.IMG`; both versions' updaters look for `HIFIYF??.IMG`.
   - Default stamp 2620261101 (newer than V1.8.3's 2620231103).
   - `tools/resident.py` stops the build while the always-loaded code overlaps module 39.
+- Done (2026-11-27): **resident-RAM rework; the V1.8.3 build runs end to end** (below).
 - Next:
-  1. the resident-RAM rework (below);
-  2. hand-review the 117 translated addresses in functions Hidizs changed that amuletOS calls or reads
-     without a byte check;
-  3. a flashable image plus an on-device test checklist.
+  1. hand-review the translated addresses in functions Hidizs changed that amuletOS calls or reads without a byte
+     check (the CHECK rows, now including the ones the u-suffix fix added);
+  2. a flashable image plus an on-device test checklist.
 
 **Obstacle found: resident RAM.** amuletOS keeps always-loaded code in "slot 2" above the highest overlay.
 - That overlay is **module 39, the music-library builder** (122 KB). It ends at 0x0309F7CC on V1.7.8 but at
@@ -110,6 +110,39 @@ rest into extensions of the overlay modules that call them.
 - `cfg_write` (hooks SaveSysConfig in module 0, callable anytime) stays resident but only copies the stored
   fingerprint.
 - Estimated resident total ≈ 700 B: it fits, with little spare.
+
+**Done (2026-11-27), as built:**
+
+| RAM | Contents |
+|---|---|
+| 0x0309FC9C..0x0309FCD4 | slot 2: USB-name hook (56 B) |
+| 0x0309FCD4..0x0309FF20 | slot 2: helpers (588 B): Now Playing loader, playlist step + player-init stubs, library-scan resident part |
+| 0x0309FF20..0x0309FF28 | free (8 B) |
+| 0x0309FF28..0x0309FFC0 | playlist table (152 B, unchanged) |
+| 0x0309FFC0..0x0309FFD8 | library-scan fingerprint FP (unchanged) |
+| 0x0309FFD8..0x0309FFE8 | Now Playing scroll state, carousel position (unchanged) |
+| 0x0309FFE8..0x0309FFF0 | free (8 B); 0x0309FFF0 stock reset magic |
+
+- **Library scan split** (`libscan.c` resident, `libscan_ovl.c` + `.S` overlay, shared `libscan.h`):
+  - the fingerprint work (compute, compare, flash fallback) is a code-only overlay in **module slot 29**
+    (empty, never loaded by stock), linked at **0x03081DF4**, the end of module 5, where stock itself loads modules
+    39 and 7. Module 5 only uses that RAM during and after the build, and the module loader always copies afresh
+    from flash (0x030686FA: no "already loaded" cache), so:
+  - resident `lib_gate` (module 5's hook, 64 B) = load overlay → `lib_check` → stock Build → Post(0x18D) → load
+    overlay again (the build overwrote it) → `lib_done` (fingerprint of the card as built, as v0.3 did);
+  - `cfg_write` / `cfg_boot_write` share one body; `lib_force` is two stores.
+  - Dropped from v0.3: the config save's flash re-read when RAM lost the fingerprint. Every boot sets RAM
+    (module 1 loads slot 2, then rewrites block 0 through `cfg_boot_write`, 0x03082C80..0x03082CBA), and the worst
+    case is one extra library build, as stock. PC test updated; all PC tests pass.
+- Size tricks that got it under: shared bodies, and RAM records reached through absolute symbols (`amu_fp`,
+  `amu_rec`, `amu_plt`), so GCC uses short offsets instead of a shared `0x...000` base with 4-byte instructions.
+- `tools/build_overlay.py --entry` checks the overlay's entry table sits at its run address.
+- **Dev-only timing log** (timing.c, gbprobe's Timing row) stops with `#error`: its 52 B gap below slot 2 is gone
+  and slot 2 has no room for its hooks. Re-plan if needed (an overlay or the canary-checked dead code below).
+- **Spare: 16 B in total.** New resident features need room from somewhere first: move the playlist hooks out
+  (M3U v2 replaces them), or reclaim dead module-0 code after the canary build. The top 2 KB of the 11 KB stock
+  working area (0x03080B6C..0x0308136C) has no literal references at all: a candidate, also only after a canary
+  test.
 - Longer term, find dead stock code in module 0 to free more resident room for later features (M3U v2 state,
   sleep timer, etc.).
 - **Dead-code scan (2026-11-26):** ~11.9 KB in 106 module-0 functions on V1.8.3 (11.1 KB on V1.7.8) have no

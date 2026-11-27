@@ -2,6 +2,7 @@
 """Install C code as a code-only overlay in an empty module slot.
 
   build_overlay.py SRC_DIR OUT_DIR SOURCE [SOURCE ...] --slot 28 --run 0x030843DC --max 0x684 --at 0x5B400 --json npui.json
+  build_overlay.py ... --entry lib_entry     (callers jump to fixed offsets: check that symbol is at --run)
 
 The sources are linked at --run (no data, ZI or rodata: stack only), written into code.bin's file gap
 at --at, and slot N's table entry points at them (code only; data/ZI sizes 0). Stock loads it with
@@ -28,6 +29,7 @@ def main():
     p.add_argument("--max", type=lambda s: int(s, 0), required=True)
     p.add_argument("--at", type=lambda s: int(s, 0), required=True)
     p.add_argument("--json", required=True)
+    p.add_argument("--entry", default=None, help="symbol that must sit at --run (an entry table callers rely on)")
     a = p.parse_args()
     if os.path.abspath(a.src) != os.path.abspath(a.out):
         os.makedirs(a.out, exist_ok=True)
@@ -61,6 +63,8 @@ def main():
     open(os.path.join(a.out, "code.bin"), "wb").write(code)
     syms = {f[2]: int(f[0], 16) for f in (l.split() for l in run(tool("nm"), elf).splitlines())
             if len(f) == 3 and f[1] in "Tt" and not f[2].startswith("$")}
+    if a.entry:
+        assert syms.get(a.entry) == a.run, f"{a.entry} is at {syms.get(a.entry, 0):#x}, not at the run address {a.run:#x}"
     json.dump(syms, open(os.path.join(a.out, a.json), "w"), indent=1)
     print(f"slot {a.slot}: {len(blob)} of {a.max} B at run {a.run:#x} (code.bin {a.at:#x})")
 

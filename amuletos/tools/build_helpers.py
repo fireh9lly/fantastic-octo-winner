@@ -3,8 +3,10 @@
 
   build_helpers.py SRC_DIR OUT_DIR SOURCE [SOURCE ...]
 
-Slot 2 is loaded by stock at boot (module 1, config load) into free RAM at 0x0309F800 and that
-RAM is never reused, so code placed there is available to patched stock modules at any time.
+Slot 2 is loaded by stock at boot (module 1, config load) into free RAM at 0x0309FC9C (V1.8.3, right above module
+39) and that RAM is never reused, so code placed there is available to patched stock modules at any time. It is
+small (648 B for the hook and helpers): only code that must be callable at any time belongs here; the rest goes in
+screen-module extensions (extend_module.py) or on-demand overlays (build_overlay.py, e.g. libscan_ovl.c).
 The helpers are linked right after slot 2's current code, written into code.bin after it, and
 slot 2's code size is extended. Writes OUT_DIR/helpers.json with the symbol addresses.
 No data or ZI is allowed (stack only).
@@ -12,8 +14,8 @@ No data or ZI is allowed (stack only).
 import json, os, shutil, struct, subprocess, sys
 
 BASE, SLOT = 0x03050000, 2
-RUN0, RUN_END = 0x0309F800, 0x0309FF28   # 0x0309FF28.. playlist table (pl_table.h), 0x0309FFC0.. libscan.c FP, 0x0309FFF0 stock magic
-FILE_END = 0x58CD0               # keep clear of the Blockz module (build_module.py --at 0x58800)
+RUN0, RUN_END = 0x0309FC9C, 0x0309FF28   # 0x0309FF28.. playlist table (pl_table.h), 0x0309FFC0.. libscan.h FP, 0x0309FFF0 stock magic
+FILE_END = 0x58800               # keep clear of the library-scan overlay (build.sh: build_overlay.py --at 0x58800)
 
 from toolchain import tool                # noqa: E402  (tools/toolchain.py: ARM_TOOLCHAIN_BIN or PATH)
 import resident                           # noqa: E402  (tools/resident.py: no overlap with stock RAM)
@@ -54,7 +56,7 @@ def main():
             if len(f) == 3 and f[1] in "Tt"}
     assert at_run + len(blob) <= RUN_END, "slot 2 RAM overflow"
     resident.check(code, ce, at_run + len(blob), "slot 2 (hook + helpers)")
-    assert at_file + len(blob) <= FILE_END, "helpers would overlap the Blockz module area"
+    assert at_file + len(blob) <= FILE_END, "helpers would overlap the library-scan overlay in code.bin"
     assert not any(code[at_file:at_file + len(blob)]), "file area after slot 2 not empty"
     code[at_file:at_file + len(blob)] = blob
     struct.pack_into("<I", code, ent + 8, (at_run - ce) + len(blob))

@@ -441,6 +441,9 @@ static int emu_rows(void) { return S.emsg ? 1 : S.nlist; }
 #ifndef AMU_TIMING
 #define AMU_TIMING 0
 #endif
+#if AMU_TIMING
+#error "timing log: no resident room on V1.8.3 yet (timing.c, PLAN.md)"
+#endif
 static int row_count(void) { return emu_rows() + 2 + NSTOCK + (AMU_TIMING ? 1 : 0); }   /* + "Timing" (dev) */
 static int row_kind(int i, int *idx)
 {

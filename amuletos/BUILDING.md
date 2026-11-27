@@ -26,9 +26,10 @@ built from it.**
 This writes `build-dir/out/HIFIYF23.IMG`, the same file name as Hidizs's update. The default `build-dir` is
 `build/`, which git ignores, and the log is in `build-dir/build.log`.
 
-**Status (2026-11-26): the build stops on purpose.** `tools/resident.py` refuses to place amuletOS's always-loaded
-code where module 39 (the music-library builder) would overwrite it. On V1.8.3 that module reaches 0x0309FC9C, and
-the always-loaded code has to shrink first (PLAN.md, Step 1).
+**Status (2026-11-27): the build runs end to end and passes the image checks, but the image has not been tested
+on a player yet.** Don't flash it until the remaining address review (PLAN.md, Step 1) is done.
+`tools/resident.py` still guards the always-loaded code: it must stay above module 39 (the music-library builder,
+which reaches 0x0309FC9C on V1.8.3), in 0x0309FC9C..0x0309FF28.
 
 ### History: the amuletOS v0.3 baseline
 

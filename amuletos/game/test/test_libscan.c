@@ -1,5 +1,6 @@
-/* Host test for game/device/libscan.c (library scan skip): a simulated exFAT SD card, flash block 0 and
- * the stock calls it uses (sector read, config save, library build). Run by `game/build.py test`. */
+/* Host test for the library scan skip (game/device/libscan.c, resident, and libscan_ovl.c, the overlay it loads
+ * around a build): a simulated exFAT SD card, flash block 0 and the stock calls they use (sector read, config save,
+ * library build). On the PC the overlay is simply linked in. Run by `game/build.py test`. */
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -21,7 +22,15 @@ static void SaveConfig(uint32_t f);
 static void Build(void);
 static void Post(uint32_t m) { (void)m; }
 static uint32_t FlashRead(uint32_t o, uint32_t n, void *b) { memset(b, db_empty ? 0xFF : 0x11, n); return 0; }
+static int overlay_loads;
+#define ModuleOverlay(n, f) (overlay_loads++, 0)
+uint32_t lib_check(void);
+void lib_done(void);
+#define LIB_SLOT    29
+#define LIB_CHECK() lib_check()
+#define LIB_DONE()  lib_done()
 #include "../device/libscan.c"
+#include "../device/libscan_ovl.c"
 
 #define PART 64
 #define HEAP (PART + 128)          /* absolute sector of cluster 2 */
@@ -105,11 +114,13 @@ int main(void)
     gate_expect("library database empty", 1);
     db_empty = 0;
 
-    /* a config save before any Music visit keeps the fingerprint (RAM not loaded yet) */
+    /* RAM lost the fingerprint between boots (can't happen: every boot sets it; V1.8.3 has no room for v0.3's flash
+     * re-read in the config save): that save drops it, so the next gate builds once, as stock would */
     for (int i = 0; i < 6; i++) fp_[i] = 0x5A5A5A5Au * (i + 1);
     SaveConfig(1);
     boot();
-    gate_expect("save with RAM unloaded, then reboot", 0);
+    gate_expect("save with RAM corrupted, then reboot (one extra build)", 1);
+    gate_expect("after that build", 0);
 
     /* stock reset its config to defaults (0xFF after the config): stale RAM must not skip */
     memset(blk0 + 0x2F5, 0xFF, 0x800 - 0x2F5);
@@ -124,6 +135,14 @@ int main(void)
     gate_expect("internal disk again (no fingerprint: always)", 1);
     card(0xC0FFEE02); vol_[0] = 2;
     gate_expect("FAT32 card (always builds, as stock)", 1);
+
+    /* the overlay is loaded before every gate, and again after a build (the build overwrites it) */
+    card(0xC0FFEE03);
+    gate_expect("exFAT card again", 1);
+    { int l0 = overlay_loads, b0 = builds; gate_expect("overlay loads: skip", 0);
+      if (overlay_loads - l0 != 1) { printf("FAIL skip loaded the overlay %d times\n", overlay_loads - l0); fails++; }
+      lib_force(); SYS16(0x42) = 0; l0 = overlay_loads; gate_expect("overlay loads: build", 1);
+      if (overlay_loads - l0 != 2 || builds - b0 != 1) { printf("FAIL build loaded the overlay %d times\n", overlay_loads - l0); fails++; } }
 
     printf("%s: %d failure(s), %d builds, %d saves\n", fails ? "FAILED" : "libscan ok", fails, builds, saves);
     return fails != 0;

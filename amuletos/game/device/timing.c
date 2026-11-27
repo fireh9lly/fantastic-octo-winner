@@ -15,6 +15,9 @@
  * sets the boot time: the first after power-on (the tick restarts at 0; RAM may survive a restart). */
 #include <stdint.h>
 
+/* V1.8.3: the 52 B gap below slot 2 is gone (module 39 now ends at 0x0309FC9C, where slot 2 starts) and slot 2 has
+ * no room for these hooks. Re-plan before using the timing log again (PLAN.md, resident RAM). */
+#error "timing log: no resident room on V1.8.3 yet (PLAN.md)"
 #define TL         ((volatile uint32_t *)0x0309F7CCu)
 #define TL_N       11u
 #define SYS_TICKS  (*(volatile uint32_t *)0x030248CCu)

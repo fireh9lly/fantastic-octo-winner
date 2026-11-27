@@ -64,6 +64,8 @@ cp "$B/art_boot/000.png" "$B/art_boot/002.png" "$B/art_pocket_all/"
 
 step "code: slot-2 helpers, Now Playing overlay, menu extensions, patches, modules"
 "$PY" tools/build_helpers.py "$B/amu" "$B/d1h" game/device/np_helpers.c game/device/np_stub.S game/device/libscan.c >> "$LOG"
+# library-scan work, loaded only around a library build (libscan.h: slot 29, run = end of module 5)
+"$PY" tools/build_overlay.py "$B/d1h" "$B/d1h" game/device/libscan_ovl.S game/device/libscan_ovl.c --slot 29 --run 0x03081DF4 --max 0x4D0 --at 0x58800 --json libscan.json --entry lib_entry >> "$LOG"
 "$PY" tools/build_overlay.py "$B/d1h" "$B/d1h_o" game/device/npui.c --slot 28 --run 0x030843DC --max 0x758 --at 0x5B8D0 --json npui.json >> "$LOG"
 "$PY" tools/extend_module.py "$B/d1h_o" "$B/d1h_e" game/device/m21_ext.S game/device/m21_ext.c --module 21 --json e21.json >> "$LOG"
 "$PY" tools/extend_module.py "$B/d1h_e" "$B/d1h_e" game/device/m22_ext.S game/device/m22_ext.c --module 22 --json e22.json >> "$LOG"
