@@ -26,7 +26,7 @@ static int overlay_loads;
 #define ModuleOverlay(n, f) (overlay_loads++, 0)
 uint32_t lib_check(void);
 void lib_done(void);
-#define LIB_SLOT    29
+#define LIB_SLOT    44
 #define LIB_CHECK() lib_check()
 #define LIB_DONE()  lib_done()
 #include "../device/libscan.c"

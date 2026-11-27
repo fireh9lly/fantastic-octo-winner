@@ -32,3 +32,9 @@ THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRI
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+## Inter
+
+`art/fonts/Inter-Bold.otf`, https://github.com/rsms/inter, Copyright 2016-2023 The Inter Project Authors, SIL Open
+Font License 1.1 (full text: `art/fonts/OFL.txt`). Used by `art/orange.py` to draw the menu labels into the
+firmware's images; the font file itself is not put in the firmware.

@@ -1,5 +1,5 @@
 /* Library scan skip: shared by the resident part (libscan.c, module slot 2) and the overlay that does the work
- * (libscan_ovl.c, module slot 29, loaded only around a library build). See libscan.c for the design. */
+ * (libscan_ovl.c, module slot 44, loaded only around a library build). See libscan.c for the design. */
 #ifndef LIBSCAN_H
 #define LIBSCAN_H
 #include <stdint.h>
@@ -25,11 +25,13 @@
 #define FlashRead(o, n, b) ((uint32_t (*)(uint32_t, uint32_t, uint32_t, void *))(0x030684b0u | 1))(0x30001, o, n, b)
 #define ModuleOverlay(n, f) ((uint32_t (*)(uint32_t, uint32_t))(0x03068800u | 1))(n, f)
 
-/* The overlay: module slot 29 (empty in stock, which never loads it), run address = the end of module 5's code,
+/* The overlay: module slot 44 (empty in stock and never loaded by it: not in the task table, which maps tasks 4, 5
+ * and 7 to the empty slots 13, 28 and 29, nor in any constant or computed ModuleOverlay call; 2026-11-27 scan), run
+ * address = the end of module 5's code,
  * where stock loads module 39 (the build) and module 7 (after it). Module 5 only uses that RAM during and after
  * the build, so the overlay can sit there just before the build and just after it. Entry table at its start
  * (libscan_ovl.S): LIB_RUN = lib_check, LIB_RUN + 4 = lib_done. */
-#define LIB_SLOT  29
+#define LIB_SLOT  44
 #define LIB_RUN   0x03081DF4u
 #define LIB_CHECK() ((uint32_t (*)(void))((LIB_RUN) | 1))()
 #define LIB_DONE()  ((void (*)(void))((LIB_RUN + 4) | 1))()

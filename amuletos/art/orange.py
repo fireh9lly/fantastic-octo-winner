@@ -5,7 +5,8 @@ A test-build look, kept simple on purpose (owner: "don't worry too much about th
 design a really good one together"). Colours: black screens, their dark theme's orange status band, brown rules and
 selection, white text, the bright orange accent of their orange theme. Icons: the smooth flat icons of their orange
 theme (its tools/design.py, by Claude in an earlier session; same 64-unit drawing, 8x supersampled), plus Now Playing
-and Blockz drawn the same way. Menu labels in Inter (SIL Open Font Licence; /usr/share/fonts or INTER_FONT).
+and Blockz drawn the same way. Menu labels in Inter Bold (art/fonts/, SIL Open Font Licence 1.1: art/fonts/OFL.txt),
+kept in the repo so every machine draws the same pixels.
 Device text stays in the stock font (build.sh no longer applies the tall font).
 
 Same image ids and layout as art/pocket.py, so game/device/npui.c, playlists.c and gbprobe.c line up; their colours
@@ -22,15 +23,14 @@ W, H, S = 296, 240, 8
 THEME = dict(bg=0x000000, panel=0x141414, band=0xd66000, rule=0x943e00, head=0x632900, text=0xffffff, dim=0x9a9a9a,
              accent=0xff8200, track=0x3a3a3a, rowline=0x292929, sel=0x943e00, off=0x3a3a3a)   # = theme.h
 C = {k: ((v >> 16) & 255, (v >> 8) & 255, v & 255) for k, v in THEME.items()}
-FONTS = [os.environ.get("INTER_FONT", ""), "/usr/share/fonts/opentype/inter/Inter-Bold.otf",
-         "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"]
+FONTS = [os.environ.get("INTER_FONT", ""), str(Path(__file__).resolve().parent / "fonts/Inter-Bold.otf")]
 
 
 def font(px):
     for f in FONTS:
         if f and os.path.exists(f):
             return ImageFont.truetype(f, px)
-    sys.exit("no label font found: set INTER_FONT to Inter-Bold.otf (or install fonts-inter)")
+    sys.exit("no label font found: art/fonts/Inter-Bold.otf is missing")
 
 
 # ---------- icons: the orange theme's design.py drawing (64-unit grid), plus play and blocks ----------

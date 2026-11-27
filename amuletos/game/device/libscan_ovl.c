@@ -1,4 +1,4 @@
-/* Library scan skip, the part that is only loaded around a library build: module slot 29, linked at LIB_RUN
+/* Library scan skip, the part that is only loaded around a library build: module slot 44, linked at LIB_RUN
  * (libscan.h; tools/build_overlay.py). lib_gate (libscan.c, resident) loads it before the build to decide, and
  * again after the build to save the new fingerprint. Entry table first (libscan_ovl.S). No data or ZI: stack only. */
 #include "libscan.h"

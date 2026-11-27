@@ -1,5 +1,5 @@
 /* Library scan skip (v0.3; split for V1.8.3). This file is the resident part, in module slot 2 with
- * np_helpers.c (tools/build_helpers.py); the fingerprint work is in libscan_ovl.c (module slot 29).
+ * np_helpers.c (tools/build_helpers.py); the fingerprint work is in libscan_ovl.c (module slot 44).
  *
  * Stock rebuilds the music library (~1 minute on the owner's card) whenever sys+0x42 ("library needs
  * update") is set: card seen at boot, card inserted, USB session with writes, card missing while the

@@ -10,9 +10,9 @@
 #
 # The steps follow amuletOS v0.3's release build (build/b60.sh plus the art steps in docs/HANDOFF.md, section 2).
 # The source was converted from V1.7.8 to V1.8.3 addresses by tools/port_convert.py; commit 21f8ac1 is the last
-# that builds amuletOS v0.3 from V1.7.8, byte-identical to its release. Needs Python 3 with numpy, Pillow and
-# capstone, and the pinned Arm GCC (tools/get_toolchain.sh). Never commit or share the images this writes: they
-# contain Hidizs firmware.
+# that builds amuletOS v0.3 from V1.7.8, byte-identical to its release. Needs Python 3 with numpy and Pillow, and
+# the pinned Arm GCC (tools/get_toolchain.sh); capstone only for the port tools. Never commit or share the images
+# this writes: they contain Hidizs firmware.
 set -euo pipefail
 
 STOCK_IMG=${1:?usage: ./build.sh STOCK_IMG [BUILD_DIR] [STAMP16]}
@@ -51,8 +51,8 @@ cp "$B"/art_orange_auto/*.png "$B"/art_orange/*.png "$B/art_pocket_all/"
 
 step "code: slot-2 helpers, Now Playing overlay, menu extensions, patches, modules"
 "$PY" tools/build_helpers.py "$B/amu" "$B/d1h" game/device/np_helpers.c game/device/np_stub.S game/device/libscan.c >> "$LOG"
-# library-scan work, loaded only around a library build (libscan.h: slot 29, run = end of module 5)
-"$PY" tools/build_overlay.py "$B/d1h" "$B/d1h" game/device/libscan_ovl.S game/device/libscan_ovl.c --slot 29 --run 0x03081DF4 --max 0x4D0 --at 0x58800 --json libscan.json --entry lib_entry >> "$LOG"
+# library-scan work, loaded only around a library build (libscan.h: slot 44, run = end of module 5)
+"$PY" tools/build_overlay.py "$B/d1h" "$B/d1h" game/device/libscan_ovl.S game/device/libscan_ovl.c --slot 44 --run 0x03081DF4 --max 0x4D0 --at 0x58800 --json libscan.json --entry lib_entry >> "$LOG"
 "$PY" tools/build_overlay.py "$B/d1h" "$B/d1h_o" game/device/npui.c --slot 28 --run 0x030843DC --max 0x758 --at 0x5B8D0 --json npui.json >> "$LOG"
 "$PY" tools/extend_module.py "$B/d1h_o" "$B/d1h_e" game/device/m21_ext.S game/device/m21_ext.c --module 21 --json e21.json >> "$LOG"
 "$PY" tools/extend_module.py "$B/d1h_e" "$B/d1h_e" game/device/m22_ext.S game/device/m22_ext.c --module 22 --json e22.json >> "$LOG"

@@ -90,7 +90,11 @@ corner + A + B while plugging in USB (BootROM loader mode), then restore with `t
   - Not covered by address checks: struct offsets inside stock records (e.g. record +0xF2, sys +0x42) and function
     signatures. Every one met on the paths reviewed is unchanged (player init, library build, config load), but
     the device test is the real check.
-- Next: a flashable image plus an on-device test checklist.
+- Done (2026-11-27): **first test build**: amuletOS v0.3 features + the USB DAC fix + the owner's orange theme on
+  black (art/orange.py, game/device/theme.h, dark_text patches), stock font. Checklist: `docs/TEST_V183.md`.
+  Owner: the icons and the stock pixel font are stand-ins; better icons, themes and fonts get designed together
+  later.
+- Next: the owner's on-device test.
 
 **Obstacle found: resident RAM.** amuletOS keeps always-loaded code in "slot 2" above the highest overlay.
 - That overlay is **module 39, the music-library builder** (122 KB). It ends at 0x0309F7CC on V1.7.8 but at
@@ -133,8 +137,10 @@ rest into extensions of the overlay modules that call them.
 | 0x0309FFE8..0x0309FFF0 | free (8 B); 0x0309FFF0 stock reset magic |
 
 - **Library scan split** (`libscan.c` resident, `libscan_ovl.c` + `.S` overlay, shared `libscan.h`):
-  - the fingerprint work (compute, compare, flash fallback) is a code-only overlay in **module slot 29**
-    (empty, never loaded by stock), linked at **0x03081DF4**, the end of module 5, where stock itself loads modules
+  - the fingerprint work (compute, compare, flash fallback) is a code-only overlay in **module slot 44**
+    (empty, and nothing in stock loads it: the task table maps tasks 4/5/7 to empty slots 13/28/29, so those are
+    out; amuletOS v0.3's Now Playing overlay sits in 28, reachable only if stock's two TaskSwitch(5) calls, in
+    modules 23 and 32, are), linked at **0x03081DF4**, the end of module 5, where stock itself loads modules
     39 and 7. Module 5 only uses that RAM during and after the build, and the module loader always copies afresh
     from flash (0x030686FA: no "already loaded" cache), so:
   - resident `lib_gate` (module 5's hook, 64 B) = load overlay → `lib_check` → stock Build → Post(0x18D) → load

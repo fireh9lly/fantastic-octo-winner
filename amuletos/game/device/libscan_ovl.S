@@ -1,4 +1,4 @@
-@ Library scan overlay (module slot 29): entry table at its run address, LIB_RUN in libscan.h. Listed first when
+@ Library scan overlay (module slot 44): entry table at its run address, LIB_RUN in libscan.h. Listed first when
 @ linking, so it lands at the start; tools/build_overlay.py --entry checks that.
     .syntax unified
     .thumb
