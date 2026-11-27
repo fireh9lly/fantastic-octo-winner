@@ -78,10 +78,19 @@ corner + A + B while plugging in USB (BootROM loader mode), then restore with `t
   - Default stamp 2620261101 (newer than V1.8.3's 2620231103).
   - `tools/resident.py` stops the build while the always-loaded code overlaps module 39.
 - Done (2026-11-27): **resident-RAM rework; the V1.8.3 build runs end to end** (below).
-- Next:
-  1. hand-review the translated addresses in functions Hidizs changed that amuletOS calls or reads without a byte
-     check (the CHECK rows, now including the ones the u-suffix fix added);
-  2. a flashable image plus an on-device test checklist.
+- Done (2026-11-27): **review of the 120 CHECK addresses** (addresses inside functions Hidizs changed):
+  `tools/port_review.py` → `docs/port/v183_check_review.tsv`. None left open:
+  - 58 sit in patches whose original bytes the build compares (a wrong one stops the build);
+  - 20 aren't in the image (old diagnostic hooks, superseded or dev-only patches) or appear only in comments;
+  - 32 have identical normalised code in a window of up to 13 instructions around the old and the new address;
+  - 10 checked by hand. The playlist hooks' 6 branch targets in the player init (module 33): same branches in both
+    images; V1.8.3 only inserted a literal pool and added a clamp after the seek. Also `AudioClose` (V1.8.3 adds a
+    reset of its pre-decode state at entry, same interface), `GameLeaveB`, the engine byte 0x0304A458, a module-22
+    epilogue target and the dev-only audio-refill hook.
+  - Not covered by address checks: struct offsets inside stock records (e.g. record +0xF2, sys +0x42) and function
+    signatures. Every one met on the paths reviewed is unchanged (player init, library build, config load), but
+    the device test is the real check.
+- Next: a flashable image plus an on-device test checklist.
 
 **Obstacle found: resident RAM.** amuletOS keeps always-loaded code in "slot 2" above the highest overlay.
 - That overlay is **module 39, the music-library builder** (122 KB). It ends at 0x0309F7CC on V1.7.8 but at

@@ -1,0 +1,121 @@
+old	module	region	new	verdict	comparison	uses by kind	used at	final
+0x030483c8		ram	0x0304a458	review	literal evidence 35x (conflicts: {50635864: 35, 50561320: 1})	review:1	game/device/bgmusic.c:275	ok by hand: engine byte; AudioClose loads 0x030483C8 (V1.7.8) / 0x0304A458 (V1.8.3) in the same instruction, and 0x030483D0 -> 0x0304A460 has the same +0x2090
+0x030483c8	27	ram	0x0304a458	comment only		comment:1	game/device/bgmusic.c:239	comment only
+0x03056960		m0-code	0x03056c3c	review	window 7/7, at same (aligned 0.99)	review:1	game/device/gbprobe.c:303	ok: identical code around it
+0x0305c364		m0-code	0x0305c640	review	window 7/7, at same (aligned 0.68)	review:1	game/device/bgmusic.c:26	ok: identical code around it
+0x0305e930		m0-code	0x0305ec0c	comment only		comment:2	game/device/np_helpers.c:17 game/device/np_stub.S:7	comment only
+0x0305e930	0	m0-code	0x0305ec0c	checked		checked:3	tools/patch_code.py:252 tools/patch_code.py:257 tools/patch_code.py:257	checked
+0x0305e935		m0-code	0x0305ec11	review	window 8/8, at same (aligned 1.00)	review:1	game/device/np_stub.S:24	ok: identical code around it
+0x03062fa6		m0-code	0x03063282	review	window 7/7, at same (aligned 0.99)	review:1	game/stock.h:11	ok: identical code around it
+0x03063f76	27	m0-code	0x03064252	review	window 7/7, at same (aligned 0.99)	review:2	hooks/np_title.S:11 game/device/npui.c:55	ok: identical code around it
+0x030644a0	22	m0-code	0x0306477c	review	window 7/7, at same (aligned 0.98)	comment:1 review:1	game/device/m22_ext.c:5 game/device/m22_ext.c:10	ok: identical code around it
+0x03065bc4		m0-code	0x03065ea0	review	no instruction window (call-target evidence 53x | code: instruction changed in alig)	review:1	game/stock.h:25	ok by hand: GameLeaveB, identical except relocated calls/literals; 53 call sites agree
+0x030660e6		m0-code	0x030663c2	comment only		comment:1	game/device/gbprobe.c:283	comment only
+0x030661a4		m0-code	0x03066480	not built		not built:1	game/device/timing.S:33	not built
+0x030661a4	22	m0-code	0x03066480	review	window 6/7, at same (aligned 0.76)	review:1	game/device/m22_ext.c:45	ok by hand: audio refill entry, only a register choice changed; dev-only timing hook, runtime-checked first word
+0x030661a9		m0-code	0x03066485	not built		not built:1	game/device/timing.S:35	not built
+0x0306e96c		m0-code	0x0306ee3c	review	window 13/13, at same (aligned 1.00)	review:1	game/device/gbprobe.c:271	ok: identical code around it
+0x0306fd50		m0-code	0x03070220	review	window 13/13, at same (aligned 1.00)	comment:1 review:1	game/device/gbprobe.c:195 game/device/gbprobe.c:207	ok: identical code around it
+0x03081754	5	overlay	0x03081c24	checked		checked:2	tools/patch_code.py:157 tools/patch_code.py:158	checked
+0x030818d8	22	overlay	0x03081da8	checked		checked:2	tools/patch_code.py:247 tools/patch_code.py:247	checked
+0x0308197e	22	overlay	0x03081e4e	checked		checked:2 comment:1	tools/patch_code.py:258 tools/patch_code.py:258 game/device/m22_ext.S:23	checked
+0x03081983	22	overlay	0x03081e53	review	window 5/7, at same (aligned 0.99)	review:1	game/device/m22_ext.S:38	ok by hand: Thumb-bit target of the epilogue pop; V1.8.3 only inserted code before it
+0x03081aa4	10	overlay	0x03081f74	checked		checked:6 not built:1	tools/build_hook.py:32 tools/build_hook.py:33 tools/build_hook.py:34 tools/build_hook.py:35 tools/build_hook.py:36 tools/build_hook.py:37 hooks/h0_inquiry.S:8	checked
+0x03081aa5	10	overlay	0x03081f75	review	window 7/7, at same (aligned 0.99)	not built:3 review:1	hooks/amu_inq.S:13 hooks/d1_diag.S:24 hooks/h0_inquiry.S:26 hooks/h0a_pass.S:19	ok: identical code around it
+0x03081b8a	21	overlay	0x0308205a	checked		checked:2 comment:1	tools/patch_code.py:225 tools/patch_code.py:225 game/device/m21_ext.S:53	checked
+0x03081ba6	21	overlay	0x03082076	checked		checked:1 comment:1	tools/patch_code.py:221 game/device/m21_ext.S:54	checked
+0x03081ba7	21	overlay	0x03082077	review	window 13/13, at same (aligned 0.99)	review:1	game/device/m21_ext.S:61	ok: identical code around it
+0x03081bb0	21	overlay	0x03082080	checked		checked:1	tools/patch_code.py:222	checked
+0x03081bb6	21	overlay	0x03082086	checked		checked:1	tools/patch_code.py:223	checked
+0x03081cd6	21	overlay	0x030821a6	review	window 13/13, at same (aligned 0.99)	review:2	tools/patch_code.py:215 tools/patch_code.py:218	ok: identical code around it
+0x03081cde	21	overlay	0x030821ae	checked		checked:2	tools/patch_code.py:220 tools/patch_code.py:220	checked
+0x03081cf8	21	overlay	0x030821c8	checked		checked:1	tools/patch_code.py:214	checked
+0x03081cfa	21	overlay	0x030821ca	checked		checked:1	tools/patch_code.py:215	checked
+0x03081cfe	21	overlay	0x030821ce	checked		checked:1	tools/patch_code.py:215	checked
+0x03081d24	21	overlay	0x030821f4	checked		checked:1	tools/patch_code.py:217	checked
+0x03081d26	21	overlay	0x030821f6	checked		checked:1	tools/patch_code.py:218	checked
+0x03081d2a	21	overlay	0x030821fa	checked		checked:1	tools/patch_code.py:218	checked
+0x03081d74	21	overlay	0x03082244	review	window 9/9, at same (aligned 0.99)	review:2	tools/patch_code.py:220 tools/patch_code.py:223	ok: identical code around it
+0x03081d75	21	overlay	0x03082245	review	window 9/9, at same (aligned 0.99)	review:1	game/device/m21_ext.S:62	ok: identical code around it
+0x03081eb0	22	overlay	0x03082380	comment only		comment:1	game/device/m22_ext.c:4	comment only
+0x03081f54	22	overlay	0x03082424	checked		checked:2 comment:1	tools/patch_code.py:260 tools/patch_code.py:260 game/device/m22_ext.c:5	checked
+0x03081f6c	22	overlay	0x0308243c	checked		checked:1	tools/patch_code.py:244	checked
+0x03082034	22	overlay	0x03082504	checked		checked:2 comment:1	tools/patch_code.py:261 tools/patch_code.py:261 game/device/m22_ext.c:5	checked
+0x03082146	84	overlay	0x030827c4	checked		checked:1	tools/patch_code.py:62	checked
+0x0308219e	31	overlay	0x0308266e	checked		checked:2	tools/patch_code.py:160 tools/patch_code.py:160	checked
+0x030821b4	1	overlay	0x03082684	checked		checked:1	tools/patch_code.py:21	checked
+0x03082306	1	overlay	0x030827d6	checked		checked:1	tools/patch_code.py:26	checked
+0x03082398	107	overlay	0x03082abe	checked		checked:1	tools/patch_code.py:64	checked
+0x0308247c	32	overlay	0x0308294c	checked		checked:3 comment:1	tools/patch_code.py:273 tools/patch_code.py:289 tools/patch_code.py:290 hooks/settings_game.S:5	checked
+0x0308248c	32	overlay	0x0308295c	review	window 13/13, at same (aligned 0.98)	review:1	hooks/settings_game.S:10	ok: identical code around it
+0x0308250a	32	overlay	0x030829da	review	window 10/10, at same (aligned 0.98)	review:1	hooks/settings_game.S:11	ok: identical code around it
+0x03082668	109	overlay	0x03082d14	checked		checked:1	tools/patch_code.py:64	checked
+0x03082748	103	overlay	0x03082e4c	checked		checked:1	tools/patch_code.py:63	checked
+0x030827ea	1	overlay	0x03082cba	checked		checked:2	tools/patch_code.py:161 tools/patch_code.py:161	checked
+0x0308296e	27	overlay	0x03082e3e	checked		checked:1	tools/patch_code.py:49	checked
+0x03082996	27	overlay	0x03082e66	checked		checked:1	tools/patch_code.py:50	checked
+0x030829b2	27	overlay	0x03082e82	checked		checked:2	tools/patch_code.py:181 tools/patch_code.py:181	checked
+0x030829bc	27	overlay	0x03082e8c	checked		checked:1	tools/patch_code.py:182	checked
+0x030829c6	27	overlay	0x03082e96	checked		checked:1	tools/patch_code.py:183	checked
+0x03082a2a	27	overlay	0x03082efa	checked		checked:2 not built:2	tools/patch_code.py:132 tools/patch_code.py:132 tools/patch_code.py:176 tools/patch_code.py:176	checked
+0x03082a2e	27	overlay	0x03082efe	checked		checked:2 not built:4	tools/patch_code.py:107 tools/patch_code.py:107 tools/patch_code.py:133 tools/patch_code.py:133 tools/patch_code.py:177 tools/patch_code.py:177	checked
+0x03082a30	27	overlay	0x03082f00	comment only		comment:1	hooks/np_title.S:3	comment only
+0x03082a78	27	overlay	0x03082f48	not built		not built:1	tools/patch_code.py:38	not built
+0x03082a7c	27	overlay	0x03082f4c	review	window 13/13, at same (aligned 1.00)	not built:1 review:1	tools/patch_code.py:133 tools/patch_code.py:177	ok: identical code around it
+0x03082a90	27	overlay	0x03082f60	checked		checked:1 not built:1	tools/patch_code.py:134 tools/patch_code.py:178	checked
+0x03082ac6	27	overlay	0x03082f96	checked		checked:2 not built:3	tools/patch_code.py:40 tools/patch_code.py:145 tools/patch_code.py:145 tools/patch_code.py:179 tools/patch_code.py:179	checked
+0x03082aca	27	overlay	0x03082f9a	not built		not built:1	tools/patch_code.py:107	not built
+0x03082aca	109	overlay	0x03083176	not built		not built:1	tools/patch_code.py:68	not built
+0x03082ae0	27	overlay	0x03082fb0	checked		checked:2 not built:2	tools/patch_code.py:146 tools/patch_code.py:146 tools/patch_code.py:180 tools/patch_code.py:180	checked
+0x03082af2	27	overlay	0x03082fc2	not built		not built:1	tools/patch_code.py:39	not built
+0x03082b04	27	overlay	0x03082fd4	checked		checked:1 not built:2	tools/patch_code.py:41 tools/patch_code.py:147 tools/patch_code.py:184	checked
+0x03082f4e	11	overlay	0x0308341e	comment only		comment:1	game/device/gbprobe.c:281	comment only
+0x03083114	27	overlay	0x030835e4	checked		checked:2	tools/patch_code.py:190 tools/patch_code.py:190	checked
+0x0308316a	27	overlay	0x0308363a	checked		checked:1	tools/patch_code.py:192	checked
+0x0308317a	27	overlay	0x0308364a	checked		checked:2	tools/patch_code.py:193 tools/patch_code.py:193	checked
+0x03083208	27	overlay	0x030836d8	checked		checked:2	tools/patch_code.py:194 tools/patch_code.py:195	checked
+0x0308320c	27	overlay	0x030836dc	checked		checked:1	tools/patch_code.py:195	checked
+0x030833da	27	overlay	0x030838aa	review	window 13/13, at same (aligned 0.99)	review:1	tools/patch_code.py:195	ok: identical code around it
+0x0308341e	27	overlay	0x030838ee	checked		checked:2	tools/patch_code.py:191 tools/patch_code.py:191	checked
+0x0308344c	27	overlay	0x0308391c	checked		checked:2	tools/patch_code.py:185 tools/patch_code.py:186	checked
+0x03083466	27	overlay	0x03083936	not built		not built:4	tools/patch_code.py:110 tools/patch_code.py:110 tools/patch_code.py:136 tools/patch_code.py:136	not built
+0x03083478	27	overlay	0x03083948	checked		checked:3	tools/patch_code.py:186 tools/patch_code.py:187 tools/patch_code.py:188	checked
+0x0308349a	27	overlay	0x0308396a	not built		not built:4	tools/patch_code.py:109 tools/patch_code.py:109 tools/patch_code.py:135 tools/patch_code.py:135	not built
+0x030834f4	27	overlay	0x030839c4	review	window 13/13, at same (aligned 0.99)	review:2	tools/patch_code.py:188 tools/patch_code.py:188	ok: identical code around it
+0x030834f8	27	overlay	0x030839c8	review	window 13/13, at same (aligned 0.99)	review:1	tools/patch_code.py:186	ok: identical code around it
+0x030834fc	85	overlay	0x03083d62	checked		checked:1	tools/patch_code.py:62	checked
+0x0308350e	27	overlay	0x030839de	checked		checked:2	tools/patch_code.py:189 tools/patch_code.py:189	checked
+0x03083550	27	overlay	0x03083a20	not built		not built:1	tools/patch_code.py:45	not built
+0x03083554	27	overlay	0x03083a24	not built		not built:2	tools/patch_code.py:111 tools/patch_code.py:137	not built
+0x03083770	32	overlay	0x03083c40	review	window 13/13, at same (aligned 0.99)	review:2	tools/patch_code.py:274 tools/patch_code.py:277	ok: identical code around it
+0x030838e2	27	overlay	0x03083db2	checked		checked:1	tools/patch_code.py:31	checked
+0x03083978	12	overlay	0x03083e48	review	window 13/13, at same (aligned 0.99)	checked:6 not built:3 review:1	tools/build_hook.py:32 tools/build_hook.py:33 tools/build_hook.py:34 tools/build_hook.py:35 tools/build_hook.py:36 tools/build_hook.py:37 hooks/amu_inq.S:4 hooks/d1_diag.S:5 hooks/h0_inquiry.S:8 hooks/h0a_pass.S:4	ok: identical code around it
+0x03083a06	104	overlay	0x030844ac	checked		checked:1	tools/patch_code.py:63	checked
+0x03083c0a	32	overlay	0x030840da	review	window 13/13, at same (aligned 0.99)	review:2	tools/patch_code.py:275 tools/patch_code.py:277	ok: identical code around it
+0x03083c1c	32	overlay	0x030840ec	checked		checked:2 comment:1	tools/patch_code.py:277 tools/patch_code.py:280 hooks/settings_game.S:3	checked
+0x03083c2e	32	overlay	0x030840fe	checked		checked:1	tools/patch_code.py:280	checked
+0x03083c40	32	overlay	0x03084110	checked		checked:1	tools/patch_code.py:280	checked
+0x03083c52	32	overlay	0x03084122	review	window 13/13, at same (aligned 0.99)	review:1	tools/patch_code.py:280	ok: identical code around it
+0x03083c64	32	overlay	0x03084134	review	window 13/13, at same (aligned 0.99)	review:1	tools/patch_code.py:280	ok: identical code around it
+0x03083c76	32	overlay	0x03084146	review	window 13/13, at same (aligned 0.99)	review:1	tools/patch_code.py:281	ok: identical code around it
+0x03083c88	32	overlay	0x03084158	review	window 13/13, at same (aligned 0.99)	review:1	tools/patch_code.py:281	ok: identical code around it
+0x03083c9a	32	overlay	0x0308416a	review	window 13/13, at same (aligned 0.99)	review:1	tools/patch_code.py:281	ok: identical code around it
+0x03083cac	32	overlay	0x0308417c	review	window 13/13, at same (aligned 0.99)	review:1	tools/patch_code.py:281	ok: identical code around it
+0x03083cbe	32	overlay	0x0308418e	review	window 13/13, at same (aligned 0.99)	review:1	tools/patch_code.py:281	ok: identical code around it
+0x03083cd0	32	overlay	0x030841a0	review	window 13/13, at same (aligned 0.99)	review:1	tools/patch_code.py:282	ok: identical code around it
+0x03083ce0	32	overlay	0x030841b0	review	window 13/13, at same (aligned 0.99)	review:2	tools/patch_code.py:277 tools/patch_code.py:282	ok: identical code around it
+0x03083f72	108	overlay	0x03084a98	checked		checked:1	tools/patch_code.py:64	checked
+0x03083fa4	109	overlay	0x030846e4	checked		checked:1	tools/patch_code.py:64	checked
+0x0308c8ee	33	overlay	0x0308d872	not built		comment:1 not built:3	tools/patch_code.py:235 tools/patch_code.py:235 game/device/gbprobe.c:280 game/device/timing.S:45	not built
+0x0308d86e	33	overlay	0x0308eae6	review	window 2/7, at same (aligned 0.85)	review:1	game/device/bgmusic.c:30	ok by hand: AudioClose; V1.8.3 adds a call at entry that resets the pre-decode state (0x03038128), same interface
+0x0308ddd0	33	overlay	0x0308f070	not built		comment:1 not built:3	tools/patch_code.py:234 tools/patch_code.py:234 game/device/gbprobe.c:280 game/device/timing.S:39	not built
+0x0308df12	33	overlay	0x0308f1b2	comment only		comment:1	game/device/np_stub.S:33	comment only
+0x0308df12	33	overlay	0x0308f1b2	checked		checked:2	tools/patch_code.py:264 tools/patch_code.py:264	checked
+0x0308df1a	33	overlay	0x0308f1ba	review	window 7/13, at same (aligned 0.90)	review:1	game/device/np_stub.S:36	ok by hand: player init "cmp r0, #6" path (PL_CMP6); a literal pool was inserted further down
+0x0308df26	33	overlay	0x0308f1c6	review	window 5/13, at same (aligned 0.90)	comment:1 review:1	game/device/np_stub.S:33 game/device/np_stub.S:35	ok by hand: player init folder count (PL_COUNT_STOCK): movs r0,#3; bl count; same
+0x0308df40	33	overlay	0x0308f21a	review	window 12/13, at same (aligned 0.90)	review:1	game/device/np_stub.S:34	ok by hand: player init after the folder count (PL_COUNT_SKIP); same
+0x0308dfb8	33	overlay	0x0308f292	comment only		comment:1	game/device/np_stub.S:52	comment only
+0x0308dfb8	33	overlay	0x0308f292	checked		checked:2	tools/patch_code.py:265 tools/patch_code.py:266	checked
+0x0308dfc4	33	overlay	0x0308f29e	review	window 12/13, at same (aligned 0.90)	review:1	game/device/np_stub.S:39	ok by hand: player init library path (PL_LIBRARY); same
+0x0308dffa	33	overlay	0x0308f2d6	review	window 13/13, at same (aligned 0.90)	comment:1 review:1	game/device/np_stub.S:38 game/device/np_stub.S:52	ok: identical code around it
+0x0308e014	33	overlay	0x0308f2f0	review	window 11/13, at same (aligned 0.90)	review:1	game/device/np_stub.S:37	ok by hand: player init after the seek (PL_SEEK_SKIP); same; V1.8.3 adds a clamp after it
