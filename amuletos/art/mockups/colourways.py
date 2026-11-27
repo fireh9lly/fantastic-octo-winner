@@ -6,7 +6,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFont, ImageChops
 import forms as m4
 from forms import m, m3, P, txt, tw, hx, mix, comp, finish, almond, U, BLACK, BOLD, SEMI, MED, MONO, leaf, star_pts
-from black_orange import hbar
+from black_orange import hbar, status as bo_status
 
 OUT = os.environ.get('OUT', 'out6')
 W, H = m.W, m.H
@@ -38,12 +38,7 @@ def C(c): return T[c] if isinstance(c, str) else c
 def canvas(): return Image.new('RGBA', (P(W), P(H)), T['bg'])
 
 def status(cv, vol=31, bat=0.7):
-    d = ImageDraw.Draw(cv, 'RGBA')
-    txt(d, 10, 9, '12:41', 8.5, T['text'], MONO)
-    txt(d, 248, 9, f'VOL {vol}', 8.5, T['dim'], MONO, h='r')
-    d.rectangle([P(256), P(5), P(279), P(13)], fill=T['panel'])
-    d.rectangle([P(256), P(5), P(256 + 23 * bat), P(13)], fill=T['bars'][0])
-    d.rectangle([P(280.5), P(7.5), P(282.5), P(10.5)], fill=T['dim'])
+    bo_status(cv, vol, bat, T['text'], T['dim'], T['panel'], T['bars'][0])
 
 def bar(cv, x0, y0, x1, y1, tex, k=0):
     hbar(cv, x0, y0, x1, y1, tex, T['bars'][k % len(T['bars'])], T['texs'][k % len(T['texs'])])
@@ -294,8 +289,8 @@ def colourway(name, tex):
 
 def look_page():
     use('black')
-    cv = menu('look', ['colours', 'highlight', 'creature', 'show creature', 'eye follows you', 'album art'], 0, 'lines',
-              crumb='SETTINGS', values=['black & orange', 'mix', 'moon  ›', 'on', 'on', 'square'], y0=74, pitch=22)
+    cv = menu('look', ['colours', 'highlight', 'show creature', 'eye follows you', 'album art'], 0, 'lines',
+              crumb='SETTINGS', values=['black & orange', 'mix', 'on', 'on', 'square'], y0=76, pitch=24)
     d = ImageDraw.Draw(cv, 'RGBA')
     txt(d, 14, 203, 'COLOURWAYS', 7, T['dim'], MONO, track=1)
     for i, k in enumerate(['black', 'paper', 'eva', 'aqua', 'candy']):
@@ -351,28 +346,27 @@ def gallery_choose():
     return cv
 
 # ---------------------------------------------------------------- creature picker with the whaleian
-def picker(sel=5):
+def picker(sel=2):
+    """new pet: the three species for now (more later)"""
     use('black')
     cv = canvas()
     d = ImageDraw.Draw(cv, 'RGBA')
     status(cv)
     txt(d, 14, 32, 'pick a creature', 16, T['text'])
-    ORANGE, CREAM, DEEP = T['body'], T['light'], T['deep']
-    picks = [('moon', None), ('arch', (ORANGE, CREAM, DEEP)), ('sapling', None), ('dome', (CREAM, ORANGE, DEEP)),
-             ('star', (ORANGE, CREAM, DEEP)), ('whaleian', None)]
-    for i, (k, cols) in enumerate(picks):
-        cx0, cy0 = 10 + (i % 3) * 96, 46 + (i // 3) * 86
+    for i, k in enumerate(['moon', 'sapling', 'whaleian']):
+        cx0, cy0 = 8 + i * 94, 48
         on = i == sel
-        if on: d.rectangle([P(cx0), P(cy0), P(cx0 + 92), P(cy0 + 82)], fill=T['panel'])
-        ccx, ccy = cx0 + 46, cy0 + 34
-        if k == 'moon': moon(cv, ccx, ccy, 22, 4, 'neutral', 1 if on else 0, (0, 0.3))
-        elif k == 'sapling': sapling(cv, ccx, ccy + 1, 23, 4, 'neutral', 1 if on else 0, (0.5, 0.3), (-0.5, 0.3))
-        elif k == 'whaleian': whale(cv, ccx, ccy + 2, 23, 4, 'neutral', 1 if on else 0, (0, 0.3))
-        else: m.creature(cv, k, ccx, ccy, 22, cols, opn=1 if on else 0, **({'bg': T['panel'] if on else T['bg']} if k == 'arch' else {}))
+        if on: d.rectangle([P(cx0), P(cy0), P(cx0 + 90), P(cy0 + 150)], fill=T['panel'])
+        ccx, ccy = cx0 + 45, cy0 + 64
+        if k == 'moon': moon(cv, ccx, ccy, 32, 4, 'neutral', 1 if on else 0, (0, 0.3))
+        elif k == 'sapling': sapling(cv, ccx, ccy + 2, 34, 4, 'neutral', 1 if on else 0, (0.5, 0.3), (-0.5, 0.3))
+        else: whale(cv, ccx, ccy + 2, 34, 4, 'neutral', 1 if on else 0, (0, 0.3))
         d = ImageDraw.Draw(cv, 'RGBA')
-        if on: d = bar(cv, cx0, cy0 + 66, cx0 + 92, cy0 + 82, 'dots')
-        txt(d, ccx, cy0 + 74, k, 11, T['bartext'] if on else T['dim'], BOLD, h='m')
-    txt(d, 14, 229, 'or none: hide the creature in Settings > Look', 8.5, T['dim'], MED)
+        if on: d = bar(cv, cx0, cy0 + 126, cx0 + 90, cy0 + 150, 'dots')
+        txt(d, ccx, cy0 + 138, k, 13, T['bartext'] if on else T['dim'], BOLD, h='m')
+        st = {'moon': 'from an egg', 'sapling': 'from a seed', 'whaleian': 'from a drop'}[k]
+        txt(d, ccx, cy0 + 112, st, 8, T['text'] if on else T['dim'], MED, h='m')
+    txt(d, 14, 226, 'grows on what you play · more species later', 8.5, T['dim'], MED)
     return cv
 
 QUADS = [('bright_calm', 74, 62, 'bright & calm'), ('bright_intense', 222, 62, 'bright & intense'),

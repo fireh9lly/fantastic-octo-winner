@@ -68,22 +68,22 @@ candy bowl, patchwork vinyl cubes, a neon resin table and sun-face cosmetics.
 
 - **Highlight on scrolling menus:** a plain rectangle in the highlight colour, printed in a darker shade with dots,
   diagonal lines or waves, after the candy bowl. Settings › Look › highlight:
-  - **mix** (default): each list gets one of the three at random;
+  - **mix** (default): each menu entry gets one of the three at random when it comes on screen. It keeps that one
+    while it stays visible and gets a new one after scrolling off and back;
   - dots, lines or waves: always that one;
   - plain: no texture.
-
-  Still open: whether mix picks again every time a screen opens, or keeps one per screen.
+- **Volume: no pop-up.** Turning the wheel only updates the volume bar in the status bar (a bar plus the number).
+  The battery gets its own small icon; in the first mock-ups the bar next to the number was the battery.
 - **The creature** ([the pet](#the-pet)) appears on most screens:
   - in the middle of the home screen;
   - in the corner of lists, looking at the highlighted row;
   - at the end of Now Playing's progress line, watching the playhead.
 
   Its eye looks where you point. Settings › Look can turn that off ("eye follows you") or hide the creature
-  ("show creature").
+  ("show creature"). Everything else about it is in Settings › Pet.
 - **Creatures take the colourway's colours.** It is the same creature through a different lens; the gallery does not
   record colours.
-- **Settings › Look rows:** colours, highlight, creature (opens the gallery), show creature, eye follows you,
-  album art (square or blob).
+- **Settings › Look rows:** colours, highlight, show creature, eye follows you, album art (square or blob).
 - **On the device:**
   - Blobs, bars, textures and fixed labels are pre-drawn images.
   - Text that changes (titles, artists, list rows) needs our own smooth text drawing, since the stock font is 1-bit.
@@ -91,7 +91,7 @@ candy bowl, patchwork vinyl cubes, a neon resin table and sun-face cosmetics.
   - The creature is drawn from small parts at paint time: body, belly pattern, feelers or crest, one eye per look
     direction. There is no image per combination.
   - Colourways are palette tables used when drawing, plus pre-drawn images per colourway. Flash room comes from
-    the [image audit](#step-6-themes-sleep-timer-adventures-extras): drawing the volume pop-up in code frees about
+    the [image audit](#step-6-themes-sleep-timer-adventures-extras): dropping the volume pop-up frees about
     14 MB.
 
 ---
@@ -414,8 +414,12 @@ pink, Black & orange, EVA-01, Light, Dark).
   | Leftover recording art: mic animation 310–323, MIC REC / LINE IN 116/117, record screen 107, mic icons 223/233/243 | 20 | 413 KB |
   | Leftover FM radio art: 7-segment digits + MHZ 294–305, dial 306–308, Manual/Preset 175/177 | 17 | 127 KB |
 
-  - **Drawing the volume pop-up in code** (one small ring + number, themed colours) frees ~14 MB: room for all six
-    themes several times over.
+  - **No volume pop-up** (decided 2026-11-27): the wheel only updates the status bar's volume bar. Its 101 images
+    (~14 MB) can go: room for all five colourways several times over.
+    - Stock (V1.8.3): `GetKey` (0x03063282) posts message 1, the volume overlay, when the wheel turns
+      (0x03063398–0x030633AE). It closes the overlay 300 ticks later (0x03063290–0x030632B8).
+    - Plan: stop posting message 1 and repaint only the status bar's volume. Where each screen paints message 1 is
+      still to trace.
   - The recording/radio screens themselves are empty modules (tasks 4, 5, 7 → modules 13, 28, 29 have no code), but
     check that no live code draws these ids before reusing their space.
 - Later: SD theme packs (`/_Themes/<name>/`) via a hook in stock's image loader.
@@ -459,6 +463,27 @@ pink, Black & orange, EVA-01, Light, Dark).
   - hold = stock power-off, unchanged.
 - Auto screen-off timer stays.
 
+**Hold Select to change what the wheel does** (owner's request, 2026-11-27):
+- The wheel alone sets the volume, everywhere. **Select held + wheel = fast scroll** in lists. Also worth having:
+  Select + wheel seeks on Now Playing (to confirm).
+- Fast scroll, proposed: a letter at a time in alphabetical lists, with a big letter on screen while scrolling (as
+  on 00s players); a page at a time in other lists (to confirm).
+- **The hardware allows it:** the face buttons share one resistor ladder (one at a time), but the wheel is a separate
+  quadrature encoder, so Select and the wheel can be read together ([HARDWARE.md](docs/HARDWARE.md)).
+- **Stock code blocks it** (V1.8.3, traced 2026-11-27):
+  - `GetKey` (0x03063282) only polls the wheel (0x03062D54: step counters 0x03024724 / 0x03024725, total
+    0x03024728) when no face-button event is in progress (flag word 0x03024840, bits 0–2 clear). Turns made while a
+    button is down wait in the counters.
+  - A wheel event also clears the button state (0x0302481C + 8, + 0x0C, + 0x20). Wheel events are always exactly
+    0x40000200 / 0x40000400, never combined with a button's code.
+- **Patch:** in `GetKey`, when the wheel has moved and the current ladder key (decoder 0x03062FA8) is Select,
+  return new events 0x40000202 / 0x40000402 (the wheel's code plus Select's bit) and keep Select's state. Screens
+  that don't know these events ignore them, so nothing changes the volume by accident.
+- **Select's own action moves to release.** Today it fires on press (e.g. playback options on Now Playing). With
+  the modifier, a tap (press and release with no wheel turn) runs it, and a hold with wheel turns doesn't. That
+  needs the key event types confirmed with a key-test screen: 0x40 is press and 0x30 repeat; release is not
+  confirmed yet.
+
 **Smaller extras:**
 - **Wheel click = play/pause.** The click is most likely the GPIO2 pin 5 key, which combines with face buttons.
   Confirm with a key-test screen.
@@ -475,13 +500,14 @@ This replaces the earlier "Peak" idea, which sulked when unfed, and its mock-ups
 
 A flat, symmetrical, one-eyed creature that eats the music you play and changes with it.
 - **It never gets hungry, upset or dies.** It only responds to what you listen to.
-- **Species** (pick one when starting a new pet; the mock-ups show six):
+- **Species** (pick one when starting a new pet):
   - **moon**: a disc split in two colours, thin legs, two feelers;
   - **whaleian**: a front-on whale standing on its tail with its fluke for feet, flippers, throat grooves on its
     belly and a spout. The player's mascot is a whale;
   - **sapling**: roots for feet and one trunk forking into two heads, one eye each. When you point, both heads look;
     on the forms screen they look at each other;
-  - **arch, dome, star**: drawn as adults only so far. Their young stages and five forms still need designing.
+  - To do: bring in more species. Arch, dome and star exist as adult sketches (`art/mockups/shapes.py`); each
+    needs three young stages and five adult forms.
 - **Growing up:** three young stages, then adult at **20 hours of listening**.
 
   | Species | Young stages |
@@ -494,8 +520,8 @@ A flat, symmetrical, one-eyed creature that eats the music you play and changes 
   dark ↔ bright):
   - Each track's listening time is added to that track's quadrant, using its mood scores in `/_Mood/`. Tracks
     with no score count as neutral.
-  - A quadrant with a clear lead decides the form; if none leads, the form is neutral. The threshold is still to be
-    tuned (for example 40 %).
+  - The leading quadrant decides the form if it has at least **30 %** of the listening; otherwise the form is
+    neutral.
   - Every species uses the same visual language, so the forms read alike across species:
 
   | Form | Look | Moon | Sapling | Whaleian |
@@ -508,7 +534,7 @@ A flat, symmetrical, one-eyed creature that eats the music you play and changes 
 
 - **Drifting:** an adult's form is decided again after **every 10 hours of listening**, from that block's quadrant
   shares. It changes in steps, not gradually, until you lock it in the gallery.
-- **Gallery** (Settings › Look › creature):
+- **Gallery** (Settings › Pet, then A):
   - One page per species; Left and Right switch species. Each page shows the species' eight forms (three young,
     five adult).
   - Forms you have met show the date you first met them. The others are silhouettes marked ???.
@@ -516,8 +542,8 @@ A flat, symmetrical, one-eyed creature that eats the music you play and changes 
   - A on a met form offers: **keep this form**, **start a new pet**, or back.
     - Keep this form: the pet takes that form and stops drifting until you pick again.
     - Start a new pet: opens the species picker; the new pet starts at its first stage.
-- **Pet page:** its name, stage or form, hours eaten, and what it ate as dots on a small mood map with each
-  quadrant's share. Where it sits in the menus is still open: Games, as planned for Peak, or Settings › Look.
+- **Pet page: Settings › Pet.** It shows the pet's name, stage or form, hours eaten, and what it ate as dots on a
+  small mood map with each quadrant's share. A opens the gallery; Start starts a new pet.
 - **On the device:**
   - Counting needs each track's quadrant when the track changes. Plan:
     - the PC mood tool also writes a compact lookup from a file's first cluster to its quadrant;

@@ -251,7 +251,8 @@ def pet_page():
     txt(d, mx, y1 + 7, 'DARK', 6.5, GREY, MONO, h='m', track=0.8)
     txt(d, x0 - 3, my, 'CALM', 6.5, GREY, MONO, h='r', track=0.5)
     txt(d, x1 + 3, my, 'INT.', 6.5, GREY, MONO, track=0.5)
-    txt(d, X, 222, 'each dot is a track it ate', 8.5, GREY, MED)
+    txt(d, X, 214, 'each dot is a track it ate', 8, GREY, MED)
+    txt(d, X, 229, 'A GALLERY · START NEW PET', 6.8, CREAM, MONO, track=0.4)
     return cv
 
 PICK = [('moon', 'moon'), ('arch', (ORANGE, CREAM, DEEP)), ('sapling', 'sapling'),

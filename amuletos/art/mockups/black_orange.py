@@ -17,13 +17,19 @@ m.PAPER = CREAM
 
 def canvas(bg=BG): return Image.new('RGBA', (P(W), P(H)), bg)
 
-def status(cv, vol=31, bat=0.7):
+def status(cv, vol=31, bat=0.7, text=None, dim=None, track=None, acc=None):
+    """clock left; volume bar + number (the wheel only ever updates this, no pop-up); battery icon"""
+    text, dim, track, acc = text or CREAM, dim or GREY, track or CHAR, acc or ORANGE
     d = ImageDraw.Draw(cv, 'RGBA')
-    txt(d, 10, 9, '12:41', 8.5, CREAM, MONO)
-    txt(d, 248, 9, f'VOL {vol}', 8.5, GREY, MONO, h='r')
-    d.rectangle([P(256), P(5), P(279), P(13)], fill=CHAR)
-    d.rectangle([P(256), P(5), P(256 + 23 * bat), P(13)], fill=ORANGE)
-    d.rectangle([P(280.5), P(7.5), P(282.5), P(10.5)], fill=GREY)
+    txt(d, 10, 9, '12:41', 8.5, text, MONO)
+    d.rectangle([P(184), P(7.3), P(186.6), P(10.7)], fill=dim)
+    d.polygon([(P(186.6), P(7.3)), (P(190), P(5.2)), (P(190), P(12.8)), (P(186.6), P(10.7))], fill=dim)
+    d.rectangle([P(195), P(7.5), P(239), P(10.5)], fill=track)
+    d.rectangle([P(195), P(7.5), P(195 + 44 * vol / 100), P(10.5)], fill=acc)
+    txt(d, 244, 9, str(vol), 8.5, text, MONO)
+    d.rectangle([P(264), P(5), P(282), P(13)], outline=dim, width=P(1))
+    d.rectangle([P(283), P(7.5), P(284.6), P(10.5)], fill=dim)
+    d.rectangle([P(265.8), P(6.8), P(265.8 + 14.4 * bat), P(11.2)], fill=dim)
 
 # ---------------------------------------------------------------- the highlight: a plain bar with a printed texture
 def hbar(cv, x0, y0, x1, y1, tex='dots', col=ORANGE, tcol=DEEP):
