@@ -336,7 +336,8 @@ def settings_game():
     (m32 0x0308294C: child text id, bl 0x0308215E) goes to the stub, which TaskSwitch(20)es for 0x110. The stub
     sits in the launch cases for tasks 21..31; the menu cases (32-bit offsets from 0x03083c40, index id - 0x7f) of
     every task 21..32 game now point at the task-20 case (0x030840DA, TaskSwitch(0x14)), in case the list is ever
-    reached another way (Settings page 7)."""
+    reached another way (Settings page 7). MoonletOS (2026-11-28): the stub also sends the root "Language" item
+    (0xF6, relabelled "Key Test" by tools/patch_text.py) to task 20 with the argument "KEYT": the key test."""
     T, AT, END, GAMES = 0x03083c40, 0x030840EC, 0x030841B0, 0x030840DA
     code, sym = assemble("settings_game", AT)
     assert AT + len(code) <= END, f"stub is {len(code)} B, room for {END - AT}"

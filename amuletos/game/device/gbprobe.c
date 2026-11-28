@@ -15,6 +15,8 @@
  * (-DAMU_TIMING=1); release builds leave it out (v0.3 release, owner: no test items in views).
  * Build 50: game sound (minigb_apu), paced by the sound output. Hold Select for 1.5 s to quit. No saves.
  * Build 53 (owner): no stats; the picture fills the screen height (266 x 240) in a DMG look (gb_scale.h).
+ * MoonletOS (2026-11-28): Settings > Key Test opens this module as the key test (keytest.c), told apart by its
+ * task argument.
  *
  * Memory (docs/HARDWARE.md "Game Boy probe"): the emulator state, the list and part of the page cache use
  * 0x03090cd0..0x0309FC90, which only the library builder (module 39) ever loads into; more cache pages use the
@@ -79,7 +81,9 @@ extern char _text_end[];             /* module.ld: end of this module's code */
 #define ROWS     7
 #define NLIST    24
 
-enum { ST_LIST, ST_RUN, ST_ERR, ST_QUIT, ST_TIMING };   /* build 55: no card / folder / games are list messages (S.emsg) */
+enum { ST_LIST, ST_RUN, ST_ERR, ST_QUIT, ST_TIMING, ST_KEYS };   /* build 55: no card / folder / games are list messages (S.emsg) */
+#define KEYTEST_TAG 0x5459454Bu                         /* "KEYT": task argument from Settings (hooks/settings_game.S) */
+#define TASK_ARG    (*(volatile uint32_t *)0x03005984u) /* TaskSwitch copies its 28-byte argument here */
 
 typedef struct {
     uint32_t first, len;
@@ -513,10 +517,15 @@ static void build_list(void)
 
 static void redraw(void) { S.dirty = 1; SendMsg(MSG_DRAW); }
 
+static void keys_init(void);
+static int32_t keys_service(void);
+static void keys_paint(void);
+
 static void init(void)
 {
     uint8_t *p = (uint8_t *)&S;
     for (unsigned i = 0; i < sizeof S; i++) p[i] = 0;
+    if (TASK_ARG == KEYTEST_TAG) { keys_init(); GameEnterA(); GameEnterB(); redraw(); return; }   /* Settings > Key Test */
     if (!S8(0x1F)) S.emsg = "No SD card";
     else {
         if (S8(0x0E) != 4) { S8(0x0E) = 4; DiskSwitch(4); }
@@ -672,6 +681,7 @@ static void wheel(int d)
 static int32_t service(void)
 {
     if (S.state == ST_QUIT) return -1;
+    if (S.state == ST_KEYS) return keys_service();
     if (S.state == ST_RUN) {
         for (int n = 0; n < 8; n++) {
             uint32_t ev = GetKey(); if (!ev) break; S.last_ev = ev;
@@ -750,6 +760,7 @@ static void timing_paint(void)
 
 static void paint(void)
 {
+    if (S.state == ST_KEYS) { keys_paint(); return; }
     if (!GetMsg(MSG_DRAW) && !S.dirty) return;
     S.dirty = 0;
     if (S.state == ST_RUN || S.state == ST_QUIT) return;
@@ -791,6 +802,8 @@ static void paint(void)
     }
     COLOR = old;
 }
+
+#include "keytest.c"
 
 __attribute__((section(".desc"), used))
 const win_desc_t gb_desc = { 0, 0, tick, service, paint, init, deinit };

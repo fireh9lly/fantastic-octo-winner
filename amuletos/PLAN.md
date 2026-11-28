@@ -493,14 +493,19 @@ pink, Black & orange, EVA-01, Light, Dark).
   Screens that don't know these events ignore them, so nothing changes the volume by accident.
 - **Select's and Start's own actions move to release.** Today they fire on press (e.g. Select opens playback
   options on Now Playing). With the modifiers, a tap (press and release with no wheel turn) runs the action, and a
-  hold with wheel turns doesn't. That needs the key event types confirmed with a key-test screen: 0x40 is press and
-  0x30 repeat; release is not confirmed yet.
+  hold with wheel turns doesn't. Known event types: 0x40 press, 0x30 repeat, 0x20 hold (hold B = 0x20000040, seen
+  on Now Playing in amuletOS build 49). A release event is not confirmed yet.
+- **Key test (built 2026-11-28, build 15; checklist `docs/TEST_KEYS.md`):** Settings › Key Test. The root
+  "Language" row is relabelled (`tools/patch_text.py`; English is forced at boot, so it did nothing lasting) and
+  `hooks/settings_game.S` opens the Games module with the task argument "KEYT" (`game/device/keytest.c`). It shows
+  the held face button and raw ladder reading, the click key, wheel events (and how many came while a face button
+  was held), stock's waiting wheel steps, and the last four GetKey events. Hold B (or B three times) to leave.
 - Stock's own lists (library browser, Settings) scroll in stock code: the scroll margin and the wheel modifiers
   need either a patch to their list logic or our own list screens.
 
 **Smaller extras:**
 - **Wheel click = play/pause.** The click is most likely the GPIO2 pin 5 key, which combines with face buttons.
-  Confirm with a key-test screen.
+  The key test (Settings › Key Test) shows it.
 - **Lyrics view:** stock already contains `MusicLrc.c` (.lrc); surface it as a Now Playing view.
 - **Per-output volume:** 3.5 mm 61 mW vs 4.4 mm 137 mW; jack detect GPIO2 pin 8 / GPIO0 pin 13. Remembered volume
   per jack plus a safe start volume.

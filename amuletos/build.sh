@@ -64,6 +64,9 @@ step "code: slot-2 helpers, Now Playing overlay, menu extensions, patches, modul
 "$PY" tools/build_module.py "$B/d1h_np_bz" "$B/d1h_np_bz_pl" game/device/playlists.c --module 86 --in-place --desc pl_desc --data-max 0xD00 >> "$LOG" 2>&1
 "$PY" tools/build_module.py "$B/d1h_np_bz_pl" "$B/d1h_np_bz_pl_gb" game/device/gbprobe.c --module 87 --span 0x968bc:0xa68c0 --desc gb_desc --opt O2 --data-max 0xD00 >> "$LOG" 2>&1
 
+step "text: Settings > Language becomes Key Test (tools/patch_text.py)"
+"$PY" tools/patch_text.py "$B/d1h_np_bz_pl_gb" >> "$LOG"
+
 step "pack: art, stamp $STAMP"
 "$PY" tools/build_reskin.py "$B/d1h_np_bz_pl_gb" "$B/art_pocket_all" "$STAMP" --out "$B/v060" >> "$LOG"
 
